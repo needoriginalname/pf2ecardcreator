@@ -108,6 +108,37 @@ button:hover,
   margin: 0 0 8px;
 }
 
+.preview-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.preview-toggle button {
+  padding: 6px 12px;
+  border: 1px solid var(--accent-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.preview-toggle button.active {
+  background: var(--accent);
+  color: white;
+}
+
+.preview-toggle button:hover {
+  background: var(--accent-bg);
+}
+
+.deck-backs {
+  display: none;
+  margin-top: 20px;
+}
+
 .card-preview {
   border: 1px solid #999;
   border-radius: 8px;
@@ -134,6 +165,10 @@ button:hover,
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.mtg-card-back {
+  gap: 0;
 }
 
 .mtg-heading {
@@ -179,10 +214,17 @@ button:hover,
   justify-content: center;
 }
 
+.mtg-image-back {
+  height: auto;
+  min-height: 0;
+  flex: 1;
+}
+
 .mtg-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
+  background: #fff;
 }
 
 .mtg-image-empty {
@@ -204,6 +246,9 @@ button:hover,
 
 .mtg-body p {
   margin: 4px 0;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  text-align: left;
 }
 
 .card-heading,.card-meta { display: none; }
@@ -217,6 +262,13 @@ button:hover,
 
 .deck-grid {
   min-height: 100px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.print-pages {
+  display: none;
 }
 
 .empty {
@@ -237,8 +289,27 @@ button:hover,
 }
 
 @media print {
+  @page {
+    margin: 0.25in;
+  }
+
+  :root {
+    --text: #000;
+    --text-h: #000;
+    --bg: #fff;
+    --border: #000;
+    --code-bg: #f0f0f0;
+    --accent: #aa3bff;
+    --accent-bg: rgba(170, 59, 255, 0.1);
+    --accent-border: rgba(170, 59, 255, 0.5);
+    --social-bg: rgba(244, 243, 236, 0.5);
+    --shadow: none;
+  }
+
   body {
     margin: 0;
+    background: white !important;
+    color: black !important;
   }
 
   .app-shell,
@@ -266,25 +337,105 @@ button:hover,
     display: none !important;
   }
 
+  .top-bar,
+  .builder-grid,
+  .note,
+  .screen-deck-grid {
+    display: none;
+  }
+
+  .deck-section h2 {
+    display: none;
+  }
+
+  .print-pages {
+    display: block;
+  }
+
   .card-preview {
     page-break-inside: avoid;
-    margin-bottom: 10px;
-    border: 1px solid #000;
+    margin: 0;
+    border: none;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .print-slot-empty {
+    visibility: hidden;
   }
 
   .mtg-card {
     width: 2.48in;
     height: 3.46in;
-    margin: 0.05in;
-    display: inline-flex;
+    display: inline-block;
     page-break-inside: avoid;
     box-shadow: none;
   }
 
-  .deck-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.2in;
+  .print-page {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .print-page:first-child {
+    break-before: auto;
+    page-break-before: auto;
+  }
+
+  .print-deck-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 2.48in);
+    grid-template-rows: repeat(3, 3.46in);
+    gap: 0.1in;
+    justify-content: center;
+    align-content: start;
+    min-height: auto;
   }
 }
 
+.crop-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.crop-container {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 600px;
+  width: 90%;
+}
+
+.crop-area {
+  position: relative;
+  height: 400px;
+  margin: 20px 0;
+}
+
+.crop-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.crop-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.crop-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
