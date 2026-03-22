@@ -1,26 +1,16 @@
-export const initialCard = {
+import { createEmptyRichTextValue } from '../utils/richText.jsx'
+
+export const createInitialCard = () => ({
   type: 'Spell',
-  name: '',
+  name: createEmptyRichTextValue(),
   level: '1',
   rarity: 'Common',
-  traits: '',
+  traits: createEmptyRichTextValue(),
   actionIcon: 'A',
-  actionCustom: '',
+  actionCustom: createEmptyRichTextValue(),
   school: 'Evocation',
-  description: '',
+  description: createEmptyRichTextValue(),
   details: '',
   image: '',
   imageBack: '',
-  nameColor: '#0b0b0a',
-  nameFont: '',
-  nameBold: true,
-  nameItalic: false,
-  traitsColor: '#333333',
-  traitsFont: '',
-  traitsBold: false,
-  traitsItalic: true,
-  actionTextColor: '#2a2a2a',
-  actionTextFont: '',
-  actionTextBold: true,
-  actionTextItalic: false,
-}
+})

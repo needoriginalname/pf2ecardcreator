@@ -1,4 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  MdDelete,
+  MdKeyboardDoubleArrowLeft,
+  MdKeyboardDoubleArrowRight,
+} from 'react-icons/md'
 import CardBack from './CardBack'
 import CardFace from './CardFace'
 
@@ -85,14 +90,32 @@ function DeckCardSlot({
       onPointerCancel={onPointerCancel}
     >
       <div className={`deck-card-controls ${isControlsVisible ? 'visible' : ''}`}>
-        <button type="button" className="deck-card-control" onClick={() => onDuplicateBefore(index)}>
-          +←
+        <button
+          type="button"
+          className="deck-card-control"
+          aria-label="Copy to slot before"
+          title="Copy to slot before"
+          onClick={() => onDuplicateBefore(index)}
+        >
+          <MdKeyboardDoubleArrowLeft />
         </button>
-        <button type="button" className="deck-card-control danger" onClick={() => onDelete(card.id)}>
-          ×
+        <button
+          type="button"
+          className="deck-card-control danger"
+          aria-label="Delete card"
+          title="Delete card"
+          onClick={() => onDelete(card.id)}
+        >
+          <MdDelete />
         </button>
-        <button type="button" className="deck-card-control" onClick={() => onDuplicateAfter(index)}>
-          →+
+        <button
+          type="button"
+          className="deck-card-control"
+          aria-label="Copy to slot after"
+          title="Copy to slot after"
+          onClick={() => onDuplicateAfter(index)}
+        >
+          <MdKeyboardDoubleArrowRight />
         </button>
       </div>
 

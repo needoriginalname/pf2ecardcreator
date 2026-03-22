@@ -1,76 +1,27 @@
-import { FONT_OPTIONS } from '../constants/fonts'
-
-function StyleSection({ title, prefix, card, onChange }) {
-  return (
-    <details className="inline-style-panel">
-      <summary>
-        <span className="inline-style-title">{title} appearance</span>
-      </summary>
-      <div className="style-grid">
-        <div>
-          <span className="field-label">Font color</span>
-          <input type="color" value={card[`${prefix}Color`]} onChange={onChange(`${prefix}Color`)} />
-        </div>
-
-        <div>
-          <span className="field-label">Font</span>
-          <input
-            type="text"
-            list={`${prefix}-font-options`}
-            value={card[`${prefix}Font`]}
-            onChange={onChange(`${prefix}Font`)}
-            placeholder="Search fonts"
-          />
-          <datalist id={`${prefix}-font-options`}>
-            {FONT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value} />
-            ))}
-          </datalist>
-        </div>
-
-        <div className="style-toggle">
-          <span>Bold</span>
-          <input
-            id={`${prefix}-bold`}
-            type="checkbox"
-            checked={card[`${prefix}Bold`]}
-            onChange={onChange(`${prefix}Bold`)}
-          />
-        </div>
-
-        <div className="style-toggle">
-          <span>Italic</span>
-          <input
-            id={`${prefix}-italic`}
-            type="checkbox"
-            checked={card[`${prefix}Italic`]}
-            onChange={onChange(`${prefix}Italic`)}
-          />
-        </div>
-      </div>
-    </details>
-  )
-}
+import RichTextEditor from './RichTextEditor'
 
 function CardForm({
   card,
   formId,
+  onActionTextChange,
   onChange,
+  onDescriptionChange,
   onImageChange,
+  onNameChange,
   onSubmit,
+  onTraitsChange,
   onClearDeck,
 }) {
   return (
     <form id={formId} className="card-form" onSubmit={onSubmit} aria-label="Card editor">
       <div className="form-field">
         <span className="field-label">Name</span>
-        <StyleSection title="Name" prefix="name" card={card} onChange={onChange} />
-        <input
-          id="card-name"
+        <RichTextEditor
           value={card.name}
-          onChange={onChange('name')}
+          onChange={onNameChange}
           placeholder="Fireball"
-          required
+          compact
+          singleLine
         />
       </div>
 
@@ -96,12 +47,12 @@ function CardForm({
 
       <div className="form-field">
         <span className="field-label">Traits</span>
-        <StyleSection title="Traits" prefix="traits" card={card} onChange={onChange} />
-        <input
-          id="card-traits"
+        <RichTextEditor
           value={card.traits}
-          onChange={onChange('traits')}
+          onChange={onTraitsChange}
           placeholder="Evocation, Fire"
+          compact
+          singleLine
         />
       </div>
 
@@ -119,26 +70,18 @@ function CardForm({
 
       <div className="form-field">
         <span className="field-label">Custom action text</span>
-        <StyleSection title="Custom action text" prefix="actionText" card={card} onChange={onChange} />
-        <input
-          id="card-action-custom"
+        <RichTextEditor
           value={card.actionCustom}
-          onChange={onChange('actionCustom')}
+          onChange={onActionTextChange}
           placeholder="e.g. 1 action, Immediate"
-          disabled={!!card.actionIcon}
+          compact
+          singleLine
         />
       </div>
 
       <div className="form-field">
         <span className="field-label">Description</span>
-        <textarea
-          id="card-description"
-          value={card.description}
-          onChange={onChange('description')}
-          rows="4"
-          placeholder="Effect text"
-          wrap="soft"
-        />
+        <RichTextEditor value={card.description} onChange={onDescriptionChange} placeholder="Effect text" />
       </div>
 
       <div className="form-actions">

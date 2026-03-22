@@ -1,26 +1,23 @@
 import { getActionDisplay } from '../utils/cardDisplay'
-import { getFontFamily } from '../constants/fonts'
-
-const getTextStyle = (prefix, card) => ({
-  color: card[`${prefix}Color`],
-  fontFamily: getFontFamily(card[`${prefix}Font`]) === 'inherit' ? undefined : getFontFamily(card[`${prefix}Font`]),
-  fontWeight: card[`${prefix}Bold`] ? 700 : 400,
-  fontStyle: card[`${prefix}Italic`] ? 'italic' : 'normal',
-})
+import {
+  getRichTextPlainText,
+  isRichTextEmpty,
+  renderInlineRichText,
+  renderRichText,
+} from '../utils/richText.jsx'
 
 function CardFace({ card, imageAlt = 'Card art' }) {
-  const hasCustomActionText = Boolean(card.actionCustom?.trim())
+  const hasCustomActionText = !card.actionIcon && !isRichTextEmpty(card.actionCustom)
+  const nameText = getRichTextPlainText(card.name)
 
   return (
     <div className="mtg-card">
       <div className="mtg-heading">
-        <div className="mtg-name" style={getTextStyle('name', card)}>
-          {card.name || 'Name Here'}
+        <div className="mtg-name">
+          {nameText ? renderInlineRichText(card.name) : 'Name Here'}
         </div>
-        <div className={`mtg-level ${card.actionCustom?.trim() ? 'custom' : 'pf2e-action-icon'}`}>
-          <span style={hasCustomActionText ? getTextStyle('actionText', card) : undefined}>
-            {getActionDisplay(card)}
-          </span>
+        <div className={`mtg-level ${hasCustomActionText ? 'custom' : 'pf2e-action-icon'}`}>
+          {hasCustomActionText ? renderInlineRichText(card.actionCustom) : getActionDisplay(card)}
         </div>
       </div>
       <div className="mtg-image">
@@ -30,12 +27,11 @@ function CardFace({ card, imageAlt = 'Card art' }) {
           <div className="mtg-image-empty">Upload an image</div>
         )}
       </div>
-      <div className="mtg-traits" style={getTextStyle('traits', card)}>
-        {card.traits || 'Traits...'}
+      <div className="mtg-traits">
+        {isRichTextEmpty(card.traits) ? 'Traits...' : renderInlineRichText(card.traits)}
       </div>
       <div className="mtg-body">
-        <p>{card.description || 'Main effect text...'}</p>
-        {/* <p>{card.details || 'Range, duration, damage, etc.'}</p> */}
+        {isRichTextEmpty(card.description) ? <p>Main effect text...</p> : renderRichText(card.description)}
       </div>
     </div>
   )

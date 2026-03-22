@@ -4,18 +4,19 @@ import CardForm from './components/CardForm'
 import CropModal from './components/CropModal'
 import DeckSection from './components/DeckSection'
 import PreviewPanel from './components/PreviewPanel'
-import { initialCard } from './constants/card'
+import { createInitialCard } from './constants/card'
 import { getCardSummary } from './utils/cardDisplay'
+import { getRichTextPlainText } from './utils/richText.jsx'
 import { getCroppedImg } from './utils/imageCrop'
 
 const CARD_FORM_ID = 'card-editor-form'
 const createDeckCard = (cardData) => ({
-  ...cardData,
+  ...structuredClone(cardData),
   id: crypto.randomUUID(),
 })
 
 function App() {
-  const [card, setCard] = useState(initialCard)
+  const [card, setCard] = useState(createInitialCard)
   const [deck, setDeck] = useState([])
   const [showCropModal, setShowCropModal] = useState(false)
   const [crop, setCrop] = useState({ x: 0, y: 0 })
@@ -77,9 +78,9 @@ function App() {
   }
 
   const addCard = () => {
-    if (!card.name.trim()) return
+    if (!getRichTextPlainText(card.name)) return
     setDeck((prev) => [...prev, createDeckCard(card)])
-    setCard(initialCard)
+    setCard(createInitialCard())
     setPreviewBack(false)
   }
 
@@ -124,7 +125,7 @@ function App() {
 
   const mailto = `mailto:?subject=PF2e card deck&body=${encodeURIComponent(
     `Hey,%0A%0Acheck out my PF2e cards:%0A${deck
-      .map((entry) => `${entry.type}: ${entry.name} (Lvl ${entry.level})`)
+      .map((entry) => `${entry.type}: ${getRichTextPlainText(entry.name)} (Lvl ${entry.level})`)
       .join('%0A')}`
   )}`
 
@@ -139,11 +140,23 @@ function App() {
         <CardForm
           card={card}
           formId={CARD_FORM_ID}
+          onActionTextChange={(value) => {
+            setCard((prev) => ({ ...prev, actionCustom: value }))
+          }}
           onChange={onChange}
+          onDescriptionChange={(value) => {
+            setCard((prev) => ({ ...prev, description: value }))
+          }}
           onImageChange={onImageChange}
+          onNameChange={(value) => {
+            setCard((prev) => ({ ...prev, name: value }))
+          }}
           onSubmit={(event) => {
             event.preventDefault()
             addCard()
+          }}
+          onTraitsChange={(value) => {
+            setCard((prev) => ({ ...prev, traits: value }))
           }}
           onClearDeck={clearDeck}
         />

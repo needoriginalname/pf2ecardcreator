@@ -1,12 +1,12 @@
+import { getRichTextPlainText } from './richText.jsx'
+
 export const getActionDisplay = (card) => {
-
   if (card.actionIcon) return card.actionIcon
-
-  if (card.actionCustom?.trim()) return card.actionCustom.trim()
-  return  ''
+  return getRichTextPlainText(card.actionCustom)
 }
 
 export const getCardSummary = (card) => {
-  if (!card.name.trim()) return 'Add a card name to see the preview'
-  return `${card.type} • ${card.name} (Lvl ${card.level})`
+  const name = getRichTextPlainText(card.name)
+  if (!name) return 'Add a card name to see the preview'
+  return `${card.type} • ${name} (Lvl ${card.level})`
 }

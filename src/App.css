@@ -81,6 +81,83 @@
   color: #33402b;
 }
 
+.rich-text-editor {
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.rich-text-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px;
+  border-bottom: 1px solid #e2e2e2;
+  background: #f7f7f7;
+}
+
+.rich-text-toolbar-button {
+  min-width: 30px;
+  min-height: 30px;
+  padding: 4px 0px;
+  border: 0
+}
+
+.rich-text-toolbar-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.rich-text-font-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  margin-left: 8px;
+  font-size: 0.82rem;
+  color: #33402b;
+  flex-direction: row;
+  white-space: nowrap;
+}
+
+.rich-text-font-control span {
+  padding-right: 10px;
+}
+
+.rich-text-toolbar-select {
+  min-height: 30px;
+  min-width: 160px;
+  margin-top: 0;
+  padding: 4px 8px;
+}
+
+.rich-text-editable {
+  min-height: 120px;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.rich-text-editor.compact .rich-text-toolbar {
+  padding: 6px;
+}
+
+.rich-text-editor.compact .rich-text-editable {
+  min-height: 44px;
+  padding: 8px 10px;
+}
+
+.rich-text-editable p {
+  margin: 0 0 8px;
+}
+
+.rich-text-editable p:last-child {
+  margin-bottom: 0;
+}
+
 .action-icon-select {
   position: relative;
   margin-top: 5px;
@@ -139,93 +216,17 @@
   margin-top: 4px;
 }
 
-.action-icon-select-option.selected,
+/* .action-icon-select-option.selected,
 .action-icon-select-option:hover,
 .action-icon-select-trigger:hover {
   border-color: var(--accent-border);
   background: var(--accent-bg);
   color: var(--accent);
-}
+} */
 
 .action-icon-glyph {
   font-size: 1.2em;
   line-height: 1;
-}
-
-.inline-style-panel {
-  margin-top: 8px;
-  padding: 0;
-  border: 1px solid #d8ddd5;
-  border-radius: 10px;
-  background: linear-gradient(180deg, #fbfcf8 0%, #f4f6ef 100%);
-  overflow: hidden;
-}
-
-.inline-style-panel summary {
-  cursor: pointer;
-  font-weight: 600;
-  list-style: none;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px;
-}
-
-.inline-style-panel summary::-webkit-details-marker {
-  display: none;
-}
-
-.inline-style-panel[open] summary {
-  border-bottom: 1px solid #d8ddd5;
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.inline-style-title {
-  color: #25301f;
-}
-
-.inline-style-hint {
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: #5c6955;
-}
-
-.style-grid {
-  padding: 12px;
-  display: grid;
-  grid-template-columns: minmax(110px, 140px) minmax(150px, 1fr) auto auto;
-  gap: 12px;
-  align-items: end;
-}
-
-.style-grid label {
-  margin-bottom: 0;
-}
-
-.style-grid label:not(.style-toggle) {
-  font-size: 0.86rem;
-  color: #33402b;
-}
-
-.style-grid input[type='color'] {
-  height: 42px;
-  padding: 4px;
-  background: #fff;
-}
-
-.style-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  color: #2d3728;
-  padding-bottom: 10px;
-}
-
-.style-toggle input {
-  margin: 0;
-  width: auto;
 }
 
 .row-gap {
@@ -247,11 +248,11 @@
 
 button,
 .button {
-  border: 1px solid var(--accent-border);
+  border: 1px solid; 
   border-radius: 6px;
   padding: 9px 12px;
-  background: var(--accent-bg);
-  color: var(--accent);
+  /* background: var(--accent-bg); */
+  /* color: var(--accent); */
   cursor: pointer;
   font-weight: 600;
   text-decoration: none;
@@ -262,7 +263,7 @@ button,
 
 button:hover,
 .button:hover {
-  background: var(--accent);
+  /* background: var(--accent); */
   color: #fff;
 }
 
@@ -279,22 +280,22 @@ button:hover,
 
 .preview-toggle button {
   padding: 6px 12px;
-  border: 1px solid var(--accent-border);
+  /* border: 1px solid var(--accent-border); */
   border-radius: 4px;
   background: transparent;
-  color: var(--accent);
+  /* color: var(--accent); */
   cursor: pointer;
   font-size: 0.9rem;
   transition: all 0.2s;
 }
 
 .preview-toggle button.active {
-  background: var(--accent);
+  /* background: var(--accent); */
   color: white;
 }
 
 .preview-toggle button:hover {
-  background: var(--accent-bg);
+  /* background: var(--accent-bg); */
 }
 
 .deck-backs {
@@ -338,6 +339,7 @@ button:hover,
   display: flex;
   flex-direction: column;
   gap: var(--card-gap);
+  overflow: hidden;
 }
 
 .screen-deck-grid .card-preview {
@@ -385,6 +387,8 @@ button:hover,
   justify-content: space-between;
   font-weight: 700;
   font-size: var(--card-heading-size);
+  gap: calc(4px * var(--card-font-scale));
+  overflow: hidden;
 }
 
 .mtg-name {
@@ -392,6 +396,12 @@ button:hover,
   font-size: var(--card-name-size);
   font-weight: 700;
   color: #0b0b0a;
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
 }
 
 .mtg-level {
@@ -401,6 +411,9 @@ button:hover,
   letter-spacing: 0.02em;
   text-align: right;
   line-height: 1;
+  flex: 0 1 34%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .pf2e-action-icon {
@@ -447,12 +460,19 @@ button:hover,
   font-size: var(--card-meta-size);
   font-style: italic;
   color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
 }
 
 .mtg-body {
   font-size: var(--card-body-size);
   line-height: 1.25;
   color: #222;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .mtg-body p {
@@ -460,6 +480,7 @@ button:hover,
   white-space: pre-wrap;
   overflow-wrap: break-word;
   text-align: left;
+  overflow: hidden;
 }
 
 .card-heading,.card-meta { display: none; }
@@ -530,6 +551,11 @@ button:hover,
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
 }
 
+.deck-card-control svg {
+  width: 18px;
+  height: 18px;
+}
+
 .deck-card-control:hover {
   background: #fff;
 }
@@ -558,15 +584,6 @@ button:hover,
     grid-template-columns: 1fr;
   }
 
-  .style-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .inline-style-panel summary {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
   .card-form .form-actions {
     display: none;
   }
@@ -587,10 +604,11 @@ button:hover,
     --bg: #fff;
     --border: #000;
     --code-bg: #f0f0f0;
-    --accent: #aa3bff;
+    /*--accent: #aa3bff;
     --accent-bg: rgba(170, 59, 255, 0.1);
     --accent-border: rgba(170, 59, 255, 0.5);
     --social-bg: rgba(244, 243, 236, 0.5);
+    */
     --shadow: none;
   }
 
