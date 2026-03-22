@@ -6,6 +6,8 @@ import {
 } from 'react-icons/md'
 import CardBack from './CardBack'
 import CardFace from './CardFace'
+import { getRichTextPlainText } from '../utils/richText.jsx'
+import { hasCustomBackLayout } from '../utils/cardLayout'
 
 const BASE_CARD_WIDTH_IN = 2.48
 const BASE_CARD_HEIGHT_IN = 3.46
@@ -75,6 +77,8 @@ function DeckCardSlot({
   onPointerUp,
   onPointerCancel,
 }) {
+  const cardName = getRichTextPlainText(card.name) || 'Card'
+
   return (
     <article
       className={`card-preview small deck-card-slot ${isDragging ? 'dragging' : ''}`}
@@ -119,7 +123,7 @@ function DeckCardSlot({
         </button>
       </div>
 
-      <CardFace card={card} imageAlt={`${card.name} art`} />
+      <CardFace card={card} imageAlt={`${cardName} art`} />
     </article>
   )
 }
@@ -158,7 +162,7 @@ function DeckSection({
     () => frontPrintPages.map((page) => mirrorPageForBackPrint(page, printLayout.columns)),
     [frontPrintPages, printLayout.columns]
   )
-  const hasAnyBacks = deck.some((card) => card.imageBack)
+  const hasAnyBacks = deck.some(hasCustomBackLayout)
 
   const clearLongPress = () => {
     if (longPressRef.current) {
@@ -267,7 +271,10 @@ function DeckSection({
               {page.map((card, slotIndex) =>
                 card ? (
                   <article key={card.id} className="card-preview small">
-                    <CardFace card={card} imageAlt={`${card.name} art`} />
+                    <CardFace
+                      card={card}
+                      imageAlt={`${getRichTextPlainText(card.name) || 'Card'} art`}
+                    />
                   </article>
                 ) : (
                   <article
@@ -293,11 +300,15 @@ function DeckSection({
                 }}
               >
                 {page.map((card, slotIndex) =>
-                  card ? (
-                    <article key={`${card.id}-back`} className="card-preview small">
-                      <CardBack image={card.imageBack} alt={`${card.name} back`} emptyLabel="" />
-                    </article>
-                  ) : (
+                card ? (
+                  <article key={`${card.id}-back`} className="card-preview small">
+                    <CardBack
+                      card={card}
+                      alt={`${getRichTextPlainText(card.name) || 'Card'} back`}
+                      emptyLabel=""
+                    />
+                  </article>
+                ) : (
                     <article
                       key={`back-empty-${pageIndex}-${slotIndex}`}
                       className="card-preview small print-slot-empty"

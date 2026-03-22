@@ -32,7 +32,12 @@ function App() {
   const summary = useMemo(() => getCardSummary(card), [card])
 
   const onChange = (field) => (event) => {
-    const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+    const value =
+      event.target.type === 'checkbox'
+        ? event.target.checked
+        : event.target.type === 'range'
+          ? Number(event.target.value)
+          : event.target.value
     setCard((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -68,6 +73,8 @@ function App() {
       const croppedImage = await getCroppedImg(tempImage, croppedAreaPixels)
       if (cropMode === 'front') {
         setCard((prev) => ({ ...prev, image: croppedImage }))
+      } else if (cropMode === 'frontBackground') {
+        setCard((prev) => ({ ...prev, frontBackgroundImage: croppedImage }))
       } else {
         setCard((prev) => ({ ...prev, imageBack: croppedImage }))
       }

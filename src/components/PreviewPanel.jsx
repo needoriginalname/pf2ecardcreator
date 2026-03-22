@@ -6,11 +6,25 @@ function PreviewPanel({ card, summary, previewBack, setPreviewBack }) {
     <aside className="preview-panel" aria-label="Card preview">
       <h2>Live preview</h2>
       <p>{summary}</p>
+      <div className="preview-toggle">
+        <button
+          type="button"
+          className={!previewBack ? 'active' : ''}
+          onClick={() => setPreviewBack(false)}
+        >
+          Front
+        </button>
+        <button
+          type="button"
+          className={previewBack ? 'active' : ''}
+          onClick={() => setPreviewBack(true)}
+        >
+          Back
+        </button>
+      </div>
 
       <article className="card-preview" role="region" aria-live="polite">
-        <CardFace card={card} />
-
-        {card.imageBack && <CardBack image={card.imageBack} />}
+        {previewBack ? <CardBack card={card} /> : <CardFace card={card} />}
       </article>
     </aside>
   )

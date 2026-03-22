@@ -75,7 +75,7 @@ function FontFamilySelect() {
   const selectedFont = Editor.marks(editor)?.fontFamily ?? 'Default'
 
   return (
-    <label className="rich-text-font-control">
+    <div className="rich-text-font-control">
       <span>Font</span>
       <select
         className="rich-text-toolbar-select"
@@ -88,7 +88,7 @@ function FontFamilySelect() {
           </option>
         ))}
       </select>
-    </label>
+    </div>
   )
 }
 

@@ -11,6 +11,8 @@ function CropModal({
   onCancel,
   onConfirm,
 }) {
+  const usesFullCardAspect = cropMode === 'back' || cropMode === 'frontBackground'
+
   return (
     <div className="crop-modal">
       <div className="crop-container">
@@ -20,7 +22,7 @@ function CropModal({
             image={tempImage}
             crop={crop}
             zoom={zoom}
-            aspect={cropMode === 'back' ? 2.48 / 3.46 : 2.48 / 1.5}
+            aspect={usesFullCardAspect ? 2.48 / 3.46 : 2.48 / 1.5}
             onCropChange={onCropChange}
             onCropComplete={onCropComplete}
             onZoomChange={onZoomChange}

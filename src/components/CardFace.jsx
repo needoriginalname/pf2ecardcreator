@@ -5,13 +5,14 @@ import {
   renderInlineRichText,
   renderRichText,
 } from '../utils/richText.jsx'
+import { getCardSurfaceStyle, getDescriptionBoxStyle } from '../utils/cardLayout'
 
 function CardFace({ card, imageAlt = 'Card art' }) {
   const hasCustomActionText = !card.actionIcon && !isRichTextEmpty(card.actionCustom)
   const nameText = getRichTextPlainText(card.name)
 
   return (
-    <div className="mtg-card">
+    <div className="mtg-card" style={getCardSurfaceStyle(card, 'front')}>
       <div className="mtg-heading">
         <div className="mtg-name">
           {nameText ? renderInlineRichText(card.name) : 'Name Here'}
@@ -30,7 +31,7 @@ function CardFace({ card, imageAlt = 'Card art' }) {
       <div className="mtg-traits">
         {isRichTextEmpty(card.traits) ? 'Traits...' : renderInlineRichText(card.traits)}
       </div>
-      <div className="mtg-body">
+      <div className="mtg-body" style={getDescriptionBoxStyle(card)}>
         {isRichTextEmpty(card.description) ? <p>Main effect text...</p> : renderRichText(card.description)}
       </div>
     </div>
