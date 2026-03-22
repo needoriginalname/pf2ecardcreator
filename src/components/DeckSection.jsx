@@ -60,6 +60,15 @@ const getPrintLayout = (columns) => {
   }
 }
 
+const getPrintGridStyle = (printLayout) => ({
+  '--print-columns': printLayout.columns,
+  '--print-card-width': `${printLayout.cardWidth}in`,
+  '--print-card-height': `${printLayout.cardHeight}in`,
+  '--print-card-scale': printLayout.scale,
+})
+
+const getCardLabel = (card) => getRichTextPlainText(card.name) || 'Card'
+
 function DeckCardSlot({
   card,
   index,
@@ -79,7 +88,7 @@ function DeckCardSlot({
   onPointerUp,
   onPointerCancel,
 }) {
-  const cardName = getRichTextPlainText(card.name) || 'Card'
+  const cardName = getCardLabel(card)
 
   return (
     <article
@@ -166,6 +175,7 @@ function DeckSection({
 
   const safeCardsPerRow = Math.min(Math.max(cardsPerRow, 1), 8)
   const printLayout = useMemo(() => getPrintLayout(safeCardsPerRow), [safeCardsPerRow])
+  const printGridStyle = useMemo(() => getPrintGridStyle(printLayout), [printLayout])
   const frontPrintPages = useMemo(
     () =>
       chunkCards(deck, printLayout.pageSize).map((page) => padPage(page, printLayout.pageSize)),
@@ -276,22 +286,11 @@ function DeckSection({
       <div className="print-pages" aria-hidden="true">
         {frontPrintPages.map((page, pageIndex) => (
           <div key={`front-page-${pageIndex}`} className="print-page print-page-front">
-            <div
-              className="deck-grid print-deck-grid"
-              style={{
-                '--print-columns': printLayout.columns,
-                '--print-card-width': `${printLayout.cardWidth}in`,
-                '--print-card-height': `${printLayout.cardHeight}in`,
-                '--print-card-scale': printLayout.scale,
-              }}
-            >
+            <div className="deck-grid print-deck-grid" style={printGridStyle}>
               {page.map((card, slotIndex) =>
                 card ? (
                   <article key={card.id} className="card-preview small">
-                    <CardFace
-                      card={card}
-                      imageAlt={`${getRichTextPlainText(card.name) || 'Card'} art`}
-                    />
+                    <CardFace card={card} imageAlt={`${getCardLabel(card)} art`} />
                   </article>
                 ) : (
                   <article
@@ -307,25 +306,13 @@ function DeckSection({
         {hasAnyBacks &&
           backPrintPages.map((page, pageIndex) => (
             <div key={`back-page-${pageIndex}`} className="print-page print-page-back">
-              <div
-                className="deck-grid print-deck-grid"
-                style={{
-                  '--print-columns': printLayout.columns,
-                  '--print-card-width': `${printLayout.cardWidth}in`,
-                  '--print-card-height': `${printLayout.cardHeight}in`,
-                  '--print-card-scale': printLayout.scale,
-                }}
-              >
+              <div className="deck-grid print-deck-grid" style={printGridStyle}>
                 {page.map((card, slotIndex) =>
-                card ? (
-                  <article key={`${card.id}-back`} className="card-preview small">
-                    <CardBack
-                      card={card}
-                      alt={`${getRichTextPlainText(card.name) || 'Card'} back`}
-                      emptyLabel=""
-                    />
-                  </article>
-                ) : (
+                  card ? (
+                    <article key={`${card.id}-back`} className="card-preview small">
+                      <CardBack card={card} alt={`${getCardLabel(card)} back`} emptyLabel="" />
+                    </article>
+                  ) : (
                     <article
                       key={`back-empty-${pageIndex}-${slotIndex}`}
                       className="card-preview small print-slot-empty"

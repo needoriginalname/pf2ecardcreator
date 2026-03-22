@@ -1,6 +1,12 @@
 import { useState } from 'react'
 import RichTextEditor from './RichTextEditor'
 
+const EDITOR_TABS = [
+  { id: 'text', label: 'Text Fields' },
+  { id: 'images', label: 'Images' },
+  { id: 'layout', label: 'Card Layout' },
+]
+
 const GRADIENT_OPTIONS = [
   { value: 'linear', label: 'Diagonal' },
   { value: 'diagonal-reverse', label: 'Diagonal reverse' },
@@ -9,6 +15,29 @@ const GRADIENT_OPTIONS = [
   { value: 'radial', label: 'Radial' },
   { value: 'conic', label: 'Conic' },
 ]
+
+const ACTION_OPTIONS = [
+  { value: '', label: 'None' },
+  { value: 'A', label: 'One action' },
+  { value: 'D', label: 'Two actions' },
+  { value: 'T', label: 'Three actions' },
+  { value: 'R', label: 'Reaction' },
+  { value: 'F', label: 'Free action' },
+]
+
+function EditorTabButton({ id, label, activeTab, onSelect }) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={activeTab === id}
+      className={activeTab === id ? 'active' : ''}
+      onClick={() => onSelect(id)}
+    >
+      {label}
+    </button>
+  )
+}
 
 function SurfaceInspector({
   title,
@@ -102,33 +131,15 @@ function CardForm({
   return (
     <form id={formId} className="card-form" onSubmit={onSubmit} aria-label="Card editor">
       <div className="editor-tabs" role="tablist" aria-label="Card editor sections">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === 'text'}
-          className={activeTab === 'text' ? 'active' : ''}
-          onClick={() => setActiveTab('text')}
-        >
-          Text Fields
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === 'images'}
-          className={activeTab === 'images' ? 'active' : ''}
-          onClick={() => setActiveTab('images')}
-        >
-          Images
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === 'layout'}
-          className={activeTab === 'layout' ? 'active' : ''}
-          onClick={() => setActiveTab('layout')}
-        >
-          Card Layout
-        </button>
+        {EDITOR_TABS.map((tab) => (
+          <EditorTabButton
+            key={tab.id}
+            id={tab.id}
+            label={tab.label}
+            activeTab={activeTab}
+            onSelect={setActiveTab}
+          />
+        ))}
       </div>
 
       {activeTab === 'text' ? (
@@ -160,12 +171,11 @@ function CardForm({
           <div className="form-field">
             <span className="field-label">Action symbol:</span>
             <select id="card-action-icon" value={card.actionIcon} onChange={onChange('actionIcon')}>
-              <option value="">None</option>
-              <option value="A">One action</option>
-              <option value="D">Two actions</option>
-              <option value="T">Three actions</option>
-              <option value="R">Reaction</option>
-              <option value="F">Free action</option>
+              {ACTION_OPTIONS.map((option) => (
+                <option key={option.value || 'none'} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
 

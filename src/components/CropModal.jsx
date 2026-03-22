@@ -34,9 +34,9 @@ function CropModal({
             <input
               type="range"
               value={zoom}
-              min={1}
+              min={0.1}
               max={3}
-              step={0.1}
+              step={0.01}
               onChange={(event) => onZoomChange(Number(event.target.value))}
             />
           </label>

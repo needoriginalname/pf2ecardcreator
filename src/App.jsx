@@ -12,6 +12,7 @@ import { getCroppedImg } from './utils/imageCrop'
 const CARD_FORM_ID = 'card-editor-form'
 const STORAGE_KEY = 'pf2e-card-designer-state-v1'
 const RICH_TEXT_FIELDS = ['name', 'traits', 'actionCustom', 'description']
+const EMPTY_DECK = []
 
 const createDeckCard = (cardData) => ({
   ...structuredClone(cardData),
@@ -19,6 +20,8 @@ const createDeckCard = (cardData) => ({
 })
 
 const clampCardsPerRow = (value) => Math.min(Math.max(value, 1), 8)
+const normalizeNumericField = (value, fallback) =>
+  Number.isFinite(Number(value)) ? Number(value) : fallback
 
 const toRichTextValue = (value) => {
   if (Array.isArray(value)) return structuredClone(value)
@@ -39,13 +42,14 @@ const normalizeCardData = (cardData) => {
     normalized[field] = toRichTextValue(cardData?.[field] ?? createEmptyRichTextValue())
   }
 
-  normalized.borderThickness = Number.isFinite(Number(cardData?.borderThickness))
-    ? Number(cardData.borderThickness)
-    : defaults.borderThickness
-
-  normalized.descriptionBoxOpacity = Number.isFinite(Number(cardData?.descriptionBoxOpacity))
-    ? Number(cardData.descriptionBoxOpacity)
-    : defaults.descriptionBoxOpacity
+  normalized.borderThickness = normalizeNumericField(
+    cardData?.borderThickness,
+    defaults.borderThickness
+  )
+  normalized.descriptionBoxOpacity = normalizeNumericField(
+    cardData?.descriptionBoxOpacity,
+    defaults.descriptionBoxOpacity
+  )
 
   delete normalized.type
   delete normalized.level
@@ -56,7 +60,7 @@ const normalizeCardData = (cardData) => {
 
 const getDefaultAppState = () => ({
   card: createInitialCard(),
-  deck: [],
+  deck: EMPTY_DECK,
   previewBack: false,
   cardsPerRow: 3,
 })
@@ -104,22 +108,25 @@ function App() {
     initialSnapshotRef.current = loadStoredAppState()
   }
 
-  const [card, setCard] = useState(initialSnapshotRef.current.card)
-  const [deck, setDeck] = useState(initialSnapshotRef.current.deck)
+  const initialSnapshot = initialSnapshotRef.current
+
+  const [card, setCard] = useState(initialSnapshot.card)
+  const [deck, setDeck] = useState(initialSnapshot.deck)
   const [showCropModal, setShowCropModal] = useState(false)
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
   const [tempImage, setTempImage] = useState('')
   const [cropMode, setCropMode] = useState('front')
-  const [previewBack, setPreviewBack] = useState(initialSnapshotRef.current.previewBack)
-  const [cardsPerRow, setCardsPerRow] = useState(initialSnapshotRef.current.cardsPerRow)
+  const [previewBack, setPreviewBack] = useState(initialSnapshot.previewBack)
+  const [cardsPerRow, setCardsPerRow] = useState(initialSnapshot.cardsPerRow)
   const [editingCardId, setEditingCardId] = useState(null)
   const [editorSessionKey, setEditorSessionKey] = useState(0)
 
   const cardCount = deck.length
 
   const summary = useMemo(() => getCardSummary(card), [card])
+  const isEditing = Boolean(editingCardId)
   const appSnapshot = useMemo(
     () => ({
       version: 1,
@@ -131,6 +138,14 @@ function App() {
     [card, deck, previewBack, cardsPerRow]
   )
 
+  const bumpEditorSession = () => {
+    setEditorSessionKey((prev) => prev + 1)
+  }
+
+  const updateCardField = (field, value) => {
+    setCard((prev) => ({ ...prev, [field]: value }))
+  }
+
   const onChange = (field) => (event) => {
     const value =
       event.target.type === 'checkbox'
@@ -138,7 +153,7 @@ function App() {
         : event.target.type === 'range'
           ? Number(event.target.value)
           : event.target.value
-    setCard((prev) => ({ ...prev, [field]: value }))
+    updateCardField(field, value)
   }
 
   const onImageChange = (event, side = 'front') => {
@@ -173,7 +188,7 @@ function App() {
     setPreviewBack(normalized.previewBack)
     setCardsPerRow(normalized.cardsPerRow)
     setEditingCardId(null)
-    setEditorSessionKey((prev) => prev + 1)
+    bumpEditorSession()
     resetCropState()
   }
 
@@ -183,7 +198,7 @@ function App() {
     try {
       const croppedImage = await getCroppedImg(tempImage, croppedAreaPixels)
       if (cropMode === 'front') {
-        setCard((prev) => ({ ...prev, image: croppedImage }))
+        updateCardField('image', croppedImage)
       } else if (cropMode === 'frontBackground') {
         setCard((prev) => ({
           ...prev,
@@ -222,9 +237,9 @@ function App() {
     if (!file) return
 
     const reader = new FileReader()
-    reader.onload = () => {
+    reader.onload = ({ target }) => {
       try {
-        const imported = JSON.parse(String(reader.result))
+        const imported = JSON.parse(String(target?.result))
         applyAppState(imported)
       } catch (error) {
         console.error(error)
@@ -240,7 +255,7 @@ function App() {
     setCard(createInitialCard())
     setPreviewBack(false)
     setEditingCardId(null)
-    setEditorSessionKey((prev) => prev + 1)
+    bumpEditorSession()
   }
 
   const submitCard = () => {
@@ -306,7 +321,7 @@ function App() {
     setCard(structuredClone(cardData))
     setEditingCardId(id)
     setPreviewBack(false)
-    setEditorSessionKey((prev) => prev + 1)
+    bumpEditorSession()
   }
 
   const handlePrint = () => {
@@ -361,26 +376,18 @@ function App() {
           card={card}
           editorSessionKey={editorSessionKey}
           formId={CARD_FORM_ID}
-          isEditing={Boolean(editingCardId)}
-          onActionTextChange={(value) => {
-            setCard((prev) => ({ ...prev, actionCustom: value }))
-          }}
+          isEditing={isEditing}
+          onActionTextChange={(value) => updateCardField('actionCustom', value)}
           onChange={onChange}
-          onDescriptionChange={(value) => {
-            setCard((prev) => ({ ...prev, description: value }))
-          }}
+          onDescriptionChange={(value) => updateCardField('description', value)}
           onImageChange={onImageChange}
-          onNameChange={(value) => {
-            setCard((prev) => ({ ...prev, name: value }))
-          }}
+          onNameChange={(value) => updateCardField('name', value)}
           onSubmit={(event) => {
             event.preventDefault()
             submitCard()
           }}
           onResetInputs={resetEditor}
-          onTraitsChange={(value) => {
-            setCard((prev) => ({ ...prev, traits: value }))
-          }}
+          onTraitsChange={(value) => updateCardField('traits', value)}
         />
 
         <PreviewPanel
@@ -392,7 +399,7 @@ function App() {
 
         <div className="mobile-form-actions">
           <button type="submit" form={CARD_FORM_ID}>
-            {editingCardId ? 'Update Card' : 'Add Card to Deck'}
+            {isEditing ? 'Update Card' : 'Add Card to Deck'}
           </button>
           <button type="button" onClick={resetEditor}>
             Reset Inputs
