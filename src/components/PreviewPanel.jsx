@@ -1,7 +1,20 @@
 import CardBack from './CardBack'
 import CardFace from './CardFace'
 
-function PreviewPanel({ card, summary, previewBack, setPreviewBack }) {
+function PreviewPanel({
+  card,
+  summary,
+  previewBack,
+  setPreviewBack,
+  cardsPerRow,
+  previewCardWidth,
+}) {
+  const safeCardsPerRow = Math.min(Math.max(cardsPerRow, 1), 8)
+  const previewStyle = {
+    '--cards-per-row': safeCardsPerRow,
+    '--preview-card-width': `${previewCardWidth}px`,
+  }
+
   return (
     <aside className="preview-panel" aria-label="Card preview">
       <h2>Live preview</h2>
@@ -23,7 +36,12 @@ function PreviewPanel({ card, summary, previewBack, setPreviewBack }) {
         </button>
       </div>
 
-      <div className="preview-grid desktop-preview" role="region" aria-live="polite">
+      <div
+        className="preview-grid desktop-preview screen-deck-grid"
+        style={previewStyle}
+        role="region"
+        aria-live="polite"
+      >
         <article className="card-preview">
           <CardFace card={card} />
         </article>
@@ -32,7 +50,12 @@ function PreviewPanel({ card, summary, previewBack, setPreviewBack }) {
         </article>
       </div>
 
-      <article className="card-preview mobile-preview" role="region" aria-live="polite">
+      <article
+        className="card-preview mobile-preview screen-deck-grid"
+        style={previewStyle}
+        role="region"
+        aria-live="polite"
+      >
         {previewBack ? <CardBack card={card} /> : <CardFace card={card} />}
       </article>
     </aside>
