@@ -8,6 +8,8 @@ import { initialCard } from './constants/card'
 import { getCardSummary } from './utils/cardDisplay'
 import { getCroppedImg } from './utils/imageCrop'
 
+const CARD_FORM_ID = 'card-editor-form'
+
 function App() {
   const [card, setCard] = useState(initialCard)
   const [deck, setDeck] = useState([])
@@ -25,7 +27,7 @@ function App() {
   const summary = useMemo(() => getCardSummary(card), [card])
 
   const onChange = (field) => (event) => {
-    const value = event.target.value
+    const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
     setCard((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -103,6 +105,7 @@ function App() {
       <section className="builder-grid">
         <CardForm
           card={card}
+          formId={CARD_FORM_ID}
           onChange={onChange}
           onImageChange={onImageChange}
           onSubmit={(event) => {
@@ -118,6 +121,15 @@ function App() {
           previewBack={previewBack}
           setPreviewBack={setPreviewBack}
         />
+
+        <div className="mobile-form-actions">
+          <button type="submit" form={CARD_FORM_ID}>
+            Add Card to Deck
+          </button>
+          <button type="button" onClick={clearDeck}>
+            Clear Deck
+          </button>
+        </div>
       </section>
 
       <DeckSection

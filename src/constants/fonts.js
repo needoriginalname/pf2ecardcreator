@@ -1,0 +1,32 @@
+export const FONT_OPTIONS = [
+  { value: 'Default', family: 'inherit' },
+  { value: 'Arial', family: 'Arial, sans-serif' },
+  { value: 'Arial Black', family: '"Arial Black", sans-serif' },
+  { value: 'Calibri', family: 'Calibri, sans-serif' },
+  { value: 'Cambria', family: 'Cambria, serif' },
+  { value: 'Candara', family: 'Candara, sans-serif' },
+  { value: 'Comic Sans MS', family: '"Comic Sans MS", cursive' },
+  { value: 'Consolas', family: 'Consolas, monospace' },
+  { value: 'Constantia', family: 'Constantia, serif' },
+  { value: 'Corbel', family: 'Corbel, sans-serif' },
+  { value: 'Courier New', family: '"Courier New", monospace' },
+  { value: 'Garamond', family: 'Garamond, serif' },
+  { value: 'Georgia', family: 'Georgia, serif' },
+  { value: 'Helvetica', family: 'Helvetica, sans-serif' },
+  { value: 'Impact', family: 'Impact, sans-serif' },
+  { value: 'Lucida Console', family: '"Lucida Console", monospace' },
+  { value: 'Lucida Sans Unicode', family: '"Lucida Sans Unicode", sans-serif' },
+  { value: 'Monaco', family: 'Monaco, monospace' },
+  { value: 'Optima', family: 'Optima, sans-serif' },
+  { value: 'Palatino', family: 'Palatino, serif' },
+  { value: 'Perpetua', family: 'Perpetua, serif' },
+  { value: 'Segoe UI', family: 'Segoe UI, sans-serif' },
+  { value: 'Tahoma', family: 'Tahoma, sans-serif' },
+  { value: 'Times New Roman', family: '"Times New Roman", serif' },
+  { value: 'Trebuchet MS', family: '"Trebuchet MS", sans-serif' },
+  { value: 'Verdana', family: '"Verdana", sans-serif' },
+  { value: 'System UI', family: 'system-ui, sans-serif' },
+]
+
+export const getFontFamily = (fontName) =>
+  FONT_OPTIONS.find((option) => option.value === fontName)?.family ?? fontName
