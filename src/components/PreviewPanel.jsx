@@ -23,7 +23,16 @@ function PreviewPanel({ card, summary, previewBack, setPreviewBack }) {
         </button>
       </div>
 
-      <article className="card-preview" role="region" aria-live="polite">
+      <div className="preview-grid desktop-preview" role="region" aria-live="polite">
+        <article className="card-preview">
+          <CardFace card={card} />
+        </article>
+        <article className="card-preview">
+          <CardBack card={card} />
+        </article>
+      </div>
+
+      <article className="card-preview mobile-preview" role="region" aria-live="polite">
         {previewBack ? <CardBack card={card} /> : <CardFace card={card} />}
       </article>
     </aside>

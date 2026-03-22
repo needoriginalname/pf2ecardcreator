@@ -350,7 +350,7 @@ button:hover,
 }
 
 .preview-toggle {
-  display: flex;
+  display: none;
   gap: 8px;
   margin-bottom: 12px;
 }
@@ -376,11 +376,22 @@ button:hover,
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  justify-items: center;
+}
+
 .preview-panel .card-preview {
   width: calc(2.48in + 16px);
   max-width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
+}
+
+.mobile-preview {
+  display: none;
 }
 
 .card-preview.small {
@@ -681,6 +692,18 @@ button:hover,
 @media (max-width: 940px) {
   .builder-grid {
     grid-template-columns: 1fr;
+  }
+
+  .desktop-preview {
+    display: none;
+  }
+
+  .preview-toggle {
+    display: flex;
+  }
+
+  .mobile-preview {
+    display: block;
   }
 
   .inspector-group-heading {
