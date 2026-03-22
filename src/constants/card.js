@@ -19,9 +19,11 @@ export const createInitialCard = () => ({
   descriptionBoxColor: '#ffffff',
   descriptionBoxOpacity: 0.82,
   frontBackgroundMode: 'solid',
+  frontBackgroundGradientType: 'linear',
   frontBackgroundColor: '#feffff',
   frontBackgroundSecondaryColor: '#dce4f0',
   backBackgroundMode: 'solid',
+  backBackgroundGradientType: 'linear',
   backBackgroundColor: '#feffff',
   backBackgroundSecondaryColor: '#dce4f0',
 })

@@ -24,13 +24,33 @@ const toRgba = (hex, alpha) => {
 
 const DEFAULT_BACK_BACKGROUND = {
   mode: 'solid',
+  gradientType: 'linear',
   color: '#feffff',
   secondaryColor: '#dce4f0',
+}
+
+const getGradientValue = (gradientType, primaryColor, secondaryColor) => {
+  switch (gradientType) {
+    case 'radial':
+      return `radial-gradient(circle at center, ${primaryColor}, ${secondaryColor})`
+    case 'top-bottom':
+      return `linear-gradient(180deg, ${primaryColor}, ${secondaryColor})`
+    case 'left-right':
+      return `linear-gradient(90deg, ${primaryColor}, ${secondaryColor})`
+    case 'diagonal-reverse':
+      return `linear-gradient(45deg, ${primaryColor}, ${secondaryColor})`
+    case 'conic':
+      return `conic-gradient(from 180deg at 50% 50%, ${primaryColor}, ${secondaryColor}, ${primaryColor})`
+    case 'linear':
+    default:
+      return `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`
+  }
 }
 
 export const getCardSurfaceStyle = (card, side = 'front') => {
   const prefix = side === 'back' ? 'backBackground' : 'frontBackground'
   const mode = card[`${prefix}Mode`]
+  const gradientType = card[`${prefix}GradientType`] ?? 'linear'
   const primaryColor = card[`${prefix}Color`]
   const secondaryColor = card[`${prefix}SecondaryColor`]
   const imageSrc = side === 'back' ? card.imageBack : card.frontBackgroundImage
@@ -42,7 +62,7 @@ export const getCardSurfaceStyle = (card, side = 'front') => {
   }
 
   if (mode === 'gradient') {
-    style.backgroundImage = `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`
+    style.backgroundImage = getGradientValue(gradientType, primaryColor, secondaryColor)
   }
 
   if (mode === 'image' && imageSrc) {
@@ -62,5 +82,6 @@ export const getDescriptionBoxStyle = (card) => ({
 export const hasCustomBackLayout = (card) =>
   Boolean(card.imageBack) ||
   card.backBackgroundMode !== DEFAULT_BACK_BACKGROUND.mode ||
+  card.backBackgroundGradientType !== DEFAULT_BACK_BACKGROUND.gradientType ||
   card.backBackgroundColor !== DEFAULT_BACK_BACKGROUND.color ||
   card.backBackgroundSecondaryColor !== DEFAULT_BACK_BACKGROUND.secondaryColor

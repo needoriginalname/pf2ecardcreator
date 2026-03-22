@@ -74,9 +74,17 @@ function App() {
       if (cropMode === 'front') {
         setCard((prev) => ({ ...prev, image: croppedImage }))
       } else if (cropMode === 'frontBackground') {
-        setCard((prev) => ({ ...prev, frontBackgroundImage: croppedImage }))
+        setCard((prev) => ({
+          ...prev,
+          frontBackgroundImage: croppedImage,
+          frontBackgroundMode: 'image',
+        }))
       } else {
-        setCard((prev) => ({ ...prev, imageBack: croppedImage }))
+        setCard((prev) => ({
+          ...prev,
+          imageBack: croppedImage,
+          backBackgroundMode: 'image',
+        }))
       }
       resetCropState()
     } catch (error) {
