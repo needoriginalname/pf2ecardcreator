@@ -17,12 +17,15 @@ function CropModal({
     <div className="crop-modal">
       <div className="crop-container">
         <h3>Crop Image</h3>
+        <p className="crop-hint">Drag the image to pan. Use zoom to frame the part you want.</p>
         <div className="crop-area">
           <Cropper
             image={tempImage}
             crop={crop}
             zoom={zoom}
             aspect={usesFullCardAspect ? 2.48 / 3.46 : 2.48 / 1.5}
+            restrictPosition={false}
+            showGrid
             onCropChange={onCropChange}
             onCropComplete={onCropComplete}
             onZoomChange={onZoomChange}
@@ -35,7 +38,7 @@ function CropModal({
               type="range"
               value={zoom}
               min={0.1}
-              max={3}
+              max={5}
               step={0.01}
               onChange={(event) => onZoomChange(Number(event.target.value))}
             />

@@ -932,10 +932,22 @@ button:hover,
   width: 90%;
 }
 
+.crop-hint {
+  margin-top: 8px;
+  font-size: 0.88rem;
+  color: #60705b;
+}
+
 .crop-area {
   position: relative;
   height: 400px;
   margin: 20px 0;
+  cursor: grab;
+  touch-action: none;
+}
+
+.crop-area:active {
+  cursor: grabbing;
 }
 
 .crop-controls {
