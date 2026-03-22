@@ -10,6 +10,20 @@ import { getCardSurfaceStyle, getDescriptionBoxStyle } from '../utils/cardLayout
 function CardFace({ card, imageAlt = 'Card art' }) {
   const hasCustomActionText = !card.actionIcon && !isRichTextEmpty(card.actionCustom)
   const nameText = getRichTextPlainText(card.name)
+  const showArtwork = card.showFrontArtwork
+  const artworkIsVisible = Boolean(card.image) && showArtwork
+  const artworkSlotStyle =
+    card.frontArtworkBackgroundMode === 'color'
+      ? {
+          backgroundColor: card.frontArtworkBackgroundColor,
+          borderWidth: `${card.frontArtworkBorderThickness}px`,
+          borderColor: card.frontArtworkBorderColor,
+        }
+      : {
+          backgroundColor: 'transparent',
+          borderWidth: `${card.frontArtworkBorderThickness}px`,
+          borderColor: card.frontArtworkBorderColor,
+        }
 
   return (
     <div className="mtg-card" style={getCardSurfaceStyle(card, 'front')}>
@@ -21,12 +35,16 @@ function CardFace({ card, imageAlt = 'Card art' }) {
           {hasCustomActionText ? renderInlineRichText(card.actionCustom) : getActionDisplay(card)}
         </div>
       </div>
-      <div className="mtg-image">
-        {card.image ? (
+      <div
+        className={`mtg-image${showArtwork ? '' : ' mtg-image-hidden'}`}
+        style={showArtwork ? artworkSlotStyle : undefined}
+        aria-hidden={!showArtwork}
+      >
+        {artworkIsVisible ? (
           <img src={card.image} alt={imageAlt} />
-        ) : (
+        ) : showArtwork ? (
           <div className="mtg-image-empty">Upload an image</div>
-        )}
+        ) : null}
       </div>
       <div className="mtg-traits">
         {isRichTextEmpty(card.traits) ? 'Traits...' : renderInlineRichText(card.traits)}

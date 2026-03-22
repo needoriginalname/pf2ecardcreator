@@ -206,14 +206,62 @@ function CardForm({
       {activeTab === 'images' ? (
         <section className="editor-tab-panel" role="tabpanel" aria-label="Image fields">
           <div className="form-field">
-            <span className="field-label">Front artwork</span>
+            <label className="toggle-field">
+              <input
+                type="checkbox"
+                checked={card.showFrontArtwork}
+                onChange={onChange('showFrontArtwork')}
+              />
+              <span className="toggle-track" aria-hidden="true">
+                <span className="toggle-thumb" />
+              </span>
+              <span className="toggle-label">Show front artwork</span>
+            </label>
+          </div>
+
+          <div className="form-field">
+            <span className="field-label">Front artwork file</span>
             <input
               id="card-artwork"
               type="file"
               accept="image/*"
+              disabled={!card.showFrontArtwork}
               onChange={(event) => onImageChange(event, 'front')}
             />
+            {!card.showFrontArtwork ? (
+              <p className="field-hint">Enable Show front artwork to upload or replace the image.</p>
+            ) : null}
           </div>
+
+          {card.showFrontArtwork ? (
+            <div className="form-field">
+              <span className="field-label">Artwork alpha background</span>
+              <select
+                value={card.frontArtworkBackgroundMode}
+                onChange={onChange('frontArtworkBackgroundMode')}
+              >
+                <option value="transparent">Transparent</option>
+                <option value="color">Solid color</option>
+              </select>
+              <p className="field-hint">
+                Transparent pixels can show the front surface behind the artwork.
+              </p>
+            </div>
+          ) : null}
+
+          {card.showFrontArtwork && card.frontArtworkBackgroundMode === 'color' ? (
+            <div className="form-field">
+              <span className="field-label">Artwork background color</span>
+              <div className="inspector-control inspector-control-inline">
+                <input
+                  type="color"
+                  value={card.frontArtworkBackgroundColor}
+                  onChange={onChange('frontArtworkBackgroundColor')}
+                />
+                <code>{card.frontArtworkBackgroundColor}</code>
+              </div>
+            </div>
+          ) : null}
 
           <div className="form-field">
             <span className="field-label">Front background image</span>
@@ -278,6 +326,40 @@ function CardForm({
               <div className="inspector-control inspector-control-inline">
                 <input type="color" value={card.borderColor} onChange={onChange('borderColor')} />
                 <code>{card.borderColor}</code>
+              </div>
+            </div>
+          </div>
+
+          <div className="inspector-group">
+            <div className="inspector-group-heading">
+              <h4>Front Artwork</h4>
+              <span>Frame around the front art window</span>
+            </div>
+
+            <div className="inspector-row">
+              <span className="inspector-label">Border</span>
+              <div className="inspector-control inspector-control-range">
+                <input
+                  type="range"
+                  min="0"
+                  max="4"
+                  step="1"
+                  value={card.frontArtworkBorderThickness}
+                  onChange={onChange('frontArtworkBorderThickness')}
+                />
+                <output className="range-value">{card.frontArtworkBorderThickness}px</output>
+              </div>
+            </div>
+
+            <div className="inspector-row">
+              <span className="inspector-label">Border color</span>
+              <div className="inspector-control inspector-control-inline">
+                <input
+                  type="color"
+                  value={card.frontArtworkBorderColor}
+                  onChange={onChange('frontArtworkBorderColor')}
+                />
+                <code>{card.frontArtworkBorderColor}</code>
               </div>
             </div>
           </div>

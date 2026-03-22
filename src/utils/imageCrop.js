@@ -35,5 +35,5 @@ export const getCroppedImg = async (imageSrc, croppedAreaPixels) => {
     0 - safeArea / 2 + image.naturalHeight / 2 - croppedAreaPixels.y
   )
 
-  return canvas.toDataURL('image/jpeg', 0.92)
+  return canvas.toDataURL('image/png')
 }

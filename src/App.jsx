@@ -20,6 +20,8 @@ const createDeckCard = (cardData) => ({
 })
 
 const clampCardsPerRow = (value) => Math.min(Math.max(value, 1), 8)
+const clampArtworkBorderThickness = (value, fallback) =>
+  Math.min(Math.max(normalizeNumericField(value, fallback), 0), 4)
 const normalizeNumericField = (value, fallback) =>
   Number.isFinite(Number(value)) ? Number(value) : fallback
 
@@ -46,14 +48,25 @@ const normalizeCardData = (cardData) => {
     cardData?.borderThickness,
     defaults.borderThickness
   )
+  normalized.frontArtworkBorderThickness = clampArtworkBorderThickness(
+    cardData?.frontArtworkBorderThickness,
+    defaults.frontArtworkBorderThickness
+  )
   normalized.descriptionBoxOpacity = normalizeNumericField(
     cardData?.descriptionBoxOpacity,
     defaults.descriptionBoxOpacity
   )
+  normalized.showFrontArtwork =
+    typeof cardData?.showFrontArtwork === 'boolean'
+      ? cardData.showFrontArtwork
+      : typeof cardData?.frontArtworkRemoved === 'boolean'
+        ? !cardData.frontArtworkRemoved
+        : defaults.showFrontArtwork
 
   delete normalized.type
   delete normalized.level
   delete normalized.rarity
+  delete normalized.frontArtworkRemoved
 
   return normalized
 }
@@ -198,7 +211,11 @@ function App() {
     try {
       const croppedImage = await getCroppedImg(tempImage, croppedAreaPixels)
       if (cropMode === 'front') {
-        updateCardField('image', croppedImage)
+        setCard((prev) => ({
+          ...prev,
+          image: croppedImage,
+          showFrontArtwork: true,
+        }))
       } else if (cropMode === 'frontBackground') {
         setCard((prev) => ({
           ...prev,
