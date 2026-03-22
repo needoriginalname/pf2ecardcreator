@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import CardForm from './components/CardForm'
 import CropModal from './components/CropModal'
@@ -6,30 +6,124 @@ import DeckSection from './components/DeckSection'
 import PreviewPanel from './components/PreviewPanel'
 import { createInitialCard } from './constants/card'
 import { getCardSummary } from './utils/cardDisplay'
-import { getRichTextPlainText } from './utils/richText.jsx'
+import { createEmptyRichTextValue, getRichTextPlainText } from './utils/richText.jsx'
 import { getCroppedImg } from './utils/imageCrop'
 
 const CARD_FORM_ID = 'card-editor-form'
+const STORAGE_KEY = 'pf2e-card-designer-state-v1'
+const RICH_TEXT_FIELDS = ['name', 'traits', 'actionCustom', 'description']
+
 const createDeckCard = (cardData) => ({
   ...structuredClone(cardData),
   id: crypto.randomUUID(),
 })
 
+const clampCardsPerRow = (value) => Math.min(Math.max(value, 1), 8)
+
+const toRichTextValue = (value) => {
+  if (Array.isArray(value)) return structuredClone(value)
+
+  return [
+    {
+      type: 'paragraph',
+      children: [{ text: typeof value === 'string' ? value : '' }],
+    },
+  ]
+}
+
+const normalizeCardData = (cardData) => {
+  const defaults = createInitialCard()
+  const normalized = { ...defaults, ...(cardData ?? {}) }
+
+  for (const field of RICH_TEXT_FIELDS) {
+    normalized[field] = toRichTextValue(cardData?.[field] ?? createEmptyRichTextValue())
+  }
+
+  normalized.borderThickness = Number.isFinite(Number(cardData?.borderThickness))
+    ? Number(cardData.borderThickness)
+    : defaults.borderThickness
+
+  normalized.descriptionBoxOpacity = Number.isFinite(Number(cardData?.descriptionBoxOpacity))
+    ? Number(cardData.descriptionBoxOpacity)
+    : defaults.descriptionBoxOpacity
+
+  return normalized
+}
+
+const getDefaultAppState = () => ({
+  card: createInitialCard(),
+  deck: [],
+  previewBack: false,
+  cardsPerRow: 3,
+})
+
+const normalizeAppState = (snapshot) => {
+  const defaults = getDefaultAppState()
+
+  if (!snapshot || typeof snapshot !== 'object') {
+    return defaults
+  }
+
+  return {
+    card: normalizeCardData(snapshot.card),
+    deck: Array.isArray(snapshot.deck)
+      ? snapshot.deck.map((entry) => ({
+          ...normalizeCardData(entry),
+          id: entry?.id || crypto.randomUUID(),
+        }))
+      : defaults.deck,
+    previewBack: Boolean(snapshot.previewBack),
+    cardsPerRow: clampCardsPerRow(Number(snapshot.cardsPerRow) || defaults.cardsPerRow),
+  }
+}
+
+const loadStoredAppState = () => {
+  if (typeof window === 'undefined') {
+    return getDefaultAppState()
+  }
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY)
+    if (!raw) return getDefaultAppState()
+    return normalizeAppState(JSON.parse(raw))
+  } catch (error) {
+    console.error(error)
+    return getDefaultAppState()
+  }
+}
+
 function App() {
-  const [card, setCard] = useState(createInitialCard)
-  const [deck, setDeck] = useState([])
+  const initialSnapshotRef = useRef(null)
+  const importInputRef = useRef(null)
+
+  if (initialSnapshotRef.current === null) {
+    initialSnapshotRef.current = loadStoredAppState()
+  }
+
+  const [card, setCard] = useState(initialSnapshotRef.current.card)
+  const [deck, setDeck] = useState(initialSnapshotRef.current.deck)
   const [showCropModal, setShowCropModal] = useState(false)
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
   const [tempImage, setTempImage] = useState('')
   const [cropMode, setCropMode] = useState('front')
-  const [previewBack, setPreviewBack] = useState(false)
-  const [cardsPerRow, setCardsPerRow] = useState(3)
+  const [previewBack, setPreviewBack] = useState(initialSnapshotRef.current.previewBack)
+  const [cardsPerRow, setCardsPerRow] = useState(initialSnapshotRef.current.cardsPerRow)
 
   const cardCount = deck.length
 
   const summary = useMemo(() => getCardSummary(card), [card])
+  const appSnapshot = useMemo(
+    () => ({
+      version: 1,
+      card,
+      deck,
+      previewBack,
+      cardsPerRow,
+    }),
+    [card, deck, previewBack, cardsPerRow]
+  )
 
   const onChange = (field) => (event) => {
     const value =
@@ -66,6 +160,15 @@ function App() {
     setCroppedAreaPixels(null)
   }
 
+  const applyAppState = (snapshot) => {
+    const normalized = normalizeAppState(snapshot)
+    setCard(normalized.card)
+    setDeck(normalized.deck)
+    setPreviewBack(normalized.previewBack)
+    setCardsPerRow(normalized.cardsPerRow)
+    resetCropState()
+  }
+
   const onCropConfirm = async () => {
     if (!tempImage || !croppedAreaPixels) return
 
@@ -90,6 +193,39 @@ function App() {
     } catch (error) {
       console.error(error)
     }
+  }
+
+  const exportJson = () => {
+    const blob = new Blob([JSON.stringify(appSnapshot, null, 2)], {
+      type: 'application/json',
+    })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'pf2e-card-designer.json'
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+  }
+
+  const importJson = (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const imported = JSON.parse(String(reader.result))
+        applyAppState(imported)
+      } catch (error) {
+        console.error(error)
+        alert('That JSON file could not be imported.')
+      } finally {
+        event.target.value = ''
+      }
+    }
+    reader.readAsText(file)
   }
 
   const addCard = () => {
@@ -144,11 +280,37 @@ function App() {
       .join('%0A')}`
   )}`
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(appSnapshot))
+    } catch (error) {
+      console.error(error)
+    }
+  }, [appSnapshot])
+
   return (
     <main className="app-shell">
       <header className="top-bar">
         <h1>PF2e Card Designer</h1>
         <p>Design spell/item/monster cards and print locally.</p>
+        <div className="app-actions">
+          <button type="button" onClick={exportJson}>
+            Export JSON
+          </button>
+          <button type="button" onClick={() => importInputRef.current?.click()}>
+            Import JSON
+          </button>
+          <input
+            ref={importInputRef}
+            className="visually-hidden"
+            type="file"
+            accept="application/json,.json"
+            onChange={importJson}
+          />
+        </div>
+        <p className="storage-note">Changes are saved automatically in this browser.</p>
       </header>
 
       <section className="builder-grid">

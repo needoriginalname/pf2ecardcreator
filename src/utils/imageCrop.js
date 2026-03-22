@@ -35,9 +35,5 @@ export const getCroppedImg = async (imageSrc, croppedAreaPixels) => {
     0 - safeArea / 2 + image.naturalHeight / 2 - croppedAreaPixels.y
   )
 
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      resolve(URL.createObjectURL(blob))
-    }, 'image/jpeg')
-  })
+  return canvas.toDataURL('image/jpeg', 0.92)
 }
