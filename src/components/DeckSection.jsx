@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
 import CardBack from './CardBack'
 import CardFace from './CardFace'
 
@@ -6,6 +7,7 @@ const BASE_CARD_HEIGHT_IN = 3.46
 const PRINTABLE_WIDTH_IN = 7.77
 const PRINTABLE_HEIGHT_IN = 10.5
 const PRINT_GAP_IN = 0.08
+const LONG_PRESS_MS = 350
 
 const chunkCards = (cards, pageSize) => {
   const pages = []
@@ -33,8 +35,7 @@ const mirrorPageForBackPrint = (page, columns) => {
 }
 
 const getPrintLayout = (columns) => {
-  const cardWidth =
-    (PRINTABLE_WIDTH_IN - PRINT_GAP_IN * (columns - 1)) / columns
+  const cardWidth = (PRINTABLE_WIDTH_IN - PRINT_GAP_IN * (columns - 1)) / columns
   const cardHeight = cardWidth * (BASE_CARD_HEIGHT_IN / BASE_CARD_WIDTH_IN)
   const rows = Math.max(
     1,
@@ -51,6 +52,55 @@ const getPrintLayout = (columns) => {
   }
 }
 
+function DeckCardSlot({
+  card,
+  index,
+  isControlsVisible,
+  isDragging,
+  onDelete,
+  onDuplicateBefore,
+  onDuplicateAfter,
+  onDragStart,
+  onDragEnd,
+  onDragOver,
+  onDrop,
+  onPointerEnter,
+  onPointerLeave,
+  onPointerDown,
+  onPointerUp,
+  onPointerCancel,
+}) {
+  return (
+    <article
+      className={`card-preview small deck-card-slot ${isDragging ? 'dragging' : ''}`}
+      draggable
+      onDragStart={() => onDragStart(card.id)}
+      onDragEnd={onDragEnd}
+      onDragOver={(event) => onDragOver(event, index)}
+      onDrop={() => onDrop(index)}
+      onPointerEnter={() => onPointerEnter(card.id)}
+      onPointerLeave={onPointerLeave}
+      onPointerDown={() => onPointerDown(card.id)}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerCancel}
+    >
+      <div className={`deck-card-controls ${isControlsVisible ? 'visible' : ''}`}>
+        <button type="button" className="deck-card-control" onClick={() => onDuplicateBefore(index)}>
+          +←
+        </button>
+        <button type="button" className="deck-card-control danger" onClick={() => onDelete(card.id)}>
+          ×
+        </button>
+        <button type="button" className="deck-card-control" onClick={() => onDuplicateAfter(index)}>
+          →+
+        </button>
+      </div>
+
+      <CardFace card={card} imageAlt={`${card.name} art`} />
+    </article>
+  )
+}
+
 function DeckSection({
   deck,
   cardCount,
@@ -58,16 +108,61 @@ function DeckSection({
   mailto,
   onCardsPerRowChange,
   onPrint,
+  onDeleteCard,
+  onDuplicateCard,
+  onMoveCard,
 }) {
+  const [activeControlsCardId, setActiveControlsCardId] = useState(null)
+  const [draggedCardId, setDraggedCardId] = useState(null)
+  const longPressRef = useRef(null)
+
+  useEffect(() => {
+    return () => {
+      if (longPressRef.current) {
+        clearTimeout(longPressRef.current)
+      }
+    }
+  }, [])
+
   const safeCardsPerRow = Math.min(Math.max(cardsPerRow, 1), 8)
-  const printLayout = getPrintLayout(safeCardsPerRow)
-  const frontPrintPages = chunkCards(deck, printLayout.pageSize).map((page) =>
-    padPage(page, printLayout.pageSize)
+  const printLayout = useMemo(() => getPrintLayout(safeCardsPerRow), [safeCardsPerRow])
+  const frontPrintPages = useMemo(
+    () =>
+      chunkCards(deck, printLayout.pageSize).map((page) => padPage(page, printLayout.pageSize)),
+    [deck, printLayout.pageSize]
   )
-  const backPrintPages = frontPrintPages.map((page) =>
-    mirrorPageForBackPrint(page, printLayout.columns)
+  const backPrintPages = useMemo(
+    () => frontPrintPages.map((page) => mirrorPageForBackPrint(page, printLayout.columns)),
+    [frontPrintPages, printLayout.columns]
   )
   const hasAnyBacks = deck.some((card) => card.imageBack)
+
+  const clearLongPress = () => {
+    if (longPressRef.current) {
+      clearTimeout(longPressRef.current)
+      longPressRef.current = null
+    }
+  }
+
+  const handlePointerDown = (cardId) => {
+    clearLongPress()
+    longPressRef.current = setTimeout(() => {
+      setActiveControlsCardId(cardId)
+    }, LONG_PRESS_MS)
+  }
+
+  const handlePointerUp = () => {
+    clearLongPress()
+  }
+
+  const handleDragStart = (cardId) => {
+    setDraggedCardId(cardId)
+    setActiveControlsCardId(cardId)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedCardId(null)
+  }
 
   return (
     <section className="deck-section" aria-label="Deck controls">
@@ -94,14 +189,42 @@ function DeckSection({
         </label>
       </div>
 
-      <div
-        className="deck-grid screen-deck-grid"
-        style={{ '--cards-per-row': safeCardsPerRow }}
-      >
-        {deck.map((card) => (
-          <article key={card.id} className="card-preview small">
-            <CardFace card={card} imageAlt={`${card.name} art`} />
-          </article>
+      <div className="deck-grid screen-deck-grid" style={{ '--cards-per-row': safeCardsPerRow }}>
+        {deck.map((card, index) => (
+          <DeckCardSlot
+            key={card.id}
+            card={card}
+            index={index}
+            isControlsVisible={activeControlsCardId === card.id}
+            isDragging={draggedCardId === card.id}
+            onDelete={onDeleteCard}
+            onDuplicateBefore={(slotIndex) => onDuplicateCard(slotIndex, 'before')}
+            onDuplicateAfter={(slotIndex) => onDuplicateCard(slotIndex, 'after')}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragOver={(event, slotIndex) => {
+              event.preventDefault()
+              if (draggedCardId) {
+                setActiveControlsCardId(deck[slotIndex]?.id ?? null)
+              }
+            }}
+            onDrop={(slotIndex) => {
+              if (draggedCardId) {
+                onMoveCard(draggedCardId, slotIndex)
+              }
+              handleDragEnd()
+            }}
+            onPointerEnter={setActiveControlsCardId}
+            onPointerLeave={() => {
+              if (!draggedCardId) {
+                setActiveControlsCardId(null)
+              }
+              clearLongPress()
+            }}
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+          />
         ))}
         {deck.length === 0 && <p className="empty">No cards in deck yet.</p>}
       </div>

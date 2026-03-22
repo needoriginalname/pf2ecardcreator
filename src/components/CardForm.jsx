@@ -28,7 +28,7 @@ function StyleSection({ title, prefix, card, onChange }) {
           </datalist>
         </div>
 
-        <label className="style-toggle" htmlFor={`${prefix}-bold`}>
+        <div className="style-toggle">
           <span>Bold</span>
           <input
             id={`${prefix}-bold`}
@@ -36,9 +36,9 @@ function StyleSection({ title, prefix, card, onChange }) {
             checked={card[`${prefix}Bold`]}
             onChange={onChange(`${prefix}Bold`)}
           />
-        </label>
+        </div>
 
-        <label className="style-toggle" htmlFor={`${prefix}-italic`}>
+        <div className="style-toggle">
           <span>Italic</span>
           <input
             id={`${prefix}-italic`}
@@ -46,7 +46,7 @@ function StyleSection({ title, prefix, card, onChange }) {
             checked={card[`${prefix}Italic`]}
             onChange={onChange(`${prefix}Italic`)}
           />
-        </label>
+        </div>
       </div>
     </details>
   )
@@ -63,7 +63,7 @@ function CardForm({
   return (
     <form id={formId} className="card-form" onSubmit={onSubmit} aria-label="Card editor">
       <div className="form-field">
-        <label htmlFor="card-name">Name</label>
+        <span className="field-label">Name</span>
         <StyleSection title="Name" prefix="name" card={card} onChange={onChange} />
         <input
           id="card-name"
@@ -75,7 +75,7 @@ function CardForm({
       </div>
 
       <div className="form-field">
-        <label htmlFor="card-artwork">Artwork</label>
+        <span className="field-label">Artwork</span>
         <input
           id="card-artwork"
           type="file"
@@ -85,7 +85,7 @@ function CardForm({
       </div>
 
       <div className="form-field">
-        <label htmlFor="card-back-artwork">Back Artwork (optional)</label>
+        <span className="field-label">Back Artwork (optional)</span>
         <input
           id="card-back-artwork"
           type="file"
@@ -95,7 +95,7 @@ function CardForm({
       </div>
 
       <div className="form-field">
-        <label htmlFor="card-traits">Traits</label>
+        <span className="field-label">Traits</span>
         <StyleSection title="Traits" prefix="traits" card={card} onChange={onChange} />
         <input
           id="card-traits"
@@ -106,7 +106,7 @@ function CardForm({
       </div>
 
       <div className="form-field">
-        <label htmlFor="card-action-icon">Action symbol:</label>
+        <span className="field-label">Action symbol:</span>
         <select id="card-action-icon" value={card.actionIcon} onChange={onChange('actionIcon')}>
           <option value="">None</option>
           <option value="A">One action</option>
@@ -118,7 +118,7 @@ function CardForm({
       </div>
 
       <div className="form-field">
-        <label htmlFor="card-action-custom">Custom action text</label>
+        <span className="field-label">Custom action text</span>
         <StyleSection title="Custom action text" prefix="actionText" card={card} onChange={onChange} />
         <input
           id="card-action-custom"
@@ -130,7 +130,7 @@ function CardForm({
       </div>
 
       <div className="form-field">
-        <label htmlFor="card-description">Description</label>
+        <span className="field-label">Description</span>
         <textarea
           id="card-description"
           value={card.description}

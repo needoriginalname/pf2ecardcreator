@@ -9,6 +9,10 @@ import { getCardSummary } from './utils/cardDisplay'
 import { getCroppedImg } from './utils/imageCrop'
 
 const CARD_FORM_ID = 'card-editor-form'
+const createDeckCard = (cardData) => ({
+  ...cardData,
+  id: crypto.randomUUID(),
+})
 
 function App() {
   const [card, setCard] = useState(initialCard)
@@ -74,12 +78,41 @@ function App() {
 
   const addCard = () => {
     if (!card.name.trim()) return
-    setDeck((prev) => [...prev, { ...card, id: Date.now() }])
+    setDeck((prev) => [...prev, createDeckCard(card)])
     setCard(initialCard)
     setPreviewBack(false)
   }
 
   const clearDeck = () => setDeck([])
+
+  const deleteCard = (cardId) => {
+    setDeck((prev) => prev.filter((entry) => entry.id !== cardId))
+  }
+
+  const duplicateCard = (index, position) => {
+    setDeck((prev) => {
+      const sourceCard = prev[index]
+      if (!sourceCard) return prev
+
+      const nextDeck = [...prev]
+      const insertionIndex = position === 'before' ? index : index + 1
+      nextDeck.splice(insertionIndex, 0, createDeckCard(sourceCard))
+      return nextDeck
+    })
+  }
+
+  const moveCard = (cardId, targetIndex) => {
+    setDeck((prev) => {
+      const sourceIndex = prev.findIndex((entry) => entry.id === cardId)
+      if (sourceIndex === -1 || targetIndex < 0 || targetIndex >= prev.length) return prev
+      if (sourceIndex === targetIndex) return prev
+
+      const nextDeck = [...prev]
+      const [movedCard] = nextDeck.splice(sourceIndex, 1)
+      nextDeck.splice(targetIndex, 0, movedCard)
+      return nextDeck
+    })
+  }
 
   const handlePrint = () => {
     if (!deck.length) {
@@ -138,6 +171,9 @@ function App() {
         cardsPerRow={cardsPerRow}
         mailto={mailto}
         onCardsPerRowChange={setCardsPerRow}
+        onDeleteCard={deleteCard}
+        onDuplicateCard={duplicateCard}
+        onMoveCard={moveCard}
         onPrint={handlePrint}
       />
 
