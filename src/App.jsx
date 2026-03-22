@@ -18,6 +18,7 @@ function App() {
   const [tempImage, setTempImage] = useState('')
   const [cropMode, setCropMode] = useState('front')
   const [previewBack, setPreviewBack] = useState(false)
+  const [cardsPerRow, setCardsPerRow] = useState(3)
 
   const cardCount = deck.length
 
@@ -119,10 +120,17 @@ function App() {
         />
       </section>
 
-      <DeckSection deck={deck} cardCount={cardCount} mailto={mailto} onPrint={handlePrint} />
+      <DeckSection
+        deck={deck}
+        cardCount={cardCount}
+        cardsPerRow={cardsPerRow}
+        mailto={mailto}
+        onCardsPerRowChange={setCardsPerRow}
+        onPrint={handlePrint}
+      />
 
       <footer className="note">
-        Tip: For best results, print from Chrome/Edge using A4 or Letter landscape and 3mm
+        Tip: For best results, print from Chrome/Edge using A4 or Letter portrait and 3mm
         margins.
       </footer>
 

@@ -1,9 +1,11 @@
 import CardBack from './CardBack'
 import CardFace from './CardFace'
 
-const PRINT_COLUMNS = 3
-const PRINT_ROWS = 3
-const PRINT_PAGE_SIZE = PRINT_COLUMNS * PRINT_ROWS
+const BASE_CARD_WIDTH_IN = 2.48
+const BASE_CARD_HEIGHT_IN = 3.46
+const PRINTABLE_WIDTH_IN = 7.77
+const PRINTABLE_HEIGHT_IN = 10.5
+const PRINT_GAP_IN = 0.08
 
 const chunkCards = (cards, pageSize) => {
   const pages = []
@@ -30,12 +32,40 @@ const mirrorPageForBackPrint = (page, columns) => {
   return mirrored
 }
 
-function DeckSection({ deck, cardCount, mailto, onPrint }) {
-  const frontPrintPages = chunkCards(deck, PRINT_PAGE_SIZE).map((page) =>
-    padPage(page, PRINT_PAGE_SIZE)
+const getPrintLayout = (columns) => {
+  const cardWidth =
+    (PRINTABLE_WIDTH_IN - PRINT_GAP_IN * (columns - 1)) / columns
+  const cardHeight = cardWidth * (BASE_CARD_HEIGHT_IN / BASE_CARD_WIDTH_IN)
+  const rows = Math.max(
+    1,
+    Math.floor((PRINTABLE_HEIGHT_IN + PRINT_GAP_IN) / (cardHeight + PRINT_GAP_IN))
+  )
+
+  return {
+    columns,
+    rows,
+    pageSize: columns * rows,
+    cardWidth,
+    cardHeight,
+    scale: cardWidth / BASE_CARD_WIDTH_IN,
+  }
+}
+
+function DeckSection({
+  deck,
+  cardCount,
+  cardsPerRow,
+  mailto,
+  onCardsPerRowChange,
+  onPrint,
+}) {
+  const safeCardsPerRow = Math.min(Math.max(cardsPerRow, 1), 8)
+  const printLayout = getPrintLayout(safeCardsPerRow)
+  const frontPrintPages = chunkCards(deck, printLayout.pageSize).map((page) =>
+    padPage(page, printLayout.pageSize)
   )
   const backPrintPages = frontPrintPages.map((page) =>
-    mirrorPageForBackPrint(page, PRINT_COLUMNS)
+    mirrorPageForBackPrint(page, printLayout.columns)
   )
   const hasAnyBacks = deck.some((card) => card.imageBack)
 
@@ -49,9 +79,25 @@ function DeckSection({ deck, cardCount, mailto, onPrint }) {
         <a className="button" href={mailto}>
           Share as email
         </a>
+        <label className="cards-per-row-control">
+          Cards per row
+          <select
+            value={safeCardsPerRow}
+            onChange={(event) => onCardsPerRowChange(Number(event.target.value))}
+          >
+            {Array.from({ length: 8 }, (_, index) => index + 1).map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
-      <div className="deck-grid screen-deck-grid">
+      <div
+        className="deck-grid screen-deck-grid"
+        style={{ '--cards-per-row': safeCardsPerRow }}
+      >
         {deck.map((card) => (
           <article key={card.id} className="card-preview small">
             <CardFace card={card} imageAlt={`${card.name} art`} />
@@ -63,7 +109,15 @@ function DeckSection({ deck, cardCount, mailto, onPrint }) {
       <div className="print-pages" aria-hidden="true">
         {frontPrintPages.map((page, pageIndex) => (
           <div key={`front-page-${pageIndex}`} className="print-page print-page-front">
-            <div className="deck-grid print-deck-grid">
+            <div
+              className="deck-grid print-deck-grid"
+              style={{
+                '--print-columns': printLayout.columns,
+                '--print-card-width': `${printLayout.cardWidth}in`,
+                '--print-card-height': `${printLayout.cardHeight}in`,
+                '--print-card-scale': printLayout.scale,
+              }}
+            >
               {page.map((card, slotIndex) =>
                 card ? (
                   <article key={card.id} className="card-preview small">
@@ -83,7 +137,15 @@ function DeckSection({ deck, cardCount, mailto, onPrint }) {
         {hasAnyBacks &&
           backPrintPages.map((page, pageIndex) => (
             <div key={`back-page-${pageIndex}`} className="print-page print-page-back">
-              <div className="deck-grid print-deck-grid">
+              <div
+                className="deck-grid print-deck-grid"
+                style={{
+                  '--print-columns': printLayout.columns,
+                  '--print-card-width': `${printLayout.cardWidth}in`,
+                  '--print-card-height': `${printLayout.cardHeight}in`,
+                  '--print-card-scale': printLayout.scale,
+                }}
+              >
                 {page.map((card, slotIndex) =>
                   card ? (
                     <article key={`${card.id}-back`} className="card-preview small">
