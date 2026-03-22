@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   MdDelete,
+  MdEdit,
   MdKeyboardDoubleArrowLeft,
   MdKeyboardDoubleArrowRight,
 } from 'react-icons/md'
@@ -67,6 +68,7 @@ function DeckCardSlot({
   onDelete,
   onDuplicateBefore,
   onDuplicateAfter,
+  onEdit,
   onDragStart,
   onDragEnd,
   onDragOver,
@@ -105,6 +107,15 @@ function DeckCardSlot({
         </button>
         <button
           type="button"
+          className="deck-card-control"
+          aria-label="Edit card"
+          title="Edit card"
+          onClick={() => onEdit(card.id)}
+        >
+          <MdEdit />
+        </button>
+        <button
+          type="button"
           className="deck-card-control danger"
           aria-label="Delete card"
           title="Delete card"
@@ -134,9 +145,11 @@ function DeckSection({
   cardsPerRow,
   mailto,
   onCardsPerRowChange,
+  onClearDeck,
   onPrint,
   onDeleteCard,
   onDuplicateCard,
+  onEditCard,
   onMoveCard,
 }) {
   const [activeControlsCardId, setActiveControlsCardId] = useState(null)
@@ -198,6 +211,9 @@ function DeckSection({
         <button type="button" onClick={onPrint}>
           Print deck
         </button>
+        <button type="button" onClick={onClearDeck}>
+          Clear Deck
+        </button>
         <a className="button" href={mailto}>
           Share as email
         </a>
@@ -227,6 +243,7 @@ function DeckSection({
             onDelete={onDeleteCard}
             onDuplicateBefore={(slotIndex) => onDuplicateCard(slotIndex, 'before')}
             onDuplicateAfter={(slotIndex) => onDuplicateCard(slotIndex, 'after')}
+            onEdit={onEditCard}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onDragOver={(event, slotIndex) => {

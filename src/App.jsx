@@ -47,6 +47,10 @@ const normalizeCardData = (cardData) => {
     ? Number(cardData.descriptionBoxOpacity)
     : defaults.descriptionBoxOpacity
 
+  delete normalized.type
+  delete normalized.level
+  delete normalized.rarity
+
   return normalized
 }
 
@@ -110,6 +114,8 @@ function App() {
   const [cropMode, setCropMode] = useState('front')
   const [previewBack, setPreviewBack] = useState(initialSnapshotRef.current.previewBack)
   const [cardsPerRow, setCardsPerRow] = useState(initialSnapshotRef.current.cardsPerRow)
+  const [editingCardId, setEditingCardId] = useState(null)
+  const [editorSessionKey, setEditorSessionKey] = useState(0)
 
   const cardCount = deck.length
 
@@ -166,6 +172,8 @@ function App() {
     setDeck(normalized.deck)
     setPreviewBack(normalized.previewBack)
     setCardsPerRow(normalized.cardsPerRow)
+    setEditingCardId(null)
+    setEditorSessionKey((prev) => prev + 1)
     resetCropState()
   }
 
@@ -228,17 +236,41 @@ function App() {
     reader.readAsText(file)
   }
 
-  const addCard = () => {
-    if (!getRichTextPlainText(card.name)) return
-    setDeck((prev) => [...prev, createDeckCard(card)])
+  const resetEditor = () => {
     setCard(createInitialCard())
     setPreviewBack(false)
+    setEditingCardId(null)
+    setEditorSessionKey((prev) => prev + 1)
   }
 
-  const clearDeck = () => setDeck([])
+  const submitCard = () => {
+    if (!getRichTextPlainText(card.name)) return
+
+    if (editingCardId) {
+      setDeck((prev) =>
+        prev.map((entry) =>
+          entry.id === editingCardId ? { ...structuredClone(card), id: editingCardId } : entry
+        )
+      )
+    } else {
+      setDeck((prev) => [...prev, createDeckCard(card)])
+    }
+
+    resetEditor()
+  }
+
+  const clearDeck = () => {
+    setDeck([])
+    if (editingCardId) {
+      resetEditor()
+    }
+  }
 
   const deleteCard = (cardId) => {
     setDeck((prev) => prev.filter((entry) => entry.id !== cardId))
+    if (cardId === editingCardId) {
+      resetEditor()
+    }
   }
 
   const duplicateCard = (index, position) => {
@@ -266,6 +298,17 @@ function App() {
     })
   }
 
+  const editCard = (cardId) => {
+    const selectedCard = deck.find((entry) => entry.id === cardId)
+    if (!selectedCard) return
+
+    const { id, ...cardData } = selectedCard
+    setCard(structuredClone(cardData))
+    setEditingCardId(id)
+    setPreviewBack(false)
+    setEditorSessionKey((prev) => prev + 1)
+  }
+
   const handlePrint = () => {
     if (!deck.length) {
       alert('Please add at least one card to the deck before printing.')
@@ -276,7 +319,7 @@ function App() {
 
   const mailto = `mailto:?subject=PF2e card deck&body=${encodeURIComponent(
     `Hey,%0A%0Acheck out my PF2e cards:%0A${deck
-      .map((entry) => `${entry.type}: ${getRichTextPlainText(entry.name)} (Lvl ${entry.level})`)
+      .map((entry) => getRichTextPlainText(entry.name))
       .join('%0A')}`
   )}`
 
@@ -316,7 +359,9 @@ function App() {
       <section className="builder-grid">
         <CardForm
           card={card}
+          editorSessionKey={editorSessionKey}
           formId={CARD_FORM_ID}
+          isEditing={Boolean(editingCardId)}
           onActionTextChange={(value) => {
             setCard((prev) => ({ ...prev, actionCustom: value }))
           }}
@@ -330,12 +375,12 @@ function App() {
           }}
           onSubmit={(event) => {
             event.preventDefault()
-            addCard()
+            submitCard()
           }}
+          onResetInputs={resetEditor}
           onTraitsChange={(value) => {
             setCard((prev) => ({ ...prev, traits: value }))
           }}
-          onClearDeck={clearDeck}
         />
 
         <PreviewPanel
@@ -347,10 +392,10 @@ function App() {
 
         <div className="mobile-form-actions">
           <button type="submit" form={CARD_FORM_ID}>
-            Add Card to Deck
+            {editingCardId ? 'Update Card' : 'Add Card to Deck'}
           </button>
-          <button type="button" onClick={clearDeck}>
-            Clear Deck
+          <button type="button" onClick={resetEditor}>
+            Reset Inputs
           </button>
         </div>
       </section>
@@ -361,8 +406,10 @@ function App() {
         cardsPerRow={cardsPerRow}
         mailto={mailto}
         onCardsPerRowChange={setCardsPerRow}
+        onClearDeck={clearDeck}
         onDeleteCard={deleteCard}
         onDuplicateCard={duplicateCard}
+        onEditCard={editCard}
         onMoveCard={moveCard}
         onPrint={handlePrint}
       />

@@ -83,15 +83,17 @@ function SurfaceInspector({
 
 function CardForm({
   card,
+  editorSessionKey,
   formId,
+  isEditing,
   onActionTextChange,
   onChange,
   onDescriptionChange,
   onImageChange,
   onNameChange,
+  onResetInputs,
   onSubmit,
   onTraitsChange,
-  onClearDeck,
 }) {
   const [activeTab, setActiveTab] = useState('text')
   const frontSurfaceUsesImage = card.frontBackgroundMode === 'image'
@@ -134,6 +136,7 @@ function CardForm({
           <div className="form-field">
             <span className="field-label">Name</span>
             <RichTextEditor
+              key={`name-${editorSessionKey}`}
               value={card.name}
               onChange={onNameChange}
               placeholder="Fireball"
@@ -145,6 +148,7 @@ function CardForm({
           <div className="form-field">
             <span className="field-label">Traits</span>
             <RichTextEditor
+              key={`traits-${editorSessionKey}`}
               value={card.traits}
               onChange={onTraitsChange}
               placeholder="Evocation, Fire"
@@ -168,6 +172,7 @@ function CardForm({
           <div className="form-field">
             <span className="field-label">Custom action text</span>
             <RichTextEditor
+              key={`action-${editorSessionKey}`}
               value={card.actionCustom}
               onChange={onActionTextChange}
               placeholder="e.g. 1 action, Immediate"
@@ -179,6 +184,7 @@ function CardForm({
           <div className="form-field">
             <span className="field-label">Description</span>
             <RichTextEditor
+              key={`description-${editorSessionKey}`}
               value={card.description}
               onChange={onDescriptionChange}
               placeholder="Effect text"
@@ -331,9 +337,9 @@ function CardForm({
       ) : null}
 
       <div className="form-actions">
-        <button type="submit">Add Card to Deck</button>
-        <button type="button" onClick={onClearDeck}>
-          Clear Deck
+        <button type="submit">{isEditing ? 'Update Card' : 'Add Card to Deck'}</button>
+        <button type="button" onClick={onResetInputs}>
+          Reset Inputs
         </button>
       </div>
     </form>
