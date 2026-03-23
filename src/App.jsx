@@ -253,7 +253,7 @@ function App() {
   }
 
   const exportJson = () => {
-    const blob = new Blob([JSON.stringify(appSnapshot, null, 2)], {
+    const blob = new Blob([JSON.stringify(appSnapshot)], {
       type: 'application/json',
     })
     const url = URL.createObjectURL(blob)
