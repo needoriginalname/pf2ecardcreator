@@ -601,7 +601,6 @@ button:hover,
 }
 
 .mtg-name {
-  text-transform: uppercase;
   font-size: var(--card-name-size);
   font-weight: 700;
   color: #0b0b0a;
