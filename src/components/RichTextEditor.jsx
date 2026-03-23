@@ -4,6 +4,7 @@ import { Slate, Editable, withReact, useSlate } from 'slate-react'
 import { withHistory } from 'slate-history'
 import {
   MdFormatBold,
+  MdFormatColorText,
   MdFormatItalic,
   MdFormatUnderlined,
   MdTextDecrease,
@@ -14,6 +15,7 @@ import { FONT_OPTIONS, getFontFamily } from '../constants/fonts'
 const FONT_SIZE_STEP = 0.1
 const MIN_FONT_SCALE = 0.7
 const MAX_FONT_SCALE = 1.8
+const DEFAULT_FONT_COLOR = '#000000'
 
 const isMarkActive = (editor, format, expectedValue = true) => {
   const marks = Editor.marks(editor)
@@ -51,6 +53,15 @@ const adjustFontScale = (editor, direction) => {
   } else {
     Editor.addMark(editor, 'fontSize', Number(nextScale.toFixed(2)))
   }
+}
+
+const setFontColor = (editor, value) => {
+  if (!value || value.toLowerCase() === DEFAULT_FONT_COLOR) {
+    Editor.removeMark(editor, 'color')
+    return
+  }
+
+  Editor.addMark(editor, 'color', value)
 }
 
 function ToolbarButton({ label, onMouseDown, children }) {
@@ -92,6 +103,25 @@ function FontFamilySelect() {
   )
 }
 
+function FontColorControl() {
+  const editor = useSlate()
+  const selectedColor = Editor.marks(editor)?.color ?? DEFAULT_FONT_COLOR
+
+  return (
+    <div className="rich-text-color-control">
+      <span>Color</span>
+      <label className="rich-text-color-input" aria-label="Font color">
+        <MdFormatColorText />
+        <input
+          type="color"
+          value={selectedColor}
+          onChange={(event) => setFontColor(editor, event.target.value)}
+        />
+      </label>
+    </div>
+  )
+}
+
 function Leaf({ attributes, children, leaf }) {
   let nextChildren = children
 
@@ -111,6 +141,7 @@ function Leaf({ attributes, children, leaf }) {
     <span
       {...attributes}
       style={{
+        color: leaf.color ?? undefined,
         fontFamily: leaf.fontFamily ? getFontFamily(leaf.fontFamily) : undefined,
         fontSize: `${leaf.fontSize ?? 1}em`,
       }}
@@ -148,6 +179,7 @@ function RichTextEditor({
           <ToolbarButton label="Increase font size" onMouseDown={() => adjustFontScale(editor, 1)}>
             <MdTextIncrease />
           </ToolbarButton>
+          <FontColorControl />
           <FontFamilySelect />
         </div>
         <Editable

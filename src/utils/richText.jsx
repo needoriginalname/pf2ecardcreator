@@ -27,6 +27,7 @@ const renderLeafText = (leaf, leafIndex) => (
   <span
     key={leafIndex}
     style={{
+      color: leaf.color ?? undefined,
       fontFamily: leaf.fontFamily ? getFontFamily(leaf.fontFamily) : undefined,
       fontSize: `${leaf.fontSize ?? 1}em`,
       fontWeight: leaf.bold ? 700 : 400,

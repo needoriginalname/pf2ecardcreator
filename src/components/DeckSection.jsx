@@ -60,12 +60,23 @@ const getPrintLayout = (columns) => {
   }
 }
 
-const getPrintGridStyle = (printLayout) => ({
+const getScreenCardScale = (columns) => Math.min(Math.max((1 / columns) * 2.7, 0.34), 1)
+
+const getPrintGridStyle = (printLayout, screenCardWidth) => {
+  const printCardWidthPx = printLayout.cardWidth * 96
+  const widthRatio = screenCardWidth > 0 ? printCardWidthPx / screenCardWidth : 1
+  const printFontScale = Math.min(
+    1,
+    Math.max(getScreenCardScale(printLayout.columns) * widthRatio, 0.24)
+  )
+
+  return {
   '--print-columns': printLayout.columns,
   '--print-card-width': `${printLayout.cardWidth}in`,
   '--print-card-height': `${printLayout.cardHeight}in`,
-  '--print-card-scale': printLayout.scale,
-})
+  '--print-card-font-scale': printFontScale,
+}
+}
 
 const getCardLabel = (card) => getRichTextPlainText(card.name) || 'Card'
 
@@ -152,6 +163,7 @@ function DeckSection({
   deck,
   cardCount,
   cardsPerRow,
+  screenCardWidth,
   mailto,
   onCardsPerRowChange,
   onClearDeck,
@@ -175,7 +187,10 @@ function DeckSection({
 
   const safeCardsPerRow = Math.min(Math.max(cardsPerRow, 1), 8)
   const printLayout = useMemo(() => getPrintLayout(safeCardsPerRow), [safeCardsPerRow])
-  const printGridStyle = useMemo(() => getPrintGridStyle(printLayout), [printLayout])
+  const printGridStyle = useMemo(
+    () => getPrintGridStyle(printLayout, screenCardWidth),
+    [printLayout, screenCardWidth]
+  )
   const frontPrintPages = useMemo(
     () =>
       chunkCards(deck, printLayout.pageSize).map((page) => padPage(page, printLayout.pageSize)),

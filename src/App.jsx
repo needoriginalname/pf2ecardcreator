@@ -464,6 +464,7 @@ function App() {
         deck={deck}
         cardCount={cardCount}
         cardsPerRow={cardsPerRow}
+        screenCardWidth={previewCardWidth}
         mailto={mailto}
         onCardsPerRowChange={setCardsPerRow}
         onClearDeck={clearDeck}
