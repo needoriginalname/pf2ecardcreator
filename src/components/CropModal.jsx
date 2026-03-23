@@ -5,6 +5,7 @@ function CropModal({
   crop,
   zoom,
   cropMode,
+  frontArtworkLayout,
   onCropChange,
   onCropComplete,
   onZoomChange,
@@ -12,6 +13,10 @@ function CropModal({
   onConfirm,
 }) {
   const usesFullCardAspect = cropMode === 'back' || cropMode === 'frontBackground'
+  const usesSplitFrontArtwork =
+    cropMode === 'front' &&
+    (frontArtworkLayout === 'art-left-text-right' || frontArtworkLayout === 'text-left-art-right')
+  const cropAspect = usesFullCardAspect ? 2.48 / 3.46 : usesSplitFrontArtwork ? 1.24 / 1.5 : 2.48 / 1.5
 
   return (
     <div className="crop-modal">
@@ -23,7 +28,7 @@ function CropModal({
             image={tempImage}
             crop={crop}
             zoom={zoom}
-            aspect={usesFullCardAspect ? 2.48 / 3.46 : 2.48 / 1.5}
+            aspect={cropAspect}
             restrictPosition={false}
             showGrid
             onCropChange={onCropChange}

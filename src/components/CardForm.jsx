@@ -25,6 +25,14 @@ const ACTION_OPTIONS = [
   { value: 'F', label: 'Free action' },
 ]
 
+const FRONT_ARTWORK_LAYOUT_OPTIONS = [
+  { value: 'art-only', label: 'Only artwork' },
+  { value: 'art-left-text-right', label: 'Left art, right text' },
+  { value: 'text-left-art-right', label: 'Left text, right art' },
+  { value: 'hidden', label: 'Hide completely' },
+  { value: 'hidden-preserve-space', label: "Hide completely but don't reposition" },
+]
+
 function EditorTabButton({ id, label, activeTab, onSelect }) {
   return (
     <button
@@ -118,6 +126,7 @@ function CardForm({
   onActionTextChange,
   onChange,
   onDescriptionChange,
+  onFrontArtworkTextChange,
   onImageChange,
   onNameChange,
   onResetInputs,
@@ -125,6 +134,13 @@ function CardForm({
   onTraitsChange,
 }) {
   const [activeTab, setActiveTab] = useState('text')
+  const frontArtworkLayoutUsesImage =
+    card.frontArtworkLayout === 'art-only' ||
+    card.frontArtworkLayout === 'art-left-text-right' ||
+    card.frontArtworkLayout === 'text-left-art-right'
+  const frontArtworkLayoutUsesText =
+    card.frontArtworkLayout === 'art-left-text-right' ||
+    card.frontArtworkLayout === 'text-left-art-right'
   const frontSurfaceUsesImage = card.frontBackgroundMode === 'image'
   const backSurfaceUsesImage = card.backBackgroundMode === 'image'
 
@@ -205,23 +221,34 @@ function CardForm({
               enableTables
             />
           </div>
+
+          {frontArtworkLayoutUsesText ? (
+            <div className="form-field">
+              <span className="field-label">Artwork side text</span>
+              <RichTextEditor
+                key={`front-art-text-${editorSessionKey}`}
+                value={card.frontArtworkText}
+                onChange={onFrontArtworkTextChange}
+                placeholder="Supplemental art panel text"
+                defaultAlignment="left"
+                enableTables
+              />
+            </div>
+          ) : null}
         </section>
       ) : null}
 
       {activeTab === 'images' ? (
         <section className="editor-tab-panel" role="tabpanel" aria-label="Image fields">
           <div className="form-field">
-            <label className="toggle-field">
-              <input
-                type="checkbox"
-                checked={card.showFrontArtwork}
-                onChange={onChange('showFrontArtwork')}
-              />
-              <span className="toggle-track" aria-hidden="true">
-                <span className="toggle-thumb" />
-              </span>
-              <span className="toggle-label">Show front artwork</span>
-            </label>
+            <span className="field-label">Front artwork area</span>
+            <select value={card.frontArtworkLayout} onChange={onChange('frontArtworkLayout')}>
+              {FRONT_ARTWORK_LAYOUT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="form-field">
@@ -230,15 +257,15 @@ function CardForm({
               id="card-artwork"
               type="file"
               accept="image/*"
-              disabled={!card.showFrontArtwork}
+              disabled={!frontArtworkLayoutUsesImage}
               onChange={(event) => onImageChange(event, 'front')}
             />
-            {!card.showFrontArtwork ? (
-              <p className="field-hint">Enable Show front artwork to upload or replace the image.</p>
+            {!frontArtworkLayoutUsesImage ? (
+              <p className="field-hint">Needs Front artwork area set to a layout that includes art.</p>
             ) : null}
           </div>
 
-          {card.showFrontArtwork ? (
+          {frontArtworkLayoutUsesImage ? (
             <div className="form-field">
               <span className="field-label">Artwork alpha background</span>
               <select
@@ -254,7 +281,7 @@ function CardForm({
             </div>
           ) : null}
 
-          {card.showFrontArtwork && card.frontArtworkBackgroundMode === 'color' ? (
+          {frontArtworkLayoutUsesImage && card.frontArtworkBackgroundMode === 'color' ? (
             <div className="form-field">
               <span className="field-label">Artwork background color</span>
               <div className="inspector-control inspector-control-inline">

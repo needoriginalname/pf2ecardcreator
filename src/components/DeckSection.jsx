@@ -154,7 +154,7 @@ function DeckCardSlot({
         </button>
       </div>
 
-      <CardFace card={card} imageAlt={`${cardName} art`} />
+      <CardFace card={card} imageAlt={`${cardName} art`} reserveEmptyArtworkSpace />
     </article>
   )
 }
@@ -305,7 +305,11 @@ function DeckSection({
               {page.map((card, slotIndex) =>
                 card ? (
                   <article key={card.id} className="card-preview small">
-                    <CardFace card={card} imageAlt={`${getCardLabel(card)} art`} />
+                    <CardFace
+                      card={card}
+                      imageAlt={`${getCardLabel(card)} art`}
+                      reserveEmptyArtworkSpace
+                    />
                   </article>
                 ) : (
                   <article

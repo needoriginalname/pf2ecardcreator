@@ -11,10 +11,23 @@ import { getCroppedImg } from './utils/imageCrop'
 
 const CARD_FORM_ID = 'card-editor-form'
 const STORAGE_KEY = 'pf2e-card-designer-state-v1'
-const RICH_TEXT_FIELDS = ['name', 'traits', 'actionCustom', 'description']
+const RICH_TEXT_FIELD_DEFAULTS = {
+  name: 'left',
+  traits: 'center',
+  actionCustom: 'right',
+  description: 'left',
+  frontArtworkText: 'left',
+}
+const RICH_TEXT_FIELDS = Object.keys(RICH_TEXT_FIELD_DEFAULTS)
 const EMPTY_DECK = []
 const DECK_SECTION_PADDING_PX = 28
 const DECK_GRID_GAP_PX = 12
+const FRONT_ARTWORK_LAYOUTS_WITH_IMAGE = new Set([
+  'art-only',
+  'art-left-text-right',
+  'text-left-art-right',
+])
+const FRONT_ARTWORK_LAYOUT_HIDDEN_RESERVED = 'hidden-preserve-space'
 
 const createDeckCard = (cardData) => ({
   ...structuredClone(cardData),
@@ -28,6 +41,29 @@ const clampFrameCurve = (value, fallback) =>
   Math.min(Math.max(normalizeNumericField(value, fallback), 0), 24)
 const normalizeNumericField = (value, fallback) =>
   Number.isFinite(Number(value)) ? Number(value) : fallback
+
+const normalizeFrontArtworkLayout = (cardData, fallback) => {
+  if (typeof cardData?.frontArtworkLayout === 'string') {
+    if (
+      cardData.frontArtworkLayout === 'hidden' &&
+      typeof cardData?.collapseHiddenArtworkSpace === 'boolean' &&
+      !cardData.collapseHiddenArtworkSpace
+    ) {
+      return FRONT_ARTWORK_LAYOUT_HIDDEN_RESERVED
+    }
+    return cardData.frontArtworkLayout
+  }
+
+  if (typeof cardData?.showFrontArtwork === 'boolean') {
+    return cardData.showFrontArtwork ? 'art-only' : 'hidden'
+  }
+
+  if (typeof cardData?.frontArtworkRemoved === 'boolean') {
+    return cardData.frontArtworkRemoved ? 'hidden' : 'art-only'
+  }
+
+  return fallback
+}
 
 const toRichTextValue = (value) => {
   if (Array.isArray(value)) return structuredClone(value)
@@ -45,7 +81,9 @@ const normalizeCardData = (cardData) => {
   const normalized = { ...defaults, ...(cardData ?? {}) }
 
   for (const field of RICH_TEXT_FIELDS) {
-    normalized[field] = toRichTextValue(cardData?.[field] ?? createEmptyRichTextValue())
+    normalized[field] = toRichTextValue(
+      cardData?.[field] ?? createEmptyRichTextValue(RICH_TEXT_FIELD_DEFAULTS[field])
+    )
   }
 
   normalized.borderThickness = normalizeNumericField(
@@ -65,16 +103,13 @@ const normalizeCardData = (cardData) => {
     cardData?.descriptionBoxOpacity,
     defaults.descriptionBoxOpacity
   )
-  normalized.showFrontArtwork =
-    typeof cardData?.showFrontArtwork === 'boolean'
-      ? cardData.showFrontArtwork
-      : typeof cardData?.frontArtworkRemoved === 'boolean'
-        ? !cardData.frontArtworkRemoved
-        : defaults.showFrontArtwork
+  normalized.frontArtworkLayout = normalizeFrontArtworkLayout(cardData, defaults.frontArtworkLayout)
 
   delete normalized.type
   delete normalized.level
   delete normalized.rarity
+  delete normalized.showFrontArtwork
+  delete normalized.collapseHiddenArtworkSpace
   delete normalized.frontArtworkRemoved
 
   return normalized
@@ -238,7 +273,9 @@ function App() {
         setCard((prev) => ({
           ...prev,
           image: croppedImage,
-          showFrontArtwork: true,
+          frontArtworkLayout: FRONT_ARTWORK_LAYOUTS_WITH_IMAGE.has(prev.frontArtworkLayout)
+            ? prev.frontArtworkLayout
+            : 'art-only',
         }))
       } else if (cropMode === 'frontBackground') {
         setCard((prev) => ({
@@ -438,6 +475,7 @@ function App() {
           onActionTextChange={(value) => updateCardField('actionCustom', value)}
           onChange={onChange}
           onDescriptionChange={(value) => updateCardField('description', value)}
+          onFrontArtworkTextChange={(value) => updateCardField('frontArtworkText', value)}
           onImageChange={onImageChange}
           onNameChange={(value) => updateCardField('name', value)}
           onSubmit={(event) => {
@@ -493,6 +531,7 @@ function App() {
           crop={crop}
           zoom={zoom}
           cropMode={cropMode}
+          frontArtworkLayout={card.frontArtworkLayout}
           onCropChange={setCrop}
           onCropComplete={onCropComplete}
           onZoomChange={setZoom}
