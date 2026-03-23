@@ -58,6 +58,8 @@ export const getCardSurfaceStyle = (card, side = 'front') => {
   const style = {
     '--card-custom-border-width': `${card.borderThickness}px`,
     '--card-custom-border-color': card.borderColor,
+    '--card-radius': `${card.cardFrameCurve}px`,
+    '--card-image-radius': `${card.frontArtworkFrameCurve}px`,
     backgroundColor: primaryColor,
   }
 

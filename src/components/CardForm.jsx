@@ -328,6 +328,21 @@ function CardForm({
                 <code>{card.borderColor}</code>
               </div>
             </div>
+
+            <div className="inspector-row">
+              <span className="inspector-label">Frame curve</span>
+              <div className="inspector-control inspector-control-range">
+                <input
+                  type="range"
+                  min="0"
+                  max="24"
+                  step="1"
+                  value={card.cardFrameCurve}
+                  onChange={onChange('cardFrameCurve')}
+                />
+                <output className="range-value">{card.cardFrameCurve}px</output>
+              </div>
+            </div>
           </div>
 
           <div className="inspector-group">
@@ -360,6 +375,21 @@ function CardForm({
                   onChange={onChange('frontArtworkBorderColor')}
                 />
                 <code>{card.frontArtworkBorderColor}</code>
+              </div>
+            </div>
+
+            <div className="inspector-row">
+              <span className="inspector-label">Frame curve</span>
+              <div className="inspector-control inspector-control-range">
+                <input
+                  type="range"
+                  min="0"
+                  max="24"
+                  step="1"
+                  value={card.frontArtworkFrameCurve}
+                  onChange={onChange('frontArtworkFrameCurve')}
+                />
+                <output className="range-value">{card.frontArtworkFrameCurve}px</output>
               </div>
             </div>
           </div>

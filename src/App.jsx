@@ -24,6 +24,8 @@ const createDeckCard = (cardData) => ({
 const clampCardsPerRow = (value) => Math.min(Math.max(value, 1), 8)
 const clampArtworkBorderThickness = (value, fallback) =>
   Math.min(Math.max(normalizeNumericField(value, fallback), 0), 4)
+const clampFrameCurve = (value, fallback) =>
+  Math.min(Math.max(normalizeNumericField(value, fallback), 0), 24)
 const normalizeNumericField = (value, fallback) =>
   Number.isFinite(Number(value)) ? Number(value) : fallback
 
@@ -53,6 +55,11 @@ const normalizeCardData = (cardData) => {
   normalized.frontArtworkBorderThickness = clampArtworkBorderThickness(
     cardData?.frontArtworkBorderThickness,
     defaults.frontArtworkBorderThickness
+  )
+  normalized.cardFrameCurve = clampFrameCurve(cardData?.cardFrameCurve, defaults.cardFrameCurve)
+  normalized.frontArtworkFrameCurve = clampFrameCurve(
+    cardData?.frontArtworkFrameCurve,
+    defaults.frontArtworkFrameCurve
   )
   normalized.descriptionBoxOpacity = normalizeNumericField(
     cardData?.descriptionBoxOpacity,

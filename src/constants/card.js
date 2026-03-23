@@ -14,6 +14,8 @@ export const createInitialCard = () => ({
   frontArtworkBackgroundColor: '#ffffff',
   frontArtworkBorderThickness: 1,
   frontArtworkBorderColor: '#444444',
+  cardFrameCurve: 10,
+  frontArtworkFrameCurve: 6,
   imageBack: '',
   frontBackgroundImage: '',
   borderThickness: 1,
