@@ -151,6 +151,7 @@ function CardForm({
               value={card.name}
               onChange={onNameChange}
               placeholder="Fireball"
+              defaultAlignment="left"
               compact
               singleLine
             />
@@ -163,6 +164,7 @@ function CardForm({
               value={card.traits}
               onChange={onTraitsChange}
               placeholder="Evocation, Fire"
+              defaultAlignment="center"
               compact
               singleLine
             />
@@ -186,6 +188,7 @@ function CardForm({
               value={card.actionCustom}
               onChange={onActionTextChange}
               placeholder="e.g. 1 action, Immediate"
+              defaultAlignment="right"
               compact
               singleLine
             />
@@ -198,6 +201,8 @@ function CardForm({
               value={card.description}
               onChange={onDescriptionChange}
               placeholder="Effect text"
+              defaultAlignment="left"
+              enableTables
             />
           </div>
         </section>

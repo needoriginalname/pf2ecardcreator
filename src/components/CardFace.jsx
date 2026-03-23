@@ -29,10 +29,10 @@ function CardFace({ card, imageAlt = 'Card art' }) {
     <div className="mtg-card" style={getCardSurfaceStyle(card, 'front')}>
       <div className="mtg-heading">
         <div className="mtg-name">
-          {nameText ? renderInlineRichText(card.name) : 'Name Here'}
+          {nameText ? renderInlineRichText(card.name, 'left') : 'Name Here'}
         </div>
         <div className={`mtg-level ${hasCustomActionText ? 'custom' : 'pf2e-action-icon'}`}>
-          {hasCustomActionText ? renderInlineRichText(card.actionCustom) : getActionDisplay(card)}
+          {hasCustomActionText ? renderInlineRichText(card.actionCustom, 'right') : getActionDisplay(card)}
         </div>
       </div>
       <div
@@ -47,10 +47,10 @@ function CardFace({ card, imageAlt = 'Card art' }) {
         ) : null}
       </div>
       <div className="mtg-traits">
-        {isRichTextEmpty(card.traits) ? 'Traits...' : renderInlineRichText(card.traits)}
+        {isRichTextEmpty(card.traits) ? 'Traits...' : renderInlineRichText(card.traits, 'center')}
       </div>
       <div className="mtg-body" style={getDescriptionBoxStyle(card)}>
-        {isRichTextEmpty(card.description) ? <p>Main effect text...</p> : renderRichText(card.description)}
+        {isRichTextEmpty(card.description) ? <p>Main effect text...</p> : renderRichText(card.description, 'left')}
       </div>
     </div>
   )

@@ -1,12 +1,12 @@
 import { createEmptyRichTextValue } from '../utils/richText.jsx'
 
 export const createInitialCard = () => ({
-  name: createEmptyRichTextValue(),
-  traits: createEmptyRichTextValue(),
+  name: createEmptyRichTextValue('left'),
+  traits: createEmptyRichTextValue('center'),
   actionIcon: 'A',
-  actionCustom: createEmptyRichTextValue(),
+  actionCustom: createEmptyRichTextValue('right'),
   school: 'Evocation',
-  description: createEmptyRichTextValue(),
+  description: createEmptyRichTextValue('left'),
   details: '',
   image: '',
   showFrontArtwork: true,

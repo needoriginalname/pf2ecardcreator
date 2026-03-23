@@ -339,8 +339,82 @@
 }
 
 .rich-text-toolbar-button svg {
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
+}
+
+.rich-text-toolbar-button .is-active {
+  color: #24301f;
+}
+
+.toolbar-symbol {
+  font-size: 0.76rem;
+  line-height: 1;
+}
+
+.rich-text-alignment-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rich-text-table-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.rich-text-table-style-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-left: 8px;
+}
+
+.rich-text-inline-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.78rem;
+  color: #33402b;
+}
+
+.rich-text-inline-control span {
+  white-space: nowrap;
+}
+
+.rich-text-inline-control input {
+  margin: 0;
+}
+
+.rich-text-inline-control input[type='color'] {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.rich-text-inline-control-range {
+  padding-right: 6px;
+}
+
+.rich-text-inline-control-range input[type='range'] {
+  width: 74px;
+}
+
+.rich-text-inline-control-range output {
+  min-width: 36px;
+  text-align: right;
+  font-size: 0.74rem;
 }
 
 .rich-text-font-control {
@@ -428,6 +502,48 @@
 
 .rich-text-editable p:last-child {
   margin-bottom: 0;
+}
+
+.rich-text-table {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 8px;
+  border: var(--editor-table-border-width, 1px) solid
+    var(--editor-table-border-color, #d6ddd1);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.rich-text-table-row {
+  display: flex;
+}
+
+.rich-text-table-row + .rich-text-table-row {
+  border-top: var(--editor-table-border-width, 1px) solid
+    var(--editor-table-border-color, #d6ddd1);
+}
+
+.rich-text-table-cell {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: var(--editor-table-cell-padding, 6px);
+  background: var(--editor-table-cell-bg, transparent);
+}
+
+.rich-text-table-cell + .rich-text-table-cell {
+  border-left: var(--editor-table-border-width, 1px) solid
+    var(--editor-table-border-color, #d6ddd1);
+}
+
+.rich-text-table-cell p {
+  margin: 0;
+  min-height: 1.25em;
+}
+
+.rich-text-inline-node {
+  display: block;
+  width: 100%;
 }
 
 .form-actions {
@@ -708,6 +824,26 @@ button:hover,
   overflow-wrap: break-word;
   text-align: left;
   overflow: hidden;
+}
+
+.mtg-body .rich-text-render-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: calc(4px * var(--card-font-scale)) 0;
+}
+
+.mtg-body .rich-text-render-table td {
+  border: var(--table-cell-border-width, 1px) solid
+    var(--table-cell-border-color, rgba(34, 34, 34, 0.45));
+  padding: calc(var(--table-cell-padding, 4px) * var(--card-font-scale));
+  vertical-align: top;
+  overflow-wrap: break-word;
+  background: var(--table-cell-bg, transparent);
+}
+
+.mtg-body .rich-text-render-table p {
+  margin: 0;
 }
 
 .deck-actions {
