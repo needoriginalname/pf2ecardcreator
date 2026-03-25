@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import RichTextEditor from './RichTextEditor'
+import { CARD_TEMPLATE_OPTIONS, getTemplateDetails } from '../constants/templates'
 
 const EDITOR_TABS = [
   { id: 'text', label: 'Text Fields' },
@@ -123,6 +124,7 @@ function CardForm({
   editorSessionKey,
   formId,
   isEditing,
+  onApplyTemplate,
   onActionTextChange,
   onChange,
   onDescriptionChange,
@@ -134,6 +136,7 @@ function CardForm({
   onTraitsChange,
 }) {
   const [activeTab, setActiveTab] = useState('text')
+  const [selectedTemplateId, setSelectedTemplateId] = useState(card.templateId)
   const frontArtworkLayoutUsesImage =
     card.frontArtworkLayout === 'art-only' ||
     card.frontArtworkLayout === 'art-left-text-right' ||
@@ -143,9 +146,34 @@ function CardForm({
     card.frontArtworkLayout === 'text-left-art-right'
   const frontSurfaceUsesImage = card.frontBackgroundMode === 'image'
   const backSurfaceUsesImage = card.backBackgroundMode === 'image'
+  const templateDetails = getTemplateDetails(card.templateId)
+  const selectedTemplateDetails = getTemplateDetails(selectedTemplateId)
+
+  useEffect(() => {
+    setSelectedTemplateId(card.templateId)
+  }, [card.templateId])
 
   return (
     <form id={formId} className="card-form" onSubmit={onSubmit} aria-label="Card editor">
+      <div className="template-panel">
+        <div className="template-panel-copy">
+          <h3>Template</h3>
+          <p>{selectedTemplateDetails.description}</p>
+        </div>
+        <div className="template-panel-controls">
+          <select value={selectedTemplateId} onChange={(event) => setSelectedTemplateId(event.target.value)}>
+            {CARD_TEMPLATE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <button type="button" onClick={() => onApplyTemplate(selectedTemplateId)}>
+            Load Template Starter
+          </button>
+        </div>
+      </div>
+
       <div className="editor-tabs" role="tablist" aria-label="Card editor sections">
         {EDITOR_TABS.map((tab) => (
           <EditorTabButton
@@ -166,7 +194,7 @@ function CardForm({
               key={`name-${editorSessionKey}`}
               value={card.name}
               onChange={onNameChange}
-              placeholder="Fireball"
+              placeholder={templateDetails.placeholders.name}
               defaultAlignment="left"
               compact
               singleLine
@@ -179,7 +207,7 @@ function CardForm({
               key={`traits-${editorSessionKey}`}
               value={card.traits}
               onChange={onTraitsChange}
-              placeholder="Evocation, Fire"
+              placeholder={templateDetails.placeholders.traits}
               defaultAlignment="center"
               compact
               singleLine
@@ -203,7 +231,7 @@ function CardForm({
               key={`action-${editorSessionKey}`}
               value={card.actionCustom}
               onChange={onActionTextChange}
-              placeholder="e.g. 1 action, Immediate"
+              placeholder={templateDetails.placeholders.action}
               defaultAlignment="right"
               compact
               singleLine
@@ -216,7 +244,7 @@ function CardForm({
               key={`description-${editorSessionKey}`}
               value={card.description}
               onChange={onDescriptionChange}
-              placeholder="Effect text"
+              placeholder={templateDetails.placeholders.description}
               defaultAlignment="left"
               enableTables
             />
@@ -229,7 +257,7 @@ function CardForm({
                 key={`front-art-text-${editorSessionKey}`}
                 value={card.frontArtworkText}
                 onChange={onFrontArtworkTextChange}
-                placeholder="Supplemental art panel text"
+                placeholder={templateDetails.placeholders.artSide}
                 defaultAlignment="left"
                 enableTables
               />

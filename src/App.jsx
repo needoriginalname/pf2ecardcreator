@@ -5,6 +5,11 @@ import CropModal from './components/CropModal'
 import DeckSection from './components/DeckSection'
 import PreviewPanel from './components/PreviewPanel'
 import { createInitialCard } from './constants/card'
+import {
+  CARD_TEMPLATE_OPTIONS,
+  createTemplateOverrides,
+  GENERIC_TEMPLATE_ID,
+} from './constants/templates'
 import { getCardSummary } from './utils/cardDisplay'
 import { createEmptyRichTextValue, getRichTextPlainText } from './utils/richText.jsx'
 import { getCroppedImg } from './utils/imageCrop'
@@ -27,6 +32,7 @@ const FRONT_ARTWORK_LAYOUTS_WITH_IMAGE = new Set([
   'art-left-text-right',
   'text-left-art-right',
 ])
+const CARD_TEMPLATE_IDS = new Set(CARD_TEMPLATE_OPTIONS.map((option) => option.value))
 const FRONT_ARTWORK_LAYOUT_HIDDEN_RESERVED = 'hidden-preserve-space'
 
 const createDeckCard = (cardData) => ({
@@ -103,6 +109,9 @@ const normalizeCardData = (cardData) => {
     cardData?.descriptionBoxOpacity,
     defaults.descriptionBoxOpacity
   )
+  normalized.templateId = CARD_TEMPLATE_IDS.has(cardData?.templateId)
+    ? cardData.templateId
+    : defaults.templateId
   normalized.frontArtworkLayout = normalizeFrontArtworkLayout(cardData, defaults.frontArtworkLayout)
 
   delete normalized.type
@@ -443,6 +452,17 @@ function App() {
     }
   }, [])
 
+  const applyTemplate = (templateId) => {
+    const nextTemplateId = CARD_TEMPLATE_IDS.has(templateId) ? templateId : GENERIC_TEMPLATE_ID
+    setCard({
+      ...createInitialCard(),
+      ...createTemplateOverrides(nextTemplateId),
+    })
+    setPreviewBack(false)
+    setEditingCardId(null)
+    bumpEditorSession()
+  }
+
   return (
     <main ref={appShellRef} className="app-shell">
       <header className="top-bar">
@@ -472,6 +492,7 @@ function App() {
           editorSessionKey={editorSessionKey}
           formId={CARD_FORM_ID}
           isEditing={isEditing}
+          onApplyTemplate={applyTemplate}
           onActionTextChange={(value) => updateCardField('actionCustom', value)}
           onChange={onChange}
           onDescriptionChange={(value) => updateCardField('description', value)}

@@ -159,6 +159,41 @@
   transform: translateX(18px);
 }
 
+.template-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+  padding: 12px;
+  border: 1px solid #d8ddd5;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fafcf7 0%, #f1f5ed 100%);
+}
+
+.template-panel-copy h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #24301f;
+}
+
+.template-panel-copy p {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  color: #60705b;
+}
+
+.template-panel-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.template-panel-controls select {
+  margin-top: 0;
+  min-width: 190px;
+}
+
 .editor-tabs {
   display: flex;
   gap: 8px;
@@ -502,6 +537,17 @@
 
 .rich-text-editable p:last-child {
   margin-bottom: 0;
+}
+
+.rich-text-divider {
+  margin: 0 0 8px;
+}
+
+.rich-text-divider hr,
+.rich-text-render-divider {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid rgba(60, 72, 56, 0.4);
 }
 
 .rich-text-table {
@@ -906,6 +952,10 @@ button:hover,
   margin: 0;
 }
 
+.mtg-media-text .rich-text-render-divider {
+  margin: calc(4px * var(--card-font-scale)) 0;
+}
+
 .mtg-traits {
   font-size: var(--card-meta-size);
   font-style: italic;
@@ -954,6 +1004,10 @@ button:hover,
 
 .mtg-body .rich-text-render-table p {
   margin: 0;
+}
+
+.mtg-body .rich-text-render-divider {
+  margin: calc(4px * var(--card-font-scale)) 0;
 }
 
 .deck-actions {
@@ -1083,6 +1137,19 @@ button:hover,
   .inspector-group-heading {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .template-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .template-panel-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .template-panel-controls select {
+    min-width: 0;
   }
 
   .inspector-group-heading span {

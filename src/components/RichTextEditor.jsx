@@ -10,6 +10,7 @@ import {
   MdFormatColorText,
   MdFormatItalic,
   MdFormatUnderlined,
+  MdHorizontalRule,
   MdTextDecrease,
   MdTextIncrease,
 } from 'react-icons/md'
@@ -43,6 +44,11 @@ const createParagraphNode = (text = '', align = 'left') => ({
   type: 'paragraph',
   align,
   children: [{ text }],
+})
+
+const createDividerNode = () => ({
+  type: 'divider',
+  children: [{ text: '' }],
 })
 
 const createTableCellNode = () => ({
@@ -83,7 +89,9 @@ const toRgba = (hex, alpha) => {
 }
 
 const withTables = (editor) => {
-  const { normalizeNode } = editor
+  const { isVoid, normalizeNode } = editor
+
+  editor.isVoid = (element) => (isElementType(element, 'divider') ? true : isVoid(element))
 
   editor.normalizeNode = ([node, path]) => {
     if (isElementType(node, 'table') && node.children.length === 0) {
@@ -214,6 +222,19 @@ const insertTable = (editor) => {
   const [, tablePath] = tableEntry
   const firstParagraphPath = [...tablePath, 0, 0, 0]
   const start = Editor.start(editor, firstParagraphPath)
+  Transforms.select(editor, { anchor: start, focus: start })
+}
+
+const insertDivider = (editor) => {
+  const currentBlockEntry = Editor.above(editor, {
+    match: (node) => SlateElement.isElement(node) && Editor.isBlock(editor, node),
+  })
+  const insertionPath = currentBlockEntry ? Path.next(currentBlockEntry[1]) : [editor.children.length]
+  const nextParagraphPath = Path.next(insertionPath)
+
+  Transforms.insertNodes(editor, [createDividerNode(), createParagraphNode()], { at: insertionPath })
+
+  const start = Editor.start(editor, nextParagraphPath)
   Transforms.select(editor, { anchor: start, focus: start })
 }
 
@@ -525,8 +546,27 @@ function TableControls() {
   )
 }
 
+function DividerControl() {
+  const editor = useSlate()
+
+  return (
+    <ToolbarButton label="Insert horizontal divider" onMouseDown={() => insertDivider(editor)}>
+      <MdHorizontalRule />
+    </ToolbarButton>
+  )
+}
+
 function Element({ attributes, children, element, defaultAlignment }) {
   switch (element.type) {
+    case 'divider':
+      return (
+        <div {...attributes} className="rich-text-divider">
+          <div contentEditable={false}>
+            <hr />
+          </div>
+          {children}
+        </div>
+      )
     case 'table':
       return (
         <div
@@ -618,6 +658,7 @@ function RichTextEditor({
           <ToolbarButton label="Increase font size" onMouseDown={() => adjustFontScale(editor, 1)}>
             <MdTextIncrease />
           </ToolbarButton>
+          {!singleLine ? <DividerControl /> : null}
           {enableTables ? <TableControls /> : null}
           <FontColorControl />
           <FontFamilySelect />

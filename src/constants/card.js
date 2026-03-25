@@ -1,6 +1,8 @@
 import { createEmptyRichTextValue } from '../utils/richText.jsx'
+import { GENERIC_TEMPLATE_ID } from './templates'
 
 export const createInitialCard = () => ({
+  templateId: GENERIC_TEMPLATE_ID,
   name: createEmptyRichTextValue('left'),
   traits: createEmptyRichTextValue('center'),
   actionIcon: 'A',

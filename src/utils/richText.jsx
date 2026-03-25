@@ -87,6 +87,8 @@ const renderRichTextNode = (node, key, fallbackAlign = 'left') => {
   if (!node) return null
 
   switch (node.type) {
+    case 'divider':
+      return <hr key={key} className="rich-text-render-divider" />
     case 'table':
       return (
         <table
