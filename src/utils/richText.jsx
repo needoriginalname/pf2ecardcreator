@@ -1,5 +1,4 @@
 import { getFontFamily } from '../constants/fonts'
-import { renderTextWithPf2eIcons } from './pf2eIcons.jsx'
 
 const clampNumber = (value, min, max, fallback) => {
   const numericValue = Number(value)
@@ -78,7 +77,7 @@ const renderLeafText = (leaf, leafIndex) => (
       textDecoration: leaf.underline ? 'underline' : 'none',
     }}
   >
-    {renderTextWithPf2eIcons(leaf.text, `rich-text-leaf-${leafIndex}`)}
+    {leaf.text}
   </span>
 )
 
