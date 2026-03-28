@@ -1,19 +1,12 @@
-import { GENERIC_TEMPLATE_ID } from './helpers'
+import { createTemplateCard, createTemplateDefinition, GENERIC_TEMPLATE_ID } from './helpers'
 
-const genericTemplate = {
+const genericTemplate = createTemplateDefinition({
   id: GENERIC_TEMPLATE_ID,
   label: 'Generic / Custom',
   description: 'Freeform card with the current generic layout.',
-  placeholders: {
-    name: 'Card name',
-    traits: 'Trait, Trait',
-    action: 'Optional header text',
-    description: 'Main effect text',
-    artSide: 'Optional side text',
-  },
-  createOverrides: () => ({
+  starterCard: createTemplateCard({
     templateId: GENERIC_TEMPLATE_ID,
   }),
-}
+})
 
 export default genericTemplate

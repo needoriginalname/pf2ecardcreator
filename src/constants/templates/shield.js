@@ -1,19 +1,18 @@
-import { inlineValue, labeledParagraph, paragraph, templateDescriptionParagraphs } from './helpers'
+import {
+  createTemplateCard,
+  createTemplateDefinition,
+  inlineValue,
+  labeledParagraph,
+  paragraph,
+  templateDescriptionParagraphs,
+} from './helpers'
 
-const shieldTemplate = {
+const shieldTemplate = createTemplateDefinition({
   id: 'shield',
   label: 'Item: Shield',
   description: 'Shield starter with AoN shield defensive stats on the side.',
-  placeholders: {
-    name: 'Steel Shield',
-    traits: 'Shield',
-    action: 'Shield',
-    description: 'Shield description and special effects',
-    artSide: 'Price, AC bonus, bulk, hardness, HP, BT',
-  },
-  createOverrides: () => ({
+  starterCard: createTemplateCard({
     templateId: 'shield',
-    actionIcon: '',
     actionCustom: inlineValue('Shield', 'right'),
     name: inlineValue('Steel Shield'),
     traits: inlineValue('Shield', 'center'),
@@ -27,10 +26,15 @@ const shieldTemplate = {
       ['BT', '10']
     ),
     description: [
-      paragraph('Like wooden shields, steel shields come in a variety of shapes and sizes. Though more expensive than wooden shields, steel shields are more durable.'),
-      labeledParagraph('Special', 'Add Raise a Shield, Shield Block, or magic shield abilities here.'),
+      paragraph(
+        'Like wooden shields, steel shields come in a variety of shapes and sizes. Though more expensive than wooden shields, steel shields are more durable.'
+      ),
+      labeledParagraph(
+        'Special',
+        'Add Raise a Shield, Shield Block, or magic shield abilities here.'
+      ),
     ],
   }),
-}
+})
 
 export default shieldTemplate

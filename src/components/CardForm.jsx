@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import RichTextEditor from './RichTextEditor'
-import { CARD_TEMPLATE_OPTIONS, getTemplateDetails } from '../constants/templates'
+import { getTemplateDetails } from '../constants/templates'
 
 const EDITOR_TABS = [
   { id: 'text', label: 'Text Fields' },
@@ -17,15 +17,6 @@ const GRADIENT_OPTIONS = [
   { value: 'conic', label: 'Conic' },
 ]
 
-const ACTION_OPTIONS = [
-  { value: '', label: 'None' },
-  { value: 'A', label: 'One action' },
-  { value: 'D', label: 'Two actions' },
-  { value: 'T', label: 'Three actions' },
-  { value: 'R', label: 'Reaction' },
-  { value: 'F', label: 'Free action' },
-]
-
 const FRONT_ARTWORK_LAYOUT_OPTIONS = [
   { value: 'art-only', label: 'Only artwork' },
   { value: 'art-left-text-right', label: 'Left art, right text' },
@@ -33,6 +24,14 @@ const FRONT_ARTWORK_LAYOUT_OPTIONS = [
   { value: 'hidden', label: 'Hide completely' },
   { value: 'hidden-preserve-space', label: "Hide completely but don't reposition" },
 ]
+
+const FIELD_PLACEHOLDERS = {
+  name: 'Card name',
+  traits: 'Traits',
+  action: 'Action line',
+  description: 'Description',
+  artSide: 'Artwork side text',
+}
 
 function EditorTabButton({ id, label, activeTab, onSelect }) {
   return (
@@ -121,6 +120,7 @@ function SurfaceInspector({
 
 function CardForm({
   card,
+  customTemplates,
   editorSessionKey,
   formId,
   isEditing,
@@ -128,11 +128,15 @@ function CardForm({
   onActionTextChange,
   onChange,
   onDescriptionChange,
+  onExportCurrentAsTemplate,
   onFrontArtworkTextChange,
+  onImportTemplate,
   onImageChange,
   onNameChange,
   onResetInputs,
+  onSaveCurrentAsTemplate,
   onSubmit,
+  templateOptions,
   onTraitsChange,
 }) {
   const [activeTab, setActiveTab] = useState('text')
@@ -146,8 +150,7 @@ function CardForm({
     card.frontArtworkLayout === 'text-left-art-right'
   const frontSurfaceUsesImage = card.frontBackgroundMode === 'image'
   const backSurfaceUsesImage = card.backBackgroundMode === 'image'
-  const templateDetails = getTemplateDetails(card.templateId)
-  const selectedTemplateDetails = getTemplateDetails(selectedTemplateId)
+  const selectedTemplateDetails = getTemplateDetails(selectedTemplateId, customTemplates)
 
   useEffect(() => {
     setSelectedTemplateId(card.templateId)
@@ -162,7 +165,7 @@ function CardForm({
         </div>
         <div className="template-panel-controls">
           <select value={selectedTemplateId} onChange={(event) => setSelectedTemplateId(event.target.value)}>
-            {CARD_TEMPLATE_OPTIONS.map((option) => (
+            {templateOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -170,6 +173,17 @@ function CardForm({
           </select>
           <button type="button" onClick={() => onApplyTemplate(selectedTemplateId)}>
             Load Template Starter
+          </button>
+        </div>
+        <div className="template-panel-actions">
+          <button type="button" onClick={onSaveCurrentAsTemplate}>
+            Save Current as Template
+          </button>
+          <button type="button" onClick={onExportCurrentAsTemplate}>
+            Export Current as Template
+          </button>
+          <button type="button" onClick={onImportTemplate}>
+            Import Template
           </button>
         </div>
       </div>
@@ -194,7 +208,7 @@ function CardForm({
               key={`name-${editorSessionKey}`}
               value={card.name}
               onChange={onNameChange}
-              placeholder={templateDetails.placeholders.name}
+              placeholder={FIELD_PLACEHOLDERS.name}
               defaultAlignment="left"
               compact
               singleLine
@@ -207,7 +221,7 @@ function CardForm({
               key={`traits-${editorSessionKey}`}
               value={card.traits}
               onChange={onTraitsChange}
-              placeholder={templateDetails.placeholders.traits}
+              placeholder={FIELD_PLACEHOLDERS.traits}
               defaultAlignment="center"
               compact
               singleLine
@@ -215,23 +229,12 @@ function CardForm({
           </div>
 
           <div className="form-field">
-            <span className="field-label">Action symbol:</span>
-            <select id="card-action-icon" value={card.actionIcon} onChange={onChange('actionIcon')}>
-              {ACTION_OPTIONS.map((option) => (
-                <option key={option.value || 'none'} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-field">
-            <span className="field-label">Custom action text</span>
+            <span className="field-label">Action Line</span>
             <RichTextEditor
               key={`action-${editorSessionKey}`}
               value={card.actionCustom}
               onChange={onActionTextChange}
-              placeholder={templateDetails.placeholders.action}
+              placeholder={FIELD_PLACEHOLDERS.action}
               defaultAlignment="right"
               compact
               singleLine
@@ -244,7 +247,7 @@ function CardForm({
               key={`description-${editorSessionKey}`}
               value={card.description}
               onChange={onDescriptionChange}
-              placeholder={templateDetails.placeholders.description}
+              placeholder={FIELD_PLACEHOLDERS.description}
               defaultAlignment="left"
               enableTables
             />
@@ -257,7 +260,7 @@ function CardForm({
                 key={`front-art-text-${editorSessionKey}`}
                 value={card.frontArtworkText}
                 onChange={onFrontArtworkTextChange}
-                placeholder={templateDetails.placeholders.artSide}
+                placeholder={FIELD_PLACEHOLDERS.artSide}
                 defaultAlignment="left"
                 enableTables
               />

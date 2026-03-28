@@ -6,9 +6,13 @@ import monsterTemplate from './monster'
 import shieldTemplate from './shield'
 import spellTemplate from './spell'
 import weaponTemplate from './weapon'
-import { GENERIC_TEMPLATE_ID } from './helpers'
+import {
+  GENERIC_TEMPLATE_ID,
+  TEMPLATE_DEFINITION_KIND,
+  TEMPLATE_DEFINITION_VERSION,
+} from './helpers'
 
-const TEMPLATE_DEFINITIONS = [
+const BUILT_IN_TEMPLATE_DEFINITIONS = [
   genericTemplate,
   spellTemplate,
   weaponTemplate,
@@ -17,26 +21,46 @@ const TEMPLATE_DEFINITIONS = [
   adventuringGearTemplate,
   monsterTemplate,
   hazardTemplate,
-]
+].map((templateFile) => templateFile.template ?? templateFile)
 
-const TEMPLATE_MAP = Object.fromEntries(
-  TEMPLATE_DEFINITIONS.map((templateDefinition) => [templateDefinition.id, templateDefinition])
+const BUILT_IN_TEMPLATE_MAP = Object.fromEntries(
+  BUILT_IN_TEMPLATE_DEFINITIONS.map((templateDefinition) => [templateDefinition.id, templateDefinition])
 )
 
-export { GENERIC_TEMPLATE_ID }
+export { GENERIC_TEMPLATE_ID, TEMPLATE_DEFINITION_KIND, TEMPLATE_DEFINITION_VERSION }
 
-export const CARD_TEMPLATE_OPTIONS = TEMPLATE_DEFINITIONS.map((templateDefinition) => ({
+export const CARD_TEMPLATE_OPTIONS = BUILT_IN_TEMPLATE_DEFINITIONS.map((templateDefinition) => ({
   value: templateDefinition.id,
   label: templateDefinition.label,
 }))
 
-export const getTemplateDetails = (templateId) => {
-  const templateDefinition = TEMPLATE_MAP[templateId] ?? TEMPLATE_MAP[GENERIC_TEMPLATE_ID]
+const getTemplateMap = (customTemplates = []) =>
+  Object.fromEntries(
+    [...BUILT_IN_TEMPLATE_DEFINITIONS, ...customTemplates].map((templateDefinition) => [
+      templateDefinition.id,
+      templateDefinition,
+    ])
+  )
+
+export const getTemplateOptions = (customTemplates = []) => [
+  ...CARD_TEMPLATE_OPTIONS,
+  ...customTemplates.map((templateDefinition) => ({
+    value: templateDefinition.id,
+    label: `${templateDefinition.label} (Custom)`,
+  })),
+]
+
+export const getTemplateDetails = (templateId, customTemplates = []) => {
+  const templateMap = getTemplateMap(customTemplates)
+  const templateDefinition = templateMap[templateId] ?? BUILT_IN_TEMPLATE_MAP[GENERIC_TEMPLATE_ID]
   return {
     description: templateDefinition.description,
-    placeholders: templateDefinition.placeholders,
   }
 }
 
-export const createTemplateOverrides = (templateId) =>
-  (TEMPLATE_MAP[templateId] ?? TEMPLATE_MAP[GENERIC_TEMPLATE_ID]).createOverrides()
+export const createTemplateStarterCard = (templateId, customTemplates = []) => {
+  const templateMap = getTemplateMap(customTemplates)
+  return structuredClone(
+    (templateMap[templateId] ?? BUILT_IN_TEMPLATE_MAP[GENERIC_TEMPLATE_ID]).starterCard
+  )
+}

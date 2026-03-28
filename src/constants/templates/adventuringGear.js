@@ -1,19 +1,19 @@
-import { inlineValue, labeledParagraph, paragraph, templateDescriptionParagraphs, createCenteredEmptyValue } from './helpers'
+import {
+  createCenteredEmptyValue,
+  createTemplateCard,
+  createTemplateDefinition,
+  inlineValue,
+  labeledParagraph,
+  paragraph,
+  templateDescriptionParagraphs,
+} from './helpers'
 
-const adventuringGearTemplate = {
+const adventuringGearTemplate = createTemplateDefinition({
   id: 'adventuring-gear',
   label: 'Item: Adventuring Gear',
   description: 'Adventuring gear starter with compact item details on the side.',
-  placeholders: {
-    name: "Adventurer's Pack",
-    traits: 'Item 0',
-    action: 'Item 0',
-    description: 'Gear description and contents',
-    artSide: 'Price, hands or usage, bulk, category',
-  },
-  createOverrides: () => ({
+  starterCard: createTemplateCard({
     templateId: 'adventuring-gear',
-    actionIcon: '',
     actionCustom: inlineValue('Item 0', 'right'),
     name: inlineValue("Adventurer's Pack"),
     traits: createCenteredEmptyValue(),
@@ -26,9 +26,12 @@ const adventuringGearTemplate = {
     ),
     description: [
       paragraph('Starter kit containing the essential items for exploration and survival.'),
-      labeledParagraph('Contents', 'Backpack, bedroll, chalk, flint and steel, rope, rations, soap, torches, waterskin.'),
+      labeledParagraph(
+        'Contents',
+        'Backpack, bedroll, chalk, flint and steel, rope, rations, soap, torches, waterskin.'
+      ),
     ],
   }),
-}
+})
 
 export default adventuringGearTemplate

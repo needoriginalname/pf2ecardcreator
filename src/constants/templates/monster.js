@@ -1,19 +1,17 @@
-import { inlineValue, labeledParagraph, templateDescriptionParagraphs } from './helpers'
+import {
+  createTemplateCard,
+  createTemplateDefinition,
+  inlineValue,
+  labeledParagraph,
+  templateDescriptionParagraphs,
+} from './helpers'
 
-const monsterTemplate = {
+const monsterTemplate = createTemplateDefinition({
   id: 'monster',
   label: 'Monster',
   description: 'Creature starter with the quick stat block in the side panel and abilities below.',
-  placeholders: {
-    name: 'Young Red Dragon',
-    traits: 'CE, Large, Dragon, Fire',
-    action: 'Creature 10',
-    description: 'Abilities, strikes, spells, reactions',
-    artSide: 'Perception, languages, skills, saves, AC, HP, speed',
-  },
-  createOverrides: () => ({
+  starterCard: createTemplateCard({
     templateId: 'monster',
-    actionIcon: '',
     actionCustom: inlineValue('Creature 10', 'right'),
     name: inlineValue('Young Red Dragon'),
     traits: inlineValue('CE, Large, Dragon, Fire', 'center'),
@@ -29,10 +27,16 @@ const monsterTemplate = {
     ),
     description: [
       labeledParagraph('Melee', 'jaws +23, claw +23, tail +21, wing +21'),
-      labeledParagraph('Breath Weapon', '40-foot cone, 11d6 fire damage, basic Reflex save.'),
-      labeledParagraph('Special', 'List reactions, auras, spells, and signature abilities here.'),
+      labeledParagraph(
+        'Breath Weapon',
+        '40-foot cone, 11d6 fire damage, basic Reflex save.'
+      ),
+      labeledParagraph(
+        'Special',
+        'List reactions, auras, spells, and signature abilities here.'
+      ),
     ],
   }),
-}
+})
 
 export default monsterTemplate

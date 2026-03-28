@@ -1,4 +1,3 @@
-import { getActionDisplay } from '../utils/cardDisplay'
 import {
   getRichTextPlainText,
   isRichTextEmpty,
@@ -8,7 +7,6 @@ import {
 import { getCardSurfaceStyle, getDescriptionBoxStyle } from '../utils/cardLayout'
 
 function CardFace({ card, imageAlt = 'Card art', reserveEmptyArtworkSpace = false }) {
-  const hasCustomActionText = !card.actionIcon && !isRichTextEmpty(card.actionCustom)
   const nameText = getRichTextPlainText(card.name)
   const frontArtworkLayout = card.frontArtworkLayout ?? 'art-only'
   const hidesArtworkButKeepsSpace = frontArtworkLayout === 'hidden-preserve-space'
@@ -73,8 +71,8 @@ function CardFace({ card, imageAlt = 'Card art', reserveEmptyArtworkSpace = fals
         <div className="mtg-name">
           {nameText ? renderInlineRichText(card.name, 'left') : 'Name Here'}
         </div>
-        <div className={`mtg-level ${hasCustomActionText ? 'custom' : 'pf2e-action-icon'}`}>
-          {hasCustomActionText ? renderInlineRichText(card.actionCustom, 'right') : getActionDisplay(card)}
+        <div className="mtg-level custom">
+          {!isRichTextEmpty(card.actionCustom) ? renderInlineRichText(card.actionCustom, 'right') : null}
         </div>
       </div>
       {showsArtwork ? (

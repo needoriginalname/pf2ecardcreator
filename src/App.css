@@ -187,11 +187,19 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .template-panel-controls select {
   margin-top: 0;
   min-width: 190px;
+}
+
+.template-panel-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .editor-tabs {
@@ -388,6 +396,12 @@
 }
 
 .rich-text-alignment-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rich-text-pf2e-controls {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -790,6 +804,15 @@ button:hover,
 
 .pf2e-action-icon {
   font-family: 'PF2EActionIcons', 'Segoe UI', Tahoma, sans-serif;
+}
+
+.rich-text-toolbar-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1em;
+  font-size: 1.15em;
+  line-height: 1;
 }
 
 .mtg-level.custom {

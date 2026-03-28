@@ -1,19 +1,18 @@
-import { inlineValue, labeledParagraph, paragraph, templateDescriptionParagraphs } from './helpers'
+import {
+  createTemplateCard,
+  createTemplateDefinition,
+  inlineValue,
+  labeledParagraph,
+  paragraph,
+  templateDescriptionParagraphs,
+} from './helpers'
 
-const armorTemplate = {
+const armorTemplate = createTemplateDefinition({
   id: 'armor',
   label: 'Item: Armor',
   description: 'Armor starter with AoN armor statistics in the side panel.',
-  placeholders: {
-    name: 'Chain Mail',
-    traits: 'Flexible, Noisy',
-    action: 'Armor',
-    description: 'Armor description and special effects',
-    artSide: 'Price, AC bonus, Dex cap, penalties, strength, bulk',
-  },
-  createOverrides: () => ({
+  starterCard: createTemplateCard({
     templateId: 'armor',
-    actionIcon: '',
     actionCustom: inlineValue('Armor', 'right'),
     name: inlineValue('Chain Mail'),
     traits: inlineValue('Flexible, Noisy', 'center'),
@@ -30,10 +29,15 @@ const armorTemplate = {
       ['Group', 'chain']
     ),
     description: [
-      paragraph('A suit of chain mail consists of several pieces of linked metal rings that protect most of the body.'),
-      labeledParagraph('Specialization', 'Chain: Reduce damage from critical hits according to your armor potency.'),
+      paragraph(
+        'A suit of chain mail consists of several pieces of linked metal rings that protect most of the body.'
+      ),
+      labeledParagraph(
+        'Specialization',
+        'Chain: Reduce damage from critical hits according to your armor potency.'
+      ),
     ],
   }),
-}
+})
 
 export default armorTemplate

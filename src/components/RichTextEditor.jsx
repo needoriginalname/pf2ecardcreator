@@ -29,6 +29,7 @@ const FONT_SIZE_STEP = 0.1
 const MIN_FONT_SCALE = 0.7
 const MAX_FONT_SCALE = 1.8
 const DEFAULT_FONT_COLOR = '#000000'
+const PF2E_ACTION_FONT = 'PF2EActionIcons'
 const DEFAULT_TABLE_STYLE = {
   borderColor: '#222222',
   borderOpacity: 0.45,
@@ -37,6 +38,14 @@ const DEFAULT_TABLE_STYLE = {
   cellBackgroundOpacity: 0,
   cellPadding: 4,
 }
+
+const PF2E_ACTION_BUTTONS = [
+  { label: 'One action', glyph: 'A' },
+  { label: 'Two actions', glyph: 'D' },
+  { label: 'Three actions', glyph: 'T' },
+  { label: 'Reaction', glyph: 'R' },
+  { label: 'Free action', glyph: 'F' },
+]
 
 const isElementType = (node, type) => SlateElement.isElement(node) && node.type === type
 
@@ -160,6 +169,19 @@ const setFontColor = (editor, value) => {
   }
 
   Editor.addMark(editor, 'color', value)
+}
+
+const insertPf2eActionGlyph = (editor, glyph) => {
+  const currentMarks = Editor.marks(editor) ?? {}
+  const iconLeaf = {
+    text: glyph,
+    color: currentMarks.color,
+    fontSize: currentMarks.fontSize,
+    fontFamily: PF2E_ACTION_FONT,
+  }
+
+  Transforms.insertNodes(editor, iconLeaf)
+  Editor.removeMark(editor, 'fontFamily')
 }
 
 const getActiveAlignment = (editor, defaultAlignment = 'left') => {
@@ -556,6 +578,24 @@ function DividerControl() {
   )
 }
 
+function Pf2eActionControls() {
+  const editor = useSlate()
+
+  return (
+    <div className="rich-text-pf2e-controls">
+      {PF2E_ACTION_BUTTONS.map((actionButton) => (
+        <ToolbarButton
+          key={actionButton.label}
+          label={actionButton.label}
+          onMouseDown={() => insertPf2eActionGlyph(editor, actionButton.glyph)}
+        >
+          <span className="pf2e-action-icon rich-text-toolbar-glyph">{actionButton.glyph}</span>
+        </ToolbarButton>
+      ))}
+    </div>
+  )
+}
+
 function Element({ attributes, children, element, defaultAlignment }) {
   switch (element.type) {
     case 'divider':
@@ -658,6 +698,7 @@ function RichTextEditor({
           <ToolbarButton label="Increase font size" onMouseDown={() => adjustFontScale(editor, 1)}>
             <MdTextIncrease />
           </ToolbarButton>
+          <Pf2eActionControls />
           {!singleLine ? <DividerControl /> : null}
           {enableTables ? <TableControls /> : null}
           <FontColorControl />

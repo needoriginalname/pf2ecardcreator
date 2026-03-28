@@ -1,19 +1,17 @@
-import { inlineValue, labeledParagraph, templateDescriptionParagraphs } from './helpers'
+import {
+  createTemplateCard,
+  createTemplateDefinition,
+  inlineValue,
+  labeledParagraph,
+  templateDescriptionParagraphs,
+} from './helpers'
 
-const hazardTemplate = {
+const hazardTemplate = createTemplateDefinition({
   id: 'hazard',
   label: 'Hazard',
   description: 'Hazard starter with AoN stealth, disable, defense, and reset fields.',
-  placeholders: {
-    name: 'Poisoned Dart Gallery',
-    traits: 'Complex, Mechanical, Trap',
-    action: 'Hazard 8',
-    description: 'Trigger, routine, attacks, and effects',
-    artSide: 'Stealth, description, disable, saves, hardness, HP, reset',
-  },
-  createOverrides: () => ({
+  starterCard: createTemplateCard({
     templateId: 'hazard',
-    actionIcon: '',
     actionCustom: inlineValue('Hazard 8', 'right'),
     name: inlineValue('Poisoned Dart Gallery'),
     traits: inlineValue('Complex, Mechanical, Trap', 'center'),
@@ -29,11 +27,20 @@ const hazardTemplate = {
       ['Reset', '1 minute']
     ),
     description: [
-      labeledParagraph('Trigger', 'A creature enters the hallway or ends its turn there.'),
-      labeledParagraph('Routine', 'Launch one dart against every creature in the gallery.'),
-      labeledParagraph('Attack', 'Ranged poisoned dart +21; 3d4 piercing plus poison.'),
+      labeledParagraph(
+        'Trigger',
+        'A creature enters the hallway or ends its turn there.'
+      ),
+      labeledParagraph(
+        'Routine',
+        'Launch one dart against every creature in the gallery.'
+      ),
+      labeledParagraph(
+        'Attack',
+        'Ranged poisoned dart +21; 3d4 piercing plus poison.'
+      ),
     ],
   }),
-}
+})
 
 export default hazardTemplate
