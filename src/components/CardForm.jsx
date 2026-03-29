@@ -27,6 +27,7 @@ const FRONT_ARTWORK_LAYOUT_OPTIONS = [
 
 const FIELD_PLACEHOLDERS = {
   name: 'Card name',
+  backTitle: 'Back title',
   traits: 'Traits',
   action: 'Action line',
   description: 'Description',
@@ -126,6 +127,7 @@ function CardForm({
   isEditing,
   onApplyTemplate,
   onActionTextChange,
+  onBackTitleChange,
   onChange,
   onDescriptionChange,
   onExportCurrentAsTemplate,
@@ -210,6 +212,19 @@ function CardForm({
               onChange={onNameChange}
               placeholder={FIELD_PLACEHOLDERS.name}
               defaultAlignment="left"
+              compact
+              singleLine
+            />
+          </div>
+
+          <div className="form-field">
+            <span className="field-label">Back Title</span>
+            <RichTextEditor
+              key={`back-title-${editorSessionKey}`}
+              value={card.backTitle}
+              onChange={onBackTitleChange}
+              placeholder={FIELD_PLACEHOLDERS.backTitle}
+              defaultAlignment="center"
               compact
               singleLine
             />
@@ -488,6 +503,42 @@ function CardForm({
                 />
                 <output className="range-value">
                   {Math.round(card.descriptionBoxOpacity * 100)}%
+                </output>
+              </div>
+            </div>
+          </div>
+
+          <div className="inspector-group">
+            <div className="inspector-group-heading">
+              <h4>Back Title</h4>
+              <span>Background tint behind the back header text</span>
+            </div>
+
+            <div className="inspector-row">
+              <span className="inspector-label">Fill color</span>
+              <div className="inspector-control inspector-control-inline">
+                <input
+                  type="color"
+                  value={card.backTitleBoxColor}
+                  onChange={onChange('backTitleBoxColor')}
+                />
+                <code>{card.backTitleBoxColor}</code>
+              </div>
+            </div>
+
+            <div className="inspector-row">
+              <span className="inspector-label">Opacity</span>
+              <div className="inspector-control inspector-control-range">
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={card.backTitleBoxOpacity}
+                  onChange={onChange('backTitleBoxOpacity')}
+                />
+                <output className="range-value">
+                  {Math.round(card.backTitleBoxOpacity * 100)}%
                 </output>
               </div>
             </div>

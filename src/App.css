@@ -767,6 +767,28 @@ button:hover,
   position: relative;
 }
 
+.mtg-back-title {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  min-height: calc(24px * var(--card-font-scale));
+  padding: calc(6px * var(--card-font-scale)) calc(10px * var(--card-font-scale));
+  background: var(--back-title-bg, rgba(255, 255, 255, 0.84));
+  color: #0b0b0a;
+  font-size: var(--card-name-size);
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.mtg-back-title .rich-text-inline-node {
+  display: inline;
+  width: auto;
+}
+
 .mtg-heading {
   display: flex;
   justify-content: space-between;

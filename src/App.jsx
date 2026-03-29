@@ -22,6 +22,7 @@ const STORAGE_KEY = 'pf2e-card-designer-state-v1'
 const CUSTOM_TEMPLATE_ID_PREFIX = 'custom:'
 const RICH_TEXT_FIELD_DEFAULTS = {
   name: 'left',
+  backTitle: 'center',
   traits: 'center',
   actionCustom: 'right',
   description: 'left',
@@ -135,6 +136,10 @@ const normalizeCardData = (cardData, allowedTemplateIds = BUILT_IN_TEMPLATE_IDS)
   normalized.descriptionBoxOpacity = normalizeNumericField(
     cardData?.descriptionBoxOpacity,
     defaults.descriptionBoxOpacity
+  )
+  normalized.backTitleBoxOpacity = normalizeNumericField(
+    cardData?.backTitleBoxOpacity,
+    defaults.backTitleBoxOpacity
   )
   normalized.templateId = allowedTemplateIds.has(cardData?.templateId)
     ? cardData.templateId
@@ -713,6 +718,7 @@ function App() {
           isEditing={isEditing}
           onApplyTemplate={applyTemplate}
           onActionTextChange={(value) => updateCardField('actionCustom', value)}
+          onBackTitleChange={(value) => updateCardField('backTitle', value)}
           onChange={onChange}
           onDescriptionChange={(value) => updateCardField('description', value)}
           onExportCurrentAsTemplate={exportCurrentAsTemplate}

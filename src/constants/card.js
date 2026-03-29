@@ -4,6 +4,7 @@ import { GENERIC_TEMPLATE_ID } from './templates'
 export const createInitialCard = () => ({
   templateId: GENERIC_TEMPLATE_ID,
   name: createEmptyRichTextValue('left'),
+  backTitle: createEmptyRichTextValue('center'),
   traits: createEmptyRichTextValue('center'),
   actionCustom: createEmptyRichTextValue('right'),
   description: createEmptyRichTextValue('left'),
@@ -21,6 +22,8 @@ export const createInitialCard = () => ({
   frontBackgroundImage: '',
   borderThickness: 1,
   borderColor: '#333333',
+  backTitleBoxColor: '#ffffff',
+  backTitleBoxOpacity: 0.84,
   descriptionBoxColor: '#ffffff',
   descriptionBoxOpacity: 0.82,
   frontBackgroundMode: 'solid',

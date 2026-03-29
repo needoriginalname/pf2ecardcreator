@@ -81,6 +81,10 @@ export const getDescriptionBoxStyle = (card) => ({
   '--description-box-bg': toRgba(card.descriptionBoxColor, card.descriptionBoxOpacity),
 })
 
+export const getBackTitleStyle = (card) => ({
+  '--back-title-bg': toRgba(card.backTitleBoxColor, card.backTitleBoxOpacity),
+})
+
 export const hasCustomBackLayout = (card) =>
   Boolean(card.imageBack) ||
   card.backBackgroundMode !== DEFAULT_BACK_BACKGROUND.mode ||
