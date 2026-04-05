@@ -12,9 +12,11 @@ import { hasCustomBackLayout } from '../utils/cardLayout'
 
 const BASE_CARD_WIDTH_IN = 2.48
 const BASE_CARD_HEIGHT_IN = 3.46
+const BASE_CARD_WIDTH_PX = BASE_CARD_WIDTH_IN * 96
 const PRINTABLE_WIDTH_IN = 7.77
 const PRINTABLE_HEIGHT_IN = 10.5
 const PRINT_GAP_IN = 0.08
+const SCREEN_GAP_PX = 12
 const LONG_PRESS_MS = 350
 
 const chunkCards = (cards, pageSize) => {
@@ -60,22 +62,16 @@ const getPrintLayout = (columns) => {
   }
 }
 
-const getScreenCardScale = (columns) => Math.min(Math.max((1 / columns) * 2.7, 0.34), 1)
+const getScreenCardScale = (cardWidthPx) =>
+  cardWidthPx > 0 ? cardWidthPx / BASE_CARD_WIDTH_PX : 1
 
-const getPrintGridStyle = (printLayout, screenCardWidth) => {
-  const printCardWidthPx = printLayout.cardWidth * 96
-  const widthRatio = screenCardWidth > 0 ? printCardWidthPx / screenCardWidth : 1
-  const printFontScale = Math.min(
-    1,
-    Math.max(getScreenCardScale(printLayout.columns) * widthRatio, 0.24)
-  )
-
+const getPrintGridStyle = (printLayout) => {
   return {
-  '--print-columns': printLayout.columns,
-  '--print-card-width': `${printLayout.cardWidth}in`,
-  '--print-card-height': `${printLayout.cardHeight}in`,
-  '--print-card-font-scale': printFontScale,
-}
+    '--print-columns': printLayout.columns,
+    '--print-card-width': `${printLayout.cardWidth}in`,
+    '--print-card-height': `${printLayout.cardHeight}in`,
+    '--print-card-font-scale': printLayout.scale,
+  }
 }
 
 const getCardLabel = (card) => getRichTextPlainText(card.name) || 'Card'
@@ -163,7 +159,6 @@ function DeckSection({
   deck,
   cardCount,
   cardsPerRow,
-  screenCardWidth,
   mailto,
   onCardsPerRowChange,
   onClearDeck,
@@ -175,7 +170,10 @@ function DeckSection({
 }) {
   const [activeControlsCardId, setActiveControlsCardId] = useState(null)
   const [draggedCardId, setDraggedCardId] = useState(null)
+  const [screenCardWidth, setScreenCardWidth] = useState(0)
   const longPressRef = useRef(null)
+  const deckGridRef = useRef(null)
+  const safeCardsPerRow = Math.min(Math.max(cardsPerRow, 1), 8)
 
   useEffect(() => {
     return () => {
@@ -185,11 +183,35 @@ function DeckSection({
     }
   }, [])
 
-  const safeCardsPerRow = Math.min(Math.max(cardsPerRow, 1), 8)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !deckGridRef.current) {
+      return undefined
+    }
+
+    const observer = new ResizeObserver((entries) => {
+      const gridWidth = entries[0]?.contentRect.width ?? 0
+      const nextWidth =
+        safeCardsPerRow > 0
+          ? (gridWidth - SCREEN_GAP_PX * Math.max(safeCardsPerRow - 1, 0)) / safeCardsPerRow
+          : 0
+      setScreenCardWidth(Math.max(0, nextWidth))
+    })
+
+    observer.observe(deckGridRef.current)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [safeCardsPerRow])
+
   const printLayout = useMemo(() => getPrintLayout(safeCardsPerRow), [safeCardsPerRow])
-  const printGridStyle = useMemo(
-    () => getPrintGridStyle(printLayout, screenCardWidth),
-    [printLayout, screenCardWidth]
+  const printGridStyle = useMemo(() => getPrintGridStyle(printLayout), [printLayout])
+  const deckGridStyle = useMemo(
+    () => ({
+      '--cards-per-row': safeCardsPerRow,
+      '--screen-card-font-scale': getScreenCardScale(screenCardWidth),
+    }),
+    [safeCardsPerRow, screenCardWidth]
   )
   const frontPrintPages = useMemo(
     () =>
@@ -257,7 +279,7 @@ function DeckSection({
         </label>
       </div>
 
-      <div className="deck-grid screen-deck-grid" style={{ '--cards-per-row': safeCardsPerRow }}>
+      <div ref={deckGridRef} className="deck-grid screen-deck-grid" style={deckGridStyle}>
         {deck.map((card, index) => (
           <DeckCardSlot
             key={card.id}

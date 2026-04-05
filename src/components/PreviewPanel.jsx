@@ -1,22 +1,44 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
 import CardBack from './CardBack'
 import CardFace from './CardFace'
 
-function PreviewPanel({
-  card,
-  summary,
-  previewBack,
-  setPreviewBack,
-  cardsPerRow,
-  previewCardWidth,
-}) {
-  const safeCardsPerRow = Math.min(Math.max(cardsPerRow, 1), 8)
-  const previewStyle = {
-    '--cards-per-row': safeCardsPerRow,
-    '--preview-card-width': `${previewCardWidth}px`,
-  }
+const BASE_CARD_WIDTH_PX = 2.48 * 96
+const PANEL_HORIZONTAL_PADDING_PX = 28
+
+const getScreenCardScale = (cardWidthPx) =>
+  cardWidthPx > 0 ? cardWidthPx / BASE_CARD_WIDTH_PX : 1
+
+function PreviewPanel({ card, summary, previewBack, setPreviewBack }) {
+  const previewPanelRef = useRef(null)
+  const [previewCardWidth, setPreviewCardWidth] = useState(BASE_CARD_WIDTH_PX)
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !previewPanelRef.current) {
+      return undefined
+    }
+
+    const observer = new ResizeObserver((entries) => {
+      const panelWidth = entries[0]?.contentRect.width ?? 0
+      setPreviewCardWidth(Math.max(0, panelWidth - PANEL_HORIZONTAL_PADDING_PX))
+    })
+
+    observer.observe(previewPanelRef.current)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
+  const previewStyle = useMemo(
+    () => ({
+      '--preview-card-width': `${previewCardWidth}px`,
+      '--screen-card-font-scale': getScreenCardScale(previewCardWidth),
+    }),
+    [previewCardWidth]
+  )
 
   return (
-    <aside className="preview-panel" aria-label="Card preview">
+    <aside ref={previewPanelRef} className="preview-panel" aria-label="Card preview">
       <h2>Live preview</h2>
       <p>{summary}</p>
       <div className="preview-toggle">

@@ -701,15 +701,15 @@ button:hover,
   --card-gap: 6px;
   --card-radius: 10px;
   --card-image-radius: 6px;
-  --card-heading-size: 0.85rem;
-  --card-name-size: 0.85rem;
-  --card-level-size: 1.2rem;
-  --card-meta-size: 0.75rem;
-  --card-body-size: 0.75rem;
+  --card-heading-size: 0.4275rem;
+  --card-name-size: 0.4275rem;
+  --card-level-size: 0.4275rem;
+  --card-meta-size: 0.363375rem;
+  --card-body-size: 0.363375rem;
   width: 2.48in;
   min-height: 3.46in;
   max-width: 240px;
-  font-size: calc(12px * var(--card-font-scale));
+  font-size: calc(5.878125px * var(--card-font-scale));
   border: calc(var(--card-custom-border-width, 1px) * var(--card-font-scale))
     solid var(--card-custom-border-color, #333);
   border-radius: var(--card-radius);
@@ -737,16 +737,16 @@ button:hover,
 }
 
 .screen-deck-grid .mtg-card {
-  --card-font-scale: clamp(0.34, calc(1 / var(--cards-per-row, 3) * 2.7), 1);
+  --card-font-scale: var(--screen-card-font-scale, 1);
   --card-padding: calc(8px * var(--card-font-scale));
   --card-gap: calc(6px * var(--card-font-scale));
   --card-radius: calc(10px * var(--card-font-scale));
   --card-image-radius: calc(6px * var(--card-font-scale));
-  --card-heading-size: calc(0.85rem * var(--card-font-scale));
-  --card-name-size: calc(0.85rem * var(--card-font-scale));
-  --card-level-size: calc(1.2rem * var(--card-font-scale));
-  --card-meta-size: calc(0.75rem * var(--card-font-scale));
-  --card-body-size: calc(0.75rem * var(--card-font-scale));
+  --card-heading-size: calc(0.4275rem * var(--card-font-scale));
+  --card-name-size: calc(0.4275rem * var(--card-font-scale));
+  --card-level-size: calc(0.4275rem * var(--card-font-scale));
+  --card-meta-size: calc(0.363375rem * var(--card-font-scale));
+  --card-body-size: calc(0.363375rem * var(--card-font-scale));
   width: 100%;
   max-width: none;
   min-height: auto;
@@ -835,10 +835,6 @@ button:hover,
   min-width: 1em;
   font-size: 1.15em;
   line-height: 1;
-}
-
-.mtg-level.custom {
-  font-family: 'Segoe UI', Tahoma, sans-serif;
 }
 
 .mtg-image {
@@ -1314,11 +1310,11 @@ button:hover,
     --card-gap: calc(6px * var(--card-font-scale));
     --card-radius: calc(10px * var(--card-font-scale));
     --card-image-radius: calc(6px * var(--card-font-scale));
-    --card-heading-size: calc(0.85rem * var(--card-font-scale));
-    --card-name-size: calc(0.85rem * var(--card-font-scale));
-    --card-level-size: calc(1.2rem * var(--card-font-scale));
-    --card-meta-size: calc(0.75rem * var(--card-font-scale));
-    --card-body-size: calc(0.75rem * var(--card-font-scale));
+    --card-heading-size: calc(0.4275rem * var(--card-font-scale));
+    --card-name-size: calc(0.4275rem * var(--card-font-scale));
+    --card-level-size: calc(0.4275rem * var(--card-font-scale));
+    --card-meta-size: calc(0.363375rem * var(--card-font-scale));
+    --card-body-size: calc(0.363375rem * var(--card-font-scale));
     width: var(--print-card-width);
     height: var(--print-card-height);
     min-height: auto;

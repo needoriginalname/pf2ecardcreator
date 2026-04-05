@@ -1,0 +1,6 @@
+#login to aws
+aws login
+
+#send to aws
+
+aws s3 sync dist s3://my-pf2e-cards-project --delete

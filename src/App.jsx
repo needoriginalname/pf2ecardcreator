@@ -30,8 +30,6 @@ const RICH_TEXT_FIELD_DEFAULTS = {
 }
 const RICH_TEXT_FIELDS = Object.keys(RICH_TEXT_FIELD_DEFAULTS)
 const EMPTY_DECK = []
-const DECK_SECTION_PADDING_PX = 28
-const DECK_GRID_GAP_PX = 12
 const FRONT_ARTWORK_LAYOUTS_WITH_IMAGE = new Set([
   'art-only',
   'art-left-text-right',
@@ -266,7 +264,6 @@ function App() {
   const initialSnapshotRef = useRef(null)
   const importInputRef = useRef(null)
   const importTemplateInputRef = useRef(null)
-  const appShellRef = useRef(null)
 
   if (initialSnapshotRef.current === null) {
     initialSnapshotRef.current = loadStoredAppState()
@@ -287,26 +284,12 @@ function App() {
   const [cardsPerRow, setCardsPerRow] = useState(initialSnapshot.cardsPerRow)
   const [editingCardId, setEditingCardId] = useState(null)
   const [editorSessionKey, setEditorSessionKey] = useState(0)
-  const [appShellContentWidth, setAppShellContentWidth] = useState(0)
 
   const cardCount = deck.length
 
   const summary = useMemo(() => getCardSummary(card), [card])
   const isEditing = Boolean(editingCardId)
   const templateOptions = useMemo(() => getTemplateOptions(customTemplates), [customTemplates])
-  const previewCardWidth = useMemo(() => {
-    if (!appShellContentWidth) {
-      return 2.48 * 96
-    }
-
-    return Math.max(
-      0,
-      (appShellContentWidth -
-        DECK_SECTION_PADDING_PX -
-        DECK_GRID_GAP_PX * Math.max(cardsPerRow - 1, 0)) /
-        cardsPerRow
-    )
-  }, [appShellContentWidth, cardsPerRow])
   const appSnapshot = useMemo(
     () => ({
       version: 1,
@@ -653,23 +636,6 @@ function App() {
     }
   }, [appSnapshot])
 
-  useEffect(() => {
-    if (typeof window === 'undefined' || !appShellRef.current) {
-      return undefined
-    }
-
-    const observer = new ResizeObserver((entries) => {
-      const nextWidth = entries[0]?.contentRect.width ?? 0
-      setAppShellContentWidth(nextWidth)
-    })
-
-    observer.observe(appShellRef.current)
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [])
-
   const applyTemplate = (templateId) => {
     const allowedTemplateIds = new Set([
       ...BUILT_IN_TEMPLATE_IDS,
@@ -680,7 +646,7 @@ function App() {
   }
 
   return (
-    <main ref={appShellRef} className="app-shell">
+    <main className="app-shell">
       <header className="top-bar">
         <h1>PF2e Card Designer</h1>
         <p>Design spell/item/monster cards and print locally.</p>
@@ -741,8 +707,6 @@ function App() {
           summary={summary}
           previewBack={previewBack}
           setPreviewBack={setPreviewBack}
-          cardsPerRow={cardsPerRow}
-          previewCardWidth={previewCardWidth}
         />
 
         <div className="mobile-form-actions">
@@ -759,7 +723,6 @@ function App() {
         deck={deck}
         cardCount={cardCount}
         cardsPerRow={cardsPerRow}
-        screenCardWidth={previewCardWidth}
         mailto={mailto}
         onCardsPerRowChange={setCardsPerRow}
         onClearDeck={clearDeck}
