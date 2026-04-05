@@ -680,6 +680,12 @@ button:hover,
   box-sizing: border-box;
 }
 
+.deck-section .screen-deck-grid .card-preview {
+  width: min(100%, var(--screen-card-width, 100%));
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
 .mobile-preview {
   display: none;
 }

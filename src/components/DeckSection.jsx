@@ -174,6 +174,16 @@ function DeckSection({
   const longPressRef = useRef(null)
   const deckGridRef = useRef(null)
   const safeCardsPerRow = Math.min(Math.max(cardsPerRow, 1), 8)
+  const printLayout = useMemo(() => getPrintLayout(safeCardsPerRow), [safeCardsPerRow])
+  const printGridStyle = useMemo(() => getPrintGridStyle(printLayout), [printLayout])
+  const deckGridStyle = useMemo(
+    () => ({
+      '--cards-per-row': safeCardsPerRow,
+      '--screen-card-width': `${screenCardWidth}px`,
+      '--screen-card-font-scale': getScreenCardScale(screenCardWidth),
+    }),
+    [safeCardsPerRow, screenCardWidth]
+  )
 
   useEffect(() => {
     return () => {
@@ -190,10 +200,14 @@ function DeckSection({
 
     const observer = new ResizeObserver((entries) => {
       const gridWidth = entries[0]?.contentRect.width ?? 0
-      const nextWidth =
+      const responsiveWidth =
         safeCardsPerRow > 0
           ? (gridWidth - SCREEN_GAP_PX * Math.max(safeCardsPerRow - 1, 0)) / safeCardsPerRow
           : 0
+      const printCardWidthPx = printLayout.cardWidth * 96
+      const nextWidth =
+        responsiveWidth >= printCardWidthPx ? printCardWidthPx : responsiveWidth
+
       setScreenCardWidth(Math.max(0, nextWidth))
     })
 
@@ -202,17 +216,8 @@ function DeckSection({
     return () => {
       observer.disconnect()
     }
-  }, [safeCardsPerRow])
+  }, [printLayout.cardWidth, safeCardsPerRow])
 
-  const printLayout = useMemo(() => getPrintLayout(safeCardsPerRow), [safeCardsPerRow])
-  const printGridStyle = useMemo(() => getPrintGridStyle(printLayout), [printLayout])
-  const deckGridStyle = useMemo(
-    () => ({
-      '--cards-per-row': safeCardsPerRow,
-      '--screen-card-font-scale': getScreenCardScale(screenCardWidth),
-    }),
-    [safeCardsPerRow, screenCardWidth]
-  )
   const frontPrintPages = useMemo(
     () =>
       chunkCards(deck, printLayout.pageSize).map((page) => padPage(page, printLayout.pageSize)),

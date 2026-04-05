@@ -736,6 +736,9 @@ function App() {
       <footer className="note">
         Tip: For best results, print from Chrome/Edge using A4 or Letter portrait and 3mm
         margins.
+        <br />
+        Check your print page preview before printing. The on-screen preview is only an
+        estimation.
       </footer>
 
       {showCropModal && (
