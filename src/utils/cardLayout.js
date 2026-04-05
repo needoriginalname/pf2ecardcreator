@@ -79,6 +79,20 @@ export const getCardSurfaceStyle = (card, side = 'front') => {
 
 export const getDescriptionBoxStyle = (card) => ({
   '--description-box-bg': toRgba(card.descriptionBoxColor, card.descriptionBoxOpacity),
+  '--description-box-border-width': `${card.descriptionBoxBorderThickness}px`,
+  '--description-box-border-color': card.descriptionBoxBorderColor,
+  '--description-box-radius': `${card.descriptionBoxFrameCurve}px`,
+  '--description-box-margin': `${card.descriptionBoxMargin}px`,
+  '--description-box-padding': `${card.descriptionBoxPadding}px`,
+})
+
+export const getTraitsBoxStyle = (card) => ({
+  '--traits-box-bg': toRgba(card.traitsBoxColor, card.traitsBoxOpacity),
+  '--traits-box-border-width': `${card.traitsBoxBorderThickness}px`,
+  '--traits-box-border-color': card.traitsBoxBorderColor,
+  '--traits-box-radius': `${card.traitsBoxFrameCurve}px`,
+  '--traits-box-margin': `${card.traitsBoxMargin}px`,
+  '--traits-box-padding': `${card.traitsBoxPadding}px`,
 })
 
 export const getBackTitleStyle = (card) => ({

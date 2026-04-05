@@ -1007,10 +1007,17 @@ button:hover,
   font-size: var(--card-meta-size);
   font-style: italic;
   color: #333;
+  background: var(--traits-box-bg, transparent);
+  border: calc(var(--traits-box-border-width, 0px) * var(--card-font-scale)) solid
+    var(--traits-box-border-color, transparent);
+  border-radius: calc(var(--traits-box-radius, 6px) * var(--card-font-scale));
+  margin: calc(var(--traits-box-margin, 0px) * var(--card-font-scale));
+  padding: calc(var(--traits-box-padding, 0px) * var(--card-font-scale));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: center;
+  box-sizing: border-box;
 }
 
 .mtg-body {
@@ -1021,8 +1028,18 @@ button:hover,
   min-height: 0;
   overflow: hidden;
   background: var(--description-box-bg, transparent);
-  border-radius: calc(6px * var(--card-font-scale));
-  padding: calc(6px * var(--card-font-scale));
+  border: calc(var(--description-box-border-width, 0px) * var(--card-font-scale)) solid
+    var(--description-box-border-color, transparent);
+  border-radius: calc(var(--description-box-radius, 6px) * var(--card-font-scale));
+  margin: calc(var(--description-box-margin, 0px) * var(--card-font-scale));
+  padding: calc(var(--description-box-padding, 6px) * var(--card-font-scale));
+  box-sizing: border-box;
+}
+
+.mtg-traits + .mtg-body {
+  margin-top: calc(
+    var(--description-box-margin, 0px) * var(--card-font-scale) - 2px * var(--card-font-scale)
+  );
 }
 
 .mtg-body p {

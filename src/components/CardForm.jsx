@@ -119,6 +119,118 @@ function SurfaceInspector({
   )
 }
 
+function TextPanelInspector({
+  title,
+  description,
+  color,
+  opacity,
+  borderThickness,
+  borderColor,
+  frameCurve,
+  margin,
+  padding,
+  onColorChange,
+  onOpacityChange,
+  onBorderThicknessChange,
+  onBorderColorChange,
+  onFrameCurveChange,
+  onMarginChange,
+  onPaddingChange,
+}) {
+  return (
+    <div className="inspector-group">
+      <div className="inspector-group-heading">
+        <h4>{title}</h4>
+        <span>{description}</span>
+      </div>
+
+      <div className="inspector-row">
+        <span className="inspector-label">Fill color</span>
+        <div className="inspector-control inspector-control-inline">
+          <input type="color" value={color} onChange={onColorChange} />
+          <code>{color}</code>
+        </div>
+      </div>
+
+      <div className="inspector-row">
+        <span className="inspector-label">Opacity</span>
+        <div className="inspector-control inspector-control-range">
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={opacity}
+            onChange={onOpacityChange}
+          />
+          <output className="range-value">{Math.round(opacity * 100)}%</output>
+        </div>
+      </div>
+
+      <div className="inspector-row">
+        <span className="inspector-label">Border</span>
+        <div className="inspector-control inspector-control-range">
+          <input
+            type="range"
+            min="0"
+            max="8"
+            step="1"
+            value={borderThickness}
+            onChange={onBorderThicknessChange}
+          />
+          <output className="range-value">{borderThickness}px</output>
+        </div>
+      </div>
+
+      <div className="inspector-row">
+        <span className="inspector-label">Border color</span>
+        <div className="inspector-control inspector-control-inline">
+          <input type="color" value={borderColor} onChange={onBorderColorChange} />
+          <code>{borderColor}</code>
+        </div>
+      </div>
+
+      <div className="inspector-row">
+        <span className="inspector-label">Frame curve</span>
+        <div className="inspector-control inspector-control-range">
+          <input
+            type="range"
+            min="0"
+            max="24"
+            step="1"
+            value={frameCurve}
+            onChange={onFrameCurveChange}
+          />
+          <output className="range-value">{frameCurve}px</output>
+        </div>
+      </div>
+
+      <div className="inspector-row">
+        <span className="inspector-label">Margin</span>
+        <div className="inspector-control inspector-control-range">
+          <input type="range" min="0" max="24" step="1" value={margin} onChange={onMarginChange} />
+          <output className="range-value">{margin}px</output>
+        </div>
+      </div>
+
+      <div className="inspector-row">
+        <span className="inspector-label">Padding</span>
+        <div className="inspector-control inspector-control-range">
+          <input
+            type="range"
+            min="0"
+            max="24"
+            step="1"
+            value={padding}
+            onChange={onPaddingChange}
+          />
+          <output className="range-value">{padding}px</output>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function CardForm({
   card,
   customTemplates,
@@ -472,41 +584,43 @@ function CardForm({
             </div>
           </div>
 
-          <div className="inspector-group">
-            <div className="inspector-group-heading">
-              <h4>Description Box</h4>
-              <span>Background tint behind rules text</span>
-            </div>
+          <TextPanelInspector
+            title="Description Box"
+            description="Background and spacing behind rules text"
+            color={card.descriptionBoxColor}
+            opacity={card.descriptionBoxOpacity}
+            borderThickness={card.descriptionBoxBorderThickness}
+            borderColor={card.descriptionBoxBorderColor}
+            frameCurve={card.descriptionBoxFrameCurve}
+            margin={card.descriptionBoxMargin}
+            padding={card.descriptionBoxPadding}
+            onColorChange={onChange('descriptionBoxColor')}
+            onOpacityChange={onChange('descriptionBoxOpacity')}
+            onBorderThicknessChange={onChange('descriptionBoxBorderThickness')}
+            onBorderColorChange={onChange('descriptionBoxBorderColor')}
+            onFrameCurveChange={onChange('descriptionBoxFrameCurve')}
+            onMarginChange={onChange('descriptionBoxMargin')}
+            onPaddingChange={onChange('descriptionBoxPadding')}
+          />
 
-            <div className="inspector-row">
-              <span className="inspector-label">Fill color</span>
-              <div className="inspector-control inspector-control-inline">
-                <input
-                  type="color"
-                  value={card.descriptionBoxColor}
-                  onChange={onChange('descriptionBoxColor')}
-                />
-                <code>{card.descriptionBoxColor}</code>
-              </div>
-            </div>
-
-            <div className="inspector-row">
-              <span className="inspector-label">Opacity</span>
-              <div className="inspector-control inspector-control-range">
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={card.descriptionBoxOpacity}
-                  onChange={onChange('descriptionBoxOpacity')}
-                />
-                <output className="range-value">
-                  {Math.round(card.descriptionBoxOpacity * 100)}%
-                </output>
-              </div>
-            </div>
-          </div>
+          <TextPanelInspector
+            title="Traits Box"
+            description="Background and spacing behind the traits line"
+            color={card.traitsBoxColor}
+            opacity={card.traitsBoxOpacity}
+            borderThickness={card.traitsBoxBorderThickness}
+            borderColor={card.traitsBoxBorderColor}
+            frameCurve={card.traitsBoxFrameCurve}
+            margin={card.traitsBoxMargin}
+            padding={card.traitsBoxPadding}
+            onColorChange={onChange('traitsBoxColor')}
+            onOpacityChange={onChange('traitsBoxOpacity')}
+            onBorderThicknessChange={onChange('traitsBoxBorderThickness')}
+            onBorderColorChange={onChange('traitsBoxBorderColor')}
+            onFrameCurveChange={onChange('traitsBoxFrameCurve')}
+            onMarginChange={onChange('traitsBoxMargin')}
+            onPaddingChange={onChange('traitsBoxPadding')}
+          />
 
           <div className="inspector-group">
             <div className="inspector-group-heading">

@@ -4,7 +4,11 @@ import {
   renderInlineRichText,
   renderRichText,
 } from '../utils/richText.jsx'
-import { getCardSurfaceStyle, getDescriptionBoxStyle } from '../utils/cardLayout'
+import {
+  getCardSurfaceStyle,
+  getDescriptionBoxStyle,
+  getTraitsBoxStyle,
+} from '../utils/cardLayout'
 
 function CardFace({ card, imageAlt = 'Card art', reserveEmptyArtworkSpace = false }) {
   const nameText = getRichTextPlainText(card.name)
@@ -87,7 +91,7 @@ function CardFace({ card, imageAlt = 'Card art', reserveEmptyArtworkSpace = fals
       ) : hidesArtworkButKeepsSpace ? (
         <div className="mtg-media-full mtg-media-placeholder" aria-hidden="true" />
       ) : null}
-      <div className="mtg-traits">
+      <div className="mtg-traits" style={getTraitsBoxStyle(card)}>
         {isRichTextEmpty(card.traits) ? 'Traits...' : renderInlineRichText(card.traits, 'center')}
       </div>
       <div className="mtg-body" style={getDescriptionBoxStyle(card)}>

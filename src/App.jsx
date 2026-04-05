@@ -48,6 +48,12 @@ const clampArtworkBorderThickness = (value, fallback) =>
   Math.min(Math.max(normalizeNumericField(value, fallback), 0), 4)
 const clampFrameCurve = (value, fallback) =>
   Math.min(Math.max(normalizeNumericField(value, fallback), 0), 24)
+const clampPanelBorderThickness = (value, fallback) =>
+  Math.min(Math.max(normalizeNumericField(value, fallback), 0), 8)
+const clampPanelSpacing = (value, fallback) =>
+  Math.min(Math.max(normalizeNumericField(value, fallback), 0), 24)
+const clampOpacity = (value, fallback) =>
+  Math.min(Math.max(normalizeNumericField(value, fallback), 0), 1)
 const normalizeNumericField = (value, fallback) =>
   Number.isFinite(Number(value)) ? Number(value) : fallback
 const isCustomTemplateId = (value) =>
@@ -131,11 +137,44 @@ const normalizeCardData = (cardData, allowedTemplateIds = BUILT_IN_TEMPLATE_IDS)
     cardData?.frontArtworkFrameCurve,
     defaults.frontArtworkFrameCurve
   )
-  normalized.descriptionBoxOpacity = normalizeNumericField(
+  normalized.descriptionBoxOpacity = clampOpacity(
     cardData?.descriptionBoxOpacity,
     defaults.descriptionBoxOpacity
   )
-  normalized.backTitleBoxOpacity = normalizeNumericField(
+  normalized.descriptionBoxBorderThickness = clampPanelBorderThickness(
+    cardData?.descriptionBoxBorderThickness,
+    defaults.descriptionBoxBorderThickness
+  )
+  normalized.descriptionBoxFrameCurve = clampFrameCurve(
+    cardData?.descriptionBoxFrameCurve,
+    defaults.descriptionBoxFrameCurve
+  )
+  normalized.descriptionBoxMargin = clampPanelSpacing(
+    cardData?.descriptionBoxMargin,
+    defaults.descriptionBoxMargin
+  )
+  normalized.descriptionBoxPadding = clampPanelSpacing(
+    cardData?.descriptionBoxPadding,
+    defaults.descriptionBoxPadding
+  )
+  normalized.traitsBoxOpacity = clampOpacity(cardData?.traitsBoxOpacity, defaults.traitsBoxOpacity)
+  normalized.traitsBoxBorderThickness = clampPanelBorderThickness(
+    cardData?.traitsBoxBorderThickness,
+    defaults.traitsBoxBorderThickness
+  )
+  normalized.traitsBoxFrameCurve = clampFrameCurve(
+    cardData?.traitsBoxFrameCurve,
+    defaults.traitsBoxFrameCurve
+  )
+  normalized.traitsBoxMargin = clampPanelSpacing(
+    cardData?.traitsBoxMargin,
+    defaults.traitsBoxMargin
+  )
+  normalized.traitsBoxPadding = clampPanelSpacing(
+    cardData?.traitsBoxPadding,
+    defaults.traitsBoxPadding
+  )
+  normalized.backTitleBoxOpacity = clampOpacity(
     cardData?.backTitleBoxOpacity,
     defaults.backTitleBoxOpacity
   )
