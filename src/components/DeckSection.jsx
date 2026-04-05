@@ -159,7 +159,6 @@ function DeckSection({
   deck,
   cardCount,
   cardsPerRow,
-  mailto,
   onCardsPerRowChange,
   onClearDeck,
   onPrint,
@@ -266,9 +265,6 @@ function DeckSection({
         <button type="button" onClick={onClearDeck}>
           Clear Deck
         </button>
-        <a className="button" href={mailto}>
-          Share as email
-        </a>
         <label className="cards-per-row-control">
           Cards per row
           <select

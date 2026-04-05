@@ -659,12 +659,6 @@ function App() {
     window.print()
   }
 
-  const mailto = `mailto:?subject=PF2e card deck&body=${encodeURIComponent(
-    `Hey,%0A%0Acheck out my PF2e cards:%0A${deck
-      .map((entry) => getRichTextPlainText(entry.name))
-      .join('%0A')}`
-  )}`
-
   useEffect(() => {
     if (typeof window === 'undefined') return
 
@@ -762,7 +756,6 @@ function App() {
         deck={deck}
         cardCount={cardCount}
         cardsPerRow={cardsPerRow}
-        mailto={mailto}
         onCardsPerRowChange={setCardsPerRow}
         onClearDeck={clearDeck}
         onDeleteCard={deleteCard}
