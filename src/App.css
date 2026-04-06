@@ -638,6 +638,11 @@ button:hover,
 .preview-panel h2,
 .deck-section h2 {
   margin: 0 0 8px;
+  color: #24301f;
+}
+
+.preview-panel p {
+  color: #60705b;
 }
 
 .preview-toggle {
@@ -1086,6 +1091,7 @@ button:hover,
   align-items: center;
   gap: 8px;
   font-weight: 600;
+  color: #24301f;
 }
 
 .cards-per-row-control select {
