@@ -34,6 +34,17 @@ const spellTemplate = {
 					]
 				}
 			],
+			"backTitle": [
+				{
+					"type": "paragraph",
+					"align": "center",
+					"children": [
+						{
+							"text": ""
+						}
+					]
+				}
+			],
 			"traits": [
 				{
 					"type": "paragraph",
@@ -56,7 +67,6 @@ const spellTemplate = {
 					]
 				}
 			],
-			"school": "Evocation",
 			"description": [
 				{
 					"type": "paragraph",
@@ -138,7 +148,8 @@ const spellTemplate = {
 											"align": "right",
 											"children": [
 												{
-													"text": "Traditions"
+													"text": "Traditions",
+													"bold": true
 												}
 											]
 										}
@@ -171,7 +182,8 @@ const spellTemplate = {
 											"align": "right",
 											"children": [
 												{
-													"text": "Action"
+													"text": "Action",
+													"bold": true
 												}
 											]
 										}
@@ -205,7 +217,8 @@ const spellTemplate = {
 											"align": "right",
 											"children": [
 												{
-													"text": "Range"
+													"text": "Range",
+													"bold": true
 												}
 											]
 										}
@@ -238,7 +251,8 @@ const spellTemplate = {
 											"align": "right",
 											"children": [
 												{
-													"text": "Area"
+													"text": "Area",
+													"bold": true
 												}
 											]
 										}
@@ -271,7 +285,8 @@ const spellTemplate = {
 											"align": "right",
 											"children": [
 												{
-													"text": "Defense"
+													"text": "Defense",
+													"bold": true
 												}
 											]
 										}
@@ -318,8 +333,22 @@ const spellTemplate = {
 			"frontBackgroundImage": "",
 			"borderThickness": 1,
 			"borderColor": "#333333",
+			"backTitleBoxColor": "#ffffff",
+			"backTitleBoxOpacity": 0.84,
 			"descriptionBoxColor": "#ffffff",
 			"descriptionBoxOpacity": 0.82,
+			"descriptionBoxBorderThickness": 0,
+			"descriptionBoxBorderColor": "#333333",
+			"descriptionBoxFrameCurve": 6,
+			"descriptionBoxMargin": 0,
+			"descriptionBoxPadding": 6,
+			"traitsBoxColor": "#ffffff",
+			"traitsBoxOpacity": 0,
+			"traitsBoxBorderThickness": 0,
+			"traitsBoxBorderColor": "#333333",
+			"traitsBoxFrameCurve": 6,
+			"traitsBoxMargin": 0,
+			"traitsBoxPadding": 0,
 			"frontBackgroundMode": "solid",
 			"frontBackgroundGradientType": "linear",
 			"frontBackgroundColor": "#feffff",
