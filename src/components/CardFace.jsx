@@ -30,6 +30,10 @@ function CardFace({ card, imageAlt = 'Card art', reserveEmptyArtworkSpace = fals
           borderWidth: `${card.frontArtworkBorderThickness}px`,
           borderColor: card.frontArtworkBorderColor,
         }
+  const artworkTextStyle = {
+    borderWidth: `${card.frontArtworkBorderThickness}px`,
+    borderColor: card.frontArtworkBorderColor,
+  }
   const emptyArtworkPane = (
     <div className="mtg-media-pane mtg-media-pane-art">
       <div
@@ -59,7 +63,7 @@ function CardFace({ card, imageAlt = 'Card art', reserveEmptyArtworkSpace = fals
     )
   const artworkTextPane = (
     <div className="mtg-media-pane mtg-media-pane-text">
-      <div className="mtg-media-text">
+      <div className="mtg-media-text" style={artworkTextStyle}>
         {isRichTextEmpty(card.frontArtworkText) ? (
           <p>Artwork side text...</p>
         ) : (
