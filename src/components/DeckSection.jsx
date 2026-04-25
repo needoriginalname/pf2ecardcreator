@@ -157,6 +157,7 @@ function DeckCardSlot({
 
 function DeckSection({
   deck,
+  printDeck,
   cardCount,
   cardsPerRow,
   onCardsPerRowChange,
@@ -219,14 +220,14 @@ function DeckSection({
 
   const frontPrintPages = useMemo(
     () =>
-      chunkCards(deck, printLayout.pageSize).map((page) => padPage(page, printLayout.pageSize)),
-    [deck, printLayout.pageSize]
+      chunkCards(printDeck, printLayout.pageSize).map((page) => padPage(page, printLayout.pageSize)),
+    [printDeck, printLayout.pageSize]
   )
   const backPrintPages = useMemo(
     () => frontPrintPages.map((page) => mirrorPageForBackPrint(page, printLayout.columns)),
     [frontPrintPages, printLayout.columns]
   )
-  const hasAnyBacks = deck.some(hasCustomBackLayout)
+  const hasAnyBacks = printDeck.some(hasCustomBackLayout)
 
   const clearLongPress = () => {
     if (longPressRef.current) {

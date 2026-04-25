@@ -3,6 +3,7 @@ import './App.css'
 import CardForm from './components/CardForm'
 import CropModal from './components/CropModal'
 import DeckSection from './components/DeckSection'
+import PrintModal from './components/PrintModal'
 import PreviewPanel from './components/PreviewPanel'
 import { createInitialCard } from './constants/card'
 import {
@@ -42,6 +43,10 @@ const createDeckCard = (cardData) => ({
   ...structuredClone(cardData),
   id: crypto.randomUUID(),
 })
+const createPrintDeck = (deck, quantities) =>
+  deck.flatMap((card) =>
+    Array.from({ length: Math.max(0, Number(quantities?.[card.id]) || 0) }, () => createDeckCard(card))
+  )
 
 const clampCardsPerRow = (value) => Math.min(Math.max(value, 1), 8)
 const clampArtworkBorderThickness = (value, fallback) =>
@@ -314,17 +319,21 @@ function App() {
   const [customTemplates, setCustomTemplates] = useState(initialSnapshot.customTemplates)
   const [deck, setDeck] = useState(initialSnapshot.deck)
   const [showCropModal, setShowCropModal] = useState(false)
+  const [showPrintModal, setShowPrintModal] = useState(false)
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
   const [tempImage, setTempImage] = useState('')
   const [cropMode, setCropMode] = useState('front')
+  const [printDeckOverride, setPrintDeckOverride] = useState(null)
+  const [shouldStartPrint, setShouldStartPrint] = useState(false)
   const [previewBack, setPreviewBack] = useState(initialSnapshot.previewBack)
   const [cardsPerRow, setCardsPerRow] = useState(initialSnapshot.cardsPerRow)
   const [editingCardId, setEditingCardId] = useState(null)
   const [editorSessionKey, setEditorSessionKey] = useState(0)
 
   const cardCount = deck.length
+  const printableDeck = printDeckOverride ?? deck
 
   const summary = useMemo(() => getCardSummary(card), [card])
   const isEditing = Boolean(editingCardId)
@@ -392,6 +401,9 @@ function App() {
     setPreviewBack(normalized.previewBack)
     setCardsPerRow(normalized.cardsPerRow)
     setEditingCardId(null)
+    setShowPrintModal(false)
+    setPrintDeckOverride(null)
+    setShouldStartPrint(false)
     bumpEditorSession()
     resetCropState()
   }
@@ -656,8 +668,54 @@ function App() {
       alert('Please add at least one card to the deck before printing.')
       return
     }
-    window.print()
+    setShowPrintModal(true)
   }
+
+  const handleCancelPrint = () => {
+    setShowPrintModal(false)
+  }
+
+  const handleConfirmPrint = (quantities) => {
+    const nextPrintDeck = createPrintDeck(deck, quantities)
+    if (!nextPrintDeck.length) {
+      alert('Choose at least one card copy to print.')
+      return
+    }
+
+    setPrintDeckOverride(nextPrintDeck)
+    setShowPrintModal(false)
+    setShouldStartPrint(true)
+  }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+
+    const handleAfterPrint = () => {
+      setPrintDeckOverride(null)
+      setShouldStartPrint(false)
+    }
+
+    window.addEventListener('afterprint', handleAfterPrint)
+
+    return () => {
+      window.removeEventListener('afterprint', handleAfterPrint)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !shouldStartPrint || !printDeckOverride?.length || showPrintModal) {
+      return undefined
+    }
+
+    const printTimer = window.setTimeout(() => {
+      setShouldStartPrint(false)
+      window.print()
+    }, 0)
+
+    return () => {
+      window.clearTimeout(printTimer)
+    }
+  }, [printDeckOverride, shouldStartPrint, showPrintModal])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -754,6 +812,7 @@ function App() {
 
       <DeckSection
         deck={deck}
+        printDeck={printableDeck}
         cardCount={cardCount}
         cardsPerRow={cardsPerRow}
         onCardsPerRowChange={setCardsPerRow}
@@ -786,6 +845,10 @@ function App() {
           onCancel={resetCropState}
           onConfirm={onCropConfirm}
         />
+      )}
+
+      {showPrintModal && (
+        <PrintModal deck={deck} onCancel={handleCancelPrint} onConfirm={handleConfirmPrint} />
       )}
     </main>
   )

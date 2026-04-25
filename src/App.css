@@ -92,9 +92,16 @@
   padding: 8px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  background: #fff;
+  color: #22301d;
   font-size: 14px;
   width: 100%;
   box-sizing: border-box;
+}
+
+.card-form input::placeholder,
+.card-form textarea::placeholder {
+  color: #6b7666;
 }
 
 .field-label {
@@ -531,6 +538,7 @@
 .rich-text-editable {
   min-height: 120px;
   padding: 10px 12px;
+  color: #22301d;
   font-size: 14px;
   line-height: 1.45;
   text-align: left;
@@ -1097,6 +1105,8 @@ button:hover,
 .cards-per-row-control select {
   margin-top: 0;
   width: auto;
+  background: #fff;
+  color: #22301d;
 }
 
 .deck-grid {
@@ -1176,6 +1186,191 @@ button:hover,
   display: none;
 }
 
+.print-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(16, 24, 16, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.print-modal-container {
+  width: min(960px, 100%);
+  max-height: min(92vh, 980px);
+  background: linear-gradient(180deg, #f9fbf6 0%, #f0f4ea 100%);
+  border: 1px solid rgba(35, 48, 29, 0.14);
+  border-radius: 24px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+
+.print-modal-content {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+}
+
+.print-modal-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 24px 24px 12px;
+}
+
+.print-modal-header h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  color: #20311c;
+}
+
+.print-modal-hint {
+  margin: 6px 0 0;
+  color: #52614b;
+}
+
+.print-modal-close {
+  flex-shrink: 0;
+}
+
+.print-modal-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 0 24px 16px;
+}
+
+.print-modal-summary {
+  margin: 0 0 0 auto;
+  font-weight: 600;
+  color: #20311c;
+}
+
+.print-selection-list {
+  padding: 0 24px 24px;
+  overflow: auto;
+  display: grid;
+  gap: 14px;
+}
+
+.print-selection-card {
+  display: grid;
+  grid-template-columns: minmax(140px, 200px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(35, 48, 29, 0.12);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.print-selection-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 200px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.print-selection-preview .card-preview {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.print-selection-preview .mtg-card {
+  --card-font-scale: var(--screen-card-font-scale, 1);
+  --card-padding: calc(8px * var(--card-font-scale));
+  --card-gap: calc(6px * var(--card-font-scale));
+  --card-radius: calc(10px * var(--card-font-scale));
+  --card-image-radius: calc(6px * var(--card-font-scale));
+  --card-heading-size: calc(0.4275rem * var(--card-font-scale));
+  --card-name-size: calc(0.4275rem * var(--card-font-scale));
+  --card-level-size: calc(0.4275rem * var(--card-font-scale));
+  --card-meta-size: calc(0.363375rem * var(--card-font-scale));
+  --card-body-size: calc(0.363375rem * var(--card-font-scale));
+  width: 100%;
+  max-width: none;
+  min-height: auto;
+  height: auto;
+  aspect-ratio: 2.48 / 3.46;
+}
+
+.print-selection-details {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+}
+
+.print-selection-details h4 {
+  margin: 4px 0 14px;
+  font-size: 1.1rem;
+  color: #20311c;
+}
+
+.print-selection-index {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #66745f;
+}
+
+.print-quantity-field {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+  color: #24301f;
+  justify-items: start;
+}
+
+.print-quantity-controls {
+  display: grid;
+  grid-template-columns: 40px 88px 40px;
+  align-items: center;
+  gap: 10px;
+}
+
+.print-quantity-controls button {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.print-quantity-controls input {
+  width: 88px;
+  height: 40px;
+  margin-top: 0;
+  text-align: center;
+  background: #fff;
+  color: #22301d;
+}
+
+.print-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px 24px;
+  border-top: 1px solid rgba(35, 48, 29, 0.12);
+  background: rgba(241, 245, 235, 0.92);
+}
+
 .empty {
   color: #666;
 }
@@ -1237,6 +1432,45 @@ button:hover,
 
   .mobile-form-actions {
     display: flex;
+  }
+
+  .print-modal {
+    padding: 12px;
+  }
+
+  .print-modal-container {
+    max-height: 96vh;
+    border-radius: 20px;
+  }
+
+  .print-modal-header,
+  .print-modal-toolbar,
+  .print-selection-list,
+  .print-modal-actions {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .print-selection-card {
+    grid-template-columns: 1fr;
+  }
+
+  .print-selection-preview {
+    max-width: 180px;
+  }
+
+  .print-modal-summary {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .print-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .print-modal-actions button,
+  .print-modal-close {
+    width: 100%;
   }
 }
 
@@ -1301,7 +1535,9 @@ button:hover,
   .top-bar,
   .builder-grid,
   .note,
-  .screen-deck-grid {
+  .screen-deck-grid,
+  .print-modal,
+  .crop-modal {
     display: none;
   }
 
