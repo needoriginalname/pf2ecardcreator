@@ -6,10 +6,25 @@ import {
   MdDownload,
   MdFileUpload,
   MdInventory2,
+  MdPublishedWithChanges,
   MdSave,
   MdSearch,
 } from 'react-icons/md'
-import { clearEquipment, EQUIPMENT_DATABASE_INFO, getAllEquipment, saveEquipmentBatch } from './utils/equipmentDatabase.js'
+import {
+  clearEquipment,
+  EQUIPMENT_DATABASE_INFO,
+  getAllEquipment,
+  replaceEquipmentBatch,
+  saveEquipmentBatch,
+} from './utils/equipmentDatabase.js'
+import {
+  createEquipmentSeedExport,
+  fetchHostedEquipmentSeed,
+  getEquipmentSeedUrl,
+  getStoredEquipmentSeedSignature,
+  parseEquipmentSeedJson,
+  setStoredEquipmentSeedSignature,
+} from './utils/equipmentSeed.js'
 import { getEquipmentSummary, labelFromId, parseFoundryEquipmentJson } from './utils/foundryEquipment.js'
 
 const FOUNDRY_EXPORT_SCRIPT = `const pack = game.packs.get('pf2e.equipment-srd');
@@ -26,6 +41,26 @@ try {
 
 const sortEquipment = (equipment) =>
   [...equipment].sort((first, second) => first.name.localeCompare(second.name))
+
+const parseEquipmentJson = (value) => {
+  const parsed = JSON.parse(value)
+
+  if (Array.isArray(parsed?.items) || parsed?.schemaVersion) {
+    const seed = parseEquipmentSeedJson(parsed)
+
+    return {
+      equipment: seed.items,
+      seedSignature: seed.signature,
+      source: 'website',
+    }
+  }
+
+  return {
+    equipment: parseFoundryEquipmentJson(value),
+    seedSignature: '',
+    source: 'foundry',
+  }
+}
 
 const downloadJson = (filename, data) => {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
@@ -44,6 +79,10 @@ export default function EquipmentImporter({ onBackHome }) {
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
   const [query, setQuery] = useState('')
+  const [previewSeedSignature, setPreviewSeedSignature] = useState('')
+  const [hostedSeed, setHostedSeed] = useState(null)
+  const [hostedSeedStatus, setHostedSeedStatus] = useState('Checking website JSON...')
+  const [isImportingHostedSeed, setIsImportingHostedSeed] = useState(false)
 
   const loadStoredEquipment = async () => {
     const storedEquipment = await getAllEquipment()
@@ -59,6 +98,41 @@ export default function EquipmentImporter({ onBackHome }) {
       })
       .catch((nextError) => {
         if (isMounted) setError(nextError.message)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  useEffect(() => {
+    let isMounted = true
+
+    fetchHostedEquipmentSeed()
+      .then((seed) => {
+        if (!isMounted) return
+
+        setHostedSeed(seed)
+
+        if (!seed) {
+          setHostedSeedStatus(`No website JSON found at ${getEquipmentSeedUrl()}.`)
+          return
+        }
+
+        if (seed.items.length === 0) {
+          setHostedSeedStatus(`Website JSON is present at ${getEquipmentSeedUrl()}, but it has no items yet.`)
+          return
+        }
+
+        const storedSignature = getStoredEquipmentSeedSignature()
+        setHostedSeedStatus(
+          storedSignature === seed.signature
+            ? `IndexedDB is synced with website JSON version ${seed.version}.`
+            : `Website JSON version ${seed.version} is available for import.`,
+        )
+      })
+      .catch((nextError) => {
+        if (isMounted) setHostedSeedStatus(nextError.message)
       })
 
     return () => {
@@ -93,13 +167,15 @@ export default function EquipmentImporter({ onBackHome }) {
 
   const previewImport = (value = jsonInput) => {
     try {
-      const nextEquipment = parseFoundryEquipmentJson(value)
+      const { equipment: nextEquipment, seedSignature } = parseEquipmentJson(value)
       setPreviewEquipment(sortEquipment(nextEquipment))
+      setPreviewSeedSignature(seedSignature)
       setStatus(`Ready to import ${nextEquipment.length.toLocaleString()} equipment records.`)
       setError('')
       return nextEquipment
     } catch (nextError) {
       setPreviewEquipment([])
+      setPreviewSeedSignature('')
       setStatus('')
       setError(nextError.message)
       return []
@@ -115,6 +191,9 @@ export default function EquipmentImporter({ onBackHome }) {
     }
 
     await saveEquipmentBatch(nextEquipment)
+    if (previewSeedSignature) {
+      setStoredEquipmentSeedSignature(previewSeedSignature)
+    }
     await loadStoredEquipment()
     setStatus(`Imported ${nextEquipment.length.toLocaleString()} equipment records into IndexedDB.`)
     setError('')
@@ -135,6 +214,32 @@ export default function EquipmentImporter({ onBackHome }) {
     setEquipment([])
     setStatus('Cleared the equipment object store.')
     setError('')
+  }
+
+  const exportWebsiteJson = () => {
+    const seedExport = createEquipmentSeedExport(equipment)
+    downloadJson('equipment-seed.json', seedExport)
+    setStatus('Exported compact website JSON. Put this file at public/data/equipment-seed.json before deploying.')
+    setError('')
+  }
+
+  const importHostedSeed = async () => {
+    if (!hostedSeed || hostedSeed.items.length === 0) return
+
+    setIsImportingHostedSeed(true)
+    setError('')
+
+    try {
+      await replaceEquipmentBatch(hostedSeed.items)
+      setStoredEquipmentSeedSignature(hostedSeed.signature)
+      await loadStoredEquipment()
+      setHostedSeedStatus(`IndexedDB is synced with website JSON version ${hostedSeed.version}.`)
+      setStatus(`Reimported ${hostedSeed.items.length.toLocaleString()} records from website JSON.`)
+    } catch (nextError) {
+      setError(nextError.message)
+    } finally {
+      setIsImportingHostedSeed(false)
+    }
   }
 
   const copyFoundryScript = async () => {
@@ -220,6 +325,10 @@ export default function EquipmentImporter({ onBackHome }) {
               </p>
             </div>
             <div className="equipment-toolbar-actions">
+              <button type="button" onClick={exportWebsiteJson} disabled={equipment.length === 0}>
+                <MdDownload aria-hidden="true" />
+                Export Website JSON
+              </button>
               <button type="button" onClick={() => downloadJson('pf2e-equipment-indexeddb.json', equipment)} disabled={equipment.length === 0}>
                 <MdDownload aria-hidden="true" />
                 Export
@@ -229,6 +338,21 @@ export default function EquipmentImporter({ onBackHome }) {
                 Clear
               </button>
             </div>
+          </div>
+
+          <div className="equipment-seed-sync">
+            <div>
+              <strong>Website JSON sync</strong>
+              <span>{hostedSeedStatus}</span>
+            </div>
+            <button
+              type="button"
+              onClick={importHostedSeed}
+              disabled={!hostedSeed || hostedSeed.items.length === 0 || hostedSeed.signature === getStoredEquipmentSeedSignature() || isImportingHostedSeed}
+            >
+              <MdPublishedWithChanges aria-hidden="true" />
+              {isImportingHostedSeed ? 'Importing...' : 'Reimport Website JSON'}
+            </button>
           </div>
 
           <div className="equipment-summary-grid">

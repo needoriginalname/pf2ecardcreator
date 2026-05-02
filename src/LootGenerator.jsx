@@ -19,6 +19,7 @@ const DEFAULT_LEVEL_SPREAD = 1
 const DEFAULT_GP_BUDGET = 100
 const DEFAULT_MIN_ITEM_COUNT = 1
 const DEFAULT_MAX_ITEM_COUNT = 4
+const DEFAULT_TREASURE_DROPS_ENABLED = true
 const MIN_GP_BUDGET = 1
 const MAX_GP_BUDGET = 100000
 const MIN_ITEM_COUNT = 1
@@ -768,6 +769,7 @@ export default function LootGenerator({ onBackHome }) {
   const [gpBudget, setGpBudget] = useState(DEFAULT_GP_BUDGET)
   const [minItemCount, setMinItemCount] = useState(DEFAULT_MIN_ITEM_COUNT)
   const [maxItemCount, setMaxItemCount] = useState(DEFAULT_MAX_ITEM_COUNT)
+  const [treasureDropsEnabled, setTreasureDropsEnabled] = useState(DEFAULT_TREASURE_DROPS_ENABLED)
   const [raritySettings, setRaritySettings] = useState(() => getDefaultSettings(RARITY_OPTIONS))
   const [categorySettings, setCategorySettings] = useState(() => getDefaultSettings(CATEGORY_OPTIONS))
   const [customPresets, setCustomPresets] = useState(loadCustomPresets)
@@ -910,8 +912,11 @@ export default function LootGenerator({ onBackHome }) {
           const priceGp = getItemPriceGp(item)
           const rarity = String(item.rarity || 'common').toLowerCase()
           const rarityWeight = rarityWeights[rarity] ?? 0
-          const categoryWeight = getMatchingCategoryWeight(item.lootCategories ?? [], categoryWeights)
           const isTreasure = isTreasureLootItem(item)
+          const categoryWeight =
+            isTreasure && !treasureDropsEnabled
+              ? 0
+              : getMatchingCategoryWeight(item.lootCategories ?? [], categoryWeights)
 
           return {
             ...item,
@@ -965,6 +970,7 @@ export default function LootGenerator({ onBackHome }) {
     setGpBudget(DEFAULT_GP_BUDGET)
     setMinItemCount(DEFAULT_MIN_ITEM_COUNT)
     setMaxItemCount(DEFAULT_MAX_ITEM_COUNT)
+    setTreasureDropsEnabled(DEFAULT_TREASURE_DROPS_ENABLED)
     setRaritySettings(getDefaultSettings(RARITY_OPTIONS))
     setCategorySettings(getDefaultSettings(CATEGORY_OPTIONS))
     setSelectedPresetId('custom-current')
@@ -1027,7 +1033,12 @@ export default function LootGenerator({ onBackHome }) {
                 </option>
               ))}
             </select>
-            <p className="loot-field-hint">Current pool: {formatLevelRange(levelRange)}.</p>
+            <p className="loot-field-hint">
+              Current pool: {formatLevelRange(levelRange)}. 
+            </p>
+            <p className="loot-field-hint">
+              Treasure category items ignore item level filters.
+            </p>
           </div>
 
           <div className="loot-field">
@@ -1100,6 +1111,15 @@ export default function LootGenerator({ onBackHome }) {
                 <LootSettingRow key={setting.id} {...setting} />
               ))}
             </div>
+            <label className="loot-treasure-toggle" htmlFor="loot-treasure-enabled">
+              <input
+                id="loot-treasure-enabled"
+                type="checkbox"
+                checked={treasureDropsEnabled}
+                onChange={(event) => setTreasureDropsEnabled(event.target.checked)}
+              />
+              <span>Allow Treasure category drops</span>
+            </label>
             <p className="loot-field-hint">
               Rarity values are relative weights. A 50 weight item is half as likely as a 100 weight item.
             </p>

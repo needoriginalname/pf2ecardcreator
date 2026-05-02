@@ -244,6 +244,26 @@
   gap: 6px;
 }
 
+.loot-treasure-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin-top: 8px;
+  color: #33402b;
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.25;
+  cursor: pointer;
+}
+
+.loot-treasure-toggle input {
+  width: 16px;
+  min-width: 16px;
+  height: 16px;
+  accent-color: #24301f;
+}
+
 .loot-category-settings .loot-setting-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

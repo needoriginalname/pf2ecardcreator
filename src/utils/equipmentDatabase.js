@@ -72,6 +72,13 @@ export const saveEquipmentBatch = (equipment) =>
     return equipment.length
   })
 
+export const replaceEquipmentBatch = (equipment) =>
+  runEquipmentTransaction('readwrite', (store) => {
+    store.clear()
+    equipment.forEach((item) => store.put(item))
+    return equipment.length
+  })
+
 export const clearEquipment = () =>
   runEquipmentTransaction('readwrite', (store) => {
     store.clear()

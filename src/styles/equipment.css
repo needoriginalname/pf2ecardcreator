@@ -131,6 +131,37 @@
   color: #9b2828;
 }
 
+.equipment-seed-sync {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e7de;
+  background: #fbfcf8;
+}
+
+.equipment-seed-sync strong,
+.equipment-seed-sync span {
+  display: block;
+}
+
+.equipment-seed-sync strong {
+  color: #20311c;
+  font-size: 0.9rem;
+}
+
+.equipment-seed-sync span {
+  margin-top: 3px;
+  color: #60705b;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.equipment-seed-sync button {
+  gap: 6px;
+}
+
 .equipment-results-panel {
   overflow: hidden;
 }
@@ -262,5 +293,9 @@
   .equipment-actions .button,
   .equipment-toolbar-actions button {
     width: 100%;
+  }
+
+  .equipment-seed-sync {
+    grid-template-columns: 1fr;
   }
 }

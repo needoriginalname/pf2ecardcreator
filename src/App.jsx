@@ -8,6 +8,12 @@ import EquipmentImporter from './EquipmentImporter.jsx'
 import HomePage from './HomePage.jsx'
 import LootGenerator from './LootGenerator.jsx'
 import PrintableCardGenerator from './PrintableCardGenerator.jsx'
+import { getAllEquipment, replaceEquipmentBatch } from './utils/equipmentDatabase.js'
+import {
+  fetchHostedEquipmentSeed,
+  getStoredEquipmentSeedSignature,
+  setStoredEquipmentSeedSignature,
+} from './utils/equipmentSeed.js'
 
 const TOOL_ROUTES = {
   home: '#/',
@@ -37,6 +43,31 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    let isMounted = true
+
+    const syncHostedEquipmentSeed = async () => {
+      try {
+        const hostedSeed = await fetchHostedEquipmentSeed()
+        if (!isMounted || !hostedSeed || hostedSeed.items.length === 0) return
+
+        const storedEquipment = await getAllEquipment()
+        if (getStoredEquipmentSeedSignature() === hostedSeed.signature && storedEquipment.length > 0) return
+
+        await replaceEquipmentBatch(hostedSeed.items)
+        setStoredEquipmentSeedSignature(hostedSeed.signature)
+      } catch {
+        // The importer page surfaces seed loading details; startup syncing should stay quiet.
+      }
+    }
+
+    syncHostedEquipmentSeed()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   const navigate = (nextRoute) => {
     if (typeof window === 'undefined') {
       setRoute(nextRoute)
@@ -60,7 +91,6 @@ function App() {
 
   return (
     <HomePage
-      onOpenEquipmentImporter={() => navigate(TOOL_ROUTES.equipmentImporter)}
       onOpenLootGenerator={() => navigate(TOOL_ROUTES.lootGenerator)}
       onOpenPrintableCards={() => navigate(TOOL_ROUTES.printableCards)}
     />
