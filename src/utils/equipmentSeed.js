@@ -1,7 +1,7 @@
 const EQUIPMENT_SEED_SCHEMA_VERSION = 1
 const EQUIPMENT_SEED_SOURCE = 'website-seed'
 const EQUIPMENT_SEED_SIGNATURE_KEY = 'pf2e-equipment-seed-signature-v1'
-const EQUIPMENT_SEED_URL = '/data/equipment-seed.json'
+const EQUIPMENT_SEED_PATH = 'data/equipment-seed.json'
 
 const SEED_EQUIPMENT_FIELDS = [
   'slug',
@@ -123,7 +123,7 @@ export const parseEquipmentSeedJson = (value) => {
 }
 
 export const fetchHostedEquipmentSeed = async () => {
-  const response = await fetch(EQUIPMENT_SEED_URL, { cache: 'no-store' })
+  const response = await fetch(getEquipmentSeedUrl(), { cache: 'no-store' })
 
   if (response.status === 404) return null
   if (!response.ok) throw new Error(`Could not load hosted equipment seed (${response.status}).`)
@@ -141,4 +141,4 @@ export const setStoredEquipmentSeedSignature = (signature) => {
   window.localStorage.setItem(EQUIPMENT_SEED_SIGNATURE_KEY, signature)
 }
 
-export const getEquipmentSeedUrl = () => EQUIPMENT_SEED_URL
+export const getEquipmentSeedUrl = () => `${import.meta.env.BASE_URL}${EQUIPMENT_SEED_PATH}`
