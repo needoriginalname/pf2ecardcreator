@@ -167,16 +167,38 @@ async function testOtherItemFile() {
   verifyNotParsedCategory(item, 'other-magic-items')
 }
 
+async function testTreasureFile() {
+  const equipment = parseFoundryEquipmentJson(await readConfig('treasure.json'))
+
+  assert.equal(equipment.length, 4, 'Treasure files should import one record per treasure multiplier.')
+  assert.deepEqual(
+    equipment.map((item) => item.priceGp),
+    [25, 50, 75, 100],
+  )
+
+  equipment.forEach((item, index) => {
+    verifyFoundryType(item, 'treasure')
+    verifyParsedCategory(item, 'treasure')
+    assert.equal(item.level, 0)
+    assert.equal(item.treasureMultiplier, index + 1)
+    assert.equal(item.baseSlug, 'jeweled-goblet')
+  })
+}
+
 async function testAllFixtureFilesAreCategorized() {
   const fixtureFiles = (await readdir(FIXTURE_DIR)).filter((fileName) => fileName.endsWith('.json'))
 
   for (const fixtureFile of fixtureFiles) {
-    const item = await parseSingleFoundryFile(fixtureFile)
+    const equipment = parseFoundryEquipmentJson(await readConfig(fixtureFile))
 
-    assert.ok(
-      item.lootCategories.length > 0,
-      `${fixtureFile} imported ${item.name} as uncategorized.`,
-    )
+    assert.ok(equipment.length > 0, `${fixtureFile} should import at least one item.`)
+
+    equipment.forEach((item) => {
+      assert.ok(
+        item.lootCategories.length > 0,
+        `${fixtureFile} imported ${item.name} as uncategorized.`,
+      )
+    })
   }
 }
 
@@ -190,6 +212,7 @@ test('fundamental weapon rune file', testFundamentalWeaponRuneFile)
 test('property weapon rune file', testPropertyWeaponRuneFile)
 test('other magic item file', testOtherMagicItemFile)
 test('other item file', testOtherItemFile)
+test('treasure file', testTreasureFile)
 test('all fixture files are categorized', testAllFixtureFilesAreCategorized)
 
 const filePath = process.argv[2]

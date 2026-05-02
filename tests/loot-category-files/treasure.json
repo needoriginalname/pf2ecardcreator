@@ -1,0 +1,29 @@
+{
+  "_id": "test-treasure",
+  "name": "Jeweled Goblet",
+  "type": "treasure",
+  "system": {
+    "slug": "jeweled-goblet",
+    "level": {
+      "value": 0
+    },
+    "traits": {
+      "rarity": "common",
+      "value": []
+    },
+    "description": {
+      "value": "<p>A silver goblet set with small garnets.</p>"
+    },
+    "usage": {
+      "value": "held-in-one-hand"
+    },
+    "price": {
+      "value": {
+        "gp": 25
+      }
+    },
+    "bulk": {
+      "value": "L"
+    }
+  }
+}

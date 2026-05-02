@@ -9,6 +9,7 @@ import {
   MdTune,
 } from 'react-icons/md'
 import { CATEGORY_OPTIONS } from './constants/lootCategories.js'
+import { getAllEquipment } from './utils/equipmentDatabase.js'
 
 const CUSTOM_PRESET_STORAGE_KEY = 'pf2e-loot-custom-presets-v1'
 const LEVEL_OPTIONS = Array.from({ length: 26 }, (_, index) => index - 1)
@@ -22,6 +23,7 @@ const MIN_GP_BUDGET = 1
 const MAX_GP_BUDGET = 100000
 const MIN_ITEM_COUNT = 1
 const MAX_ITEM_COUNT = 20
+const TREASURE_CATEGORY_ID = 'treasure'
 const RARITY_OPTIONS = [
   { id: 'common', label: 'Common', enabled: true, weight: 100 },
   { id: 'uncommon', label: 'Uncommon', enabled: true, weight: 40 },
@@ -43,6 +45,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       weapons: 8,
       armor: 8,
       shields: 5,
+      treasure: 5,
       'cursed-items': 0,
     },
   },
@@ -59,6 +62,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'other-alchemical-items': 45,
       'non-alchemical-consumables': 25,
       'other-items': 20,
+      treasure: 4,
     },
   },
   {
@@ -76,6 +80,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       runes: 55,
       'property-weapon-runes': 45,
       'property-armor-runes': 35,
+      treasure: 6,
     },
   },
   {
@@ -92,6 +97,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       potions: 35,
       'other-items': 70,
       'other-magic-items': 12,
+      treasure: 56,
     },
   },
   {
@@ -108,6 +114,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'mundane-weapons': 85,
       'mundane-armor': 70,
       'other-items': 55,
+      treasure: 4,
     },
   },
   {
@@ -122,6 +129,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       weapons: 25,
       'other-items': 40,
       'non-alchemical-consumables': 25,
+      treasure: 45,
     },
   },
   {
@@ -137,6 +145,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'other-alchemical-consumables': 30,
       weapons: 10,
       armor: 10,
+      treasure: 5,
     },
   },
   {
@@ -152,6 +161,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'precious-materials': 85,
       'specific-weapons': 45,
       'magic-armor': 45,
+      treasure: 13,
     },
   },
   {
@@ -167,6 +177,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'cursed-items': 7,
       weapons: 15,
       armor: 10,
+      treasure: 18,
     },
   },
   {
@@ -181,6 +192,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'intelligent-items': 25,
       'other-items': 45,
       weapons: 15,
+      treasure: 11,
     },
   },
   {
@@ -197,6 +209,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       weapons: 10,
       armor: 20,
       shields: 25,
+      treasure: 9,
     },
   },
   {
@@ -211,6 +224,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'mundane-weapons': 45,
       'other-items': 65,
       potions: 20,
+      treasure: 11,
     },
   },
   {
@@ -227,6 +241,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'cursed-items': 6,
       weapons: 8,
       armor: 8,
+      treasure: 10,
     },
   },
   {
@@ -242,6 +257,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'precious-materials': 45,
       'other-magic-items': 35,
       'alchemical-items': 30,
+      treasure: 23,
     },
   },
   {
@@ -258,6 +274,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'cursed-items': 10,
       armor: 20,
       shields: 30,
+      treasure: 75,
     },
   },
   {
@@ -273,6 +290,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'apex-items': 35,
       'intelligent-items': 15,
       potions: 20,
+      treasure: 25,
     },
   },
   {
@@ -286,6 +304,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       weapons: 35,
       snares: 35,
       potions: 20,
+      treasure: 6,
       'cursed-items': 0,
     },
   },
@@ -302,6 +321,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'property-weapon-runes': 45,
       potions: 35,
       snares: 30,
+      treasure: 2,
     },
   },
   {
@@ -317,6 +337,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'other-magic-items': 45,
       'other-items': 75,
       'cursed-items': 7,
+      treasure: 55,
     },
   },
   {
@@ -332,6 +353,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       armor: 30,
       talismans: 35,
       potions: 20,
+      treasure: 13,
     },
   },
   {
@@ -348,6 +370,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'cursed-items': 2,
       weapons: 5,
       armor: 5,
+      treasure: 20,
     },
   },
 ]
@@ -471,6 +494,155 @@ const slugifyPresetName = (name) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
+
+const formatGp = (value) => {
+  const rounded = Math.round(value * 100) / 100
+  return `${rounded.toLocaleString()} gp`
+}
+
+const labelFromId = (value) =>
+  String(value || '')
+    .replace(/[-_]+/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+
+const parsePriceGp = (price) => {
+  if (Number.isFinite(Number(price))) return Number(price)
+
+  const coinValues = { pp: 10, gp: 1, sp: 0.1, cp: 0.01 }
+  const matches = [...String(price || '').matchAll(/([\d.]+)\s*(pp|gp|sp|cp)/gi)]
+
+  return matches.reduce((total, match) => total + Number(match[1]) * coinValues[match[2].toLowerCase()], 0)
+}
+
+const getItemLevel = (item) => {
+  const level = Number(item.level ?? item.itemLevel)
+  return Number.isFinite(level) ? level : null
+}
+
+const getItemPriceGp = (item) => {
+  const price = Number.isFinite(Number(item.priceGp)) ? Number(item.priceGp) : parsePriceGp(item.price)
+  return Number.isFinite(price) ? price : 0
+}
+
+const isTreasureLootItem = (item) =>
+  String(item.type || '').toLowerCase() === 'treasure' || (item.lootCategories ?? []).includes(TREASURE_CATEGORY_ID)
+
+const isItemInLevelRange = (item, levelRange) =>
+  item.isTreasure ||
+  (Number.isFinite(item.level) && item.level >= levelRange.minimum && item.level <= levelRange.maximum)
+
+const getLootUniquenessKey = (item) => item.baseSlug ?? item.slug
+
+const countUniqueLootCandidates = (items) => new Set(items.map(getLootUniquenessKey)).size
+
+const formatGeneratedItemLevel = (item) => (item.isTreasure ? 'Any level' : `Level ${formatLevel(item.level)}`)
+
+const flattenSettingWeights = (settings) =>
+  Object.entries(settings).reduce((weights, [id, setting]) => {
+    const nextWeights = {
+      ...weights,
+      [id]: setting.enabled ? setting.weight : 0,
+    }
+
+    return {
+      ...nextWeights,
+      ...flattenSettingWeights(setting.subsettings ?? {}),
+    }
+  }, {})
+
+const getMatchingCategoryWeight = (itemCategories = [], categoryWeights) =>
+  itemCategories.reduce((bestWeight, category) => Math.max(bestWeight, categoryWeights[category] ?? 0), 0)
+
+const getWeightedRandomItem = (items) => {
+  const totalWeight = items.reduce((total, item) => total + item.pickWeight, 0)
+  if (totalWeight <= 0) return null
+
+  let roll = Math.random() * totalWeight
+
+  for (const item of items) {
+    roll -= item.pickWeight
+    if (roll <= 0) return item
+  }
+
+  return items.at(-1) ?? null
+}
+
+const getRandomInt = (minimum, maximum) =>
+  Math.floor(Math.random() * (maximum - minimum + 1)) + minimum
+
+const scoreLootDraft = (items, targetGp) => {
+  const totalValue = items.reduce((total, item) => total + item.priceGp, 0)
+  return {
+    items,
+    totalValue,
+    differenceRatio: Math.abs(totalValue - targetGp) / targetGp,
+  }
+}
+
+const createWeightedLootDraft = (candidates, targetGp, minimumItems, maximumItems) => {
+  const usableCandidateCount = countUniqueLootCandidates(candidates)
+  if (usableCandidateCount < minimumItems) return null
+
+  let bestDraft = null
+  const attempts = 3000
+  const usableMaximumItems = Math.min(maximumItems, usableCandidateCount)
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const itemCount = getRandomInt(minimumItems, usableMaximumItems)
+    const remainingCandidates = [...candidates]
+    const selectedItems = []
+
+    while (selectedItems.length < itemCount && remainingCandidates.length > 0) {
+      const remainingSlots = itemCount - selectedItems.length
+      const remainingBudget = Math.max(0.01, targetGp - selectedItems.reduce((total, item) => total + item.priceGp, 0))
+      const idealItemValue = remainingBudget / remainingSlots
+      const weightedCandidates = remainingCandidates.map((candidate) => ({
+        ...candidate,
+        pickWeight:
+          candidate.baseWeight *
+          (1 / (1 + Math.abs(candidate.priceGp - idealItemValue) / Math.max(idealItemValue, 1))),
+      }))
+      const nextItem = getWeightedRandomItem(weightedCandidates)
+      if (!nextItem) break
+
+      selectedItems.push(nextItem)
+      const selectedKey = getLootUniquenessKey(nextItem)
+      for (let index = remainingCandidates.length - 1; index >= 0; index -= 1) {
+        if (getLootUniquenessKey(remainingCandidates[index]) === selectedKey) {
+          remainingCandidates.splice(index, 1)
+        }
+      }
+    }
+
+    if (selectedItems.length !== itemCount) continue
+
+    const draft = scoreLootDraft(selectedItems, targetGp)
+    if (!bestDraft || draft.differenceRatio < bestDraft.differenceRatio) {
+      bestDraft = draft
+    }
+
+    if (draft.differenceRatio <= 0.1) break
+  }
+
+  return bestDraft
+}
+
+const getLootStatus = (draft, targetGp) => {
+  if (!draft) return ''
+
+  const differencePercent = Math.round(draft.differenceRatio * 100)
+  if (draft.differenceRatio <= 0.1) {
+    return `Generated ${draft.items.length} item${draft.items.length === 1 ? '' : 's'} within ${differencePercent}% of the GP target.`
+  }
+  if (draft.differenceRatio <= 0.15) {
+    return `Generated the closest strong match, within ${differencePercent}% of the GP target.`
+  }
+  if (draft.totalValue < targetGp) {
+    return `Closest match is ${differencePercent}% below the GP target. Matching items may not be valuable enough for this budget or item count.`
+  }
+
+  return `Closest match is ${differencePercent}% above the GP target. Matching items may be too expensive for this budget or item count.`
+}
 
 const parseSettingWeight = (value) => {
   const parsed = Number(value)
@@ -601,10 +773,15 @@ export default function LootGenerator({ onBackHome }) {
   const [customPresets, setCustomPresets] = useState(loadCustomPresets)
   const [selectedPresetId, setSelectedPresetId] = useState('custom-current')
   const [customPresetName, setCustomPresetName] = useState('')
+  const [lootDraft, setLootDraft] = useState(null)
+  const [lootStatus, setLootStatus] = useState('')
+  const [lootError, setLootError] = useState('')
+  const [isGeneratingLoot, setIsGeneratingLoot] = useState(false)
 
   const levelRange = useMemo(() => getLevelRange(targetLevel, levelSpread), [targetLevel, levelSpread])
   const enabledRarityCount = useMemo(() => countEnabledSettings(raritySettings), [raritySettings])
   const enabledCategoryCount = useMemo(() => countEnabledSettings(categorySettings), [categorySettings])
+  const generatedTotalValue = lootDraft?.totalValue ?? 0
   const selectedBuiltInPreset = useMemo(
     () => BUILT_IN_PRESET_DEFINITIONS.find((preset) => preset.id === selectedPresetId),
     [selectedPresetId],
@@ -711,6 +888,77 @@ export default function LootGenerator({ onBackHome }) {
     setMinItemCount((currentMin) => Math.min(currentMin, nextMax))
   }
 
+  const generateLoot = async () => {
+    setIsGeneratingLoot(true)
+    setLootError('')
+    setLootStatus('')
+    setLootDraft(null)
+
+    try {
+      const equipment = await getAllEquipment()
+
+      if (equipment.length === 0) {
+        setLootError('No imported equipment found. Import Foundry PF2e equipment before generating loot.')
+        return
+      }
+
+      const rarityWeights = flattenSettingWeights(raritySettings)
+      const categoryWeights = flattenSettingWeights(categorySettings)
+      const candidates = equipment
+        .map((item) => {
+          const level = getItemLevel(item)
+          const priceGp = getItemPriceGp(item)
+          const rarity = String(item.rarity || 'common').toLowerCase()
+          const rarityWeight = rarityWeights[rarity] ?? 0
+          const categoryWeight = getMatchingCategoryWeight(item.lootCategories ?? [], categoryWeights)
+          const isTreasure = isTreasureLootItem(item)
+
+          return {
+            ...item,
+            level,
+            priceGp,
+            isTreasure,
+            baseWeight: rarityWeight * categoryWeight,
+          }
+        })
+        .filter(
+          (item) =>
+            isItemInLevelRange(item, levelRange) &&
+            item.priceGp > 0 &&
+            item.baseWeight > 0,
+        )
+
+      if (candidates.length === 0) {
+        setLootError(
+          `No imported items match enabled rarities, enabled categories, a nonzero GP value, and ${formatLevelRange(levelRange).toLowerCase()} for non-treasure items. Re-import equipment if your records do not have level/category data yet.`,
+        )
+        return
+      }
+
+      const uniqueCandidateCount = countUniqueLootCandidates(candidates)
+
+      if (uniqueCandidateCount < minItemCount) {
+        setLootError(
+          `Only ${uniqueCandidateCount} matching item${uniqueCandidateCount === 1 ? '' : 's'} are available, but the minimum is ${minItemCount}. Lower the item count or broaden the filters.`,
+        )
+        return
+      }
+
+      const draft = createWeightedLootDraft(candidates, gpBudget, minItemCount, maxItemCount)
+      if (!draft) {
+        setLootError('Could not build a loot draft from the current matching items. Broaden the filters or lower the item count.')
+        return
+      }
+
+      setLootDraft(draft)
+      setLootStatus(getLootStatus(draft, gpBudget))
+    } catch (error) {
+      setLootError(error.message || 'Loot generation failed.')
+    } finally {
+      setIsGeneratingLoot(false)
+    }
+  }
+
   const resetLoot = () => {
     setTargetLevel(DEFAULT_TARGET_LEVEL)
     setLevelSpread(DEFAULT_LEVEL_SPREAD)
@@ -721,6 +969,9 @@ export default function LootGenerator({ onBackHome }) {
     setCategorySettings(getDefaultSettings(CATEGORY_OPTIONS))
     setSelectedPresetId('custom-current')
     setCustomPresetName('')
+    setLootDraft(null)
+    setLootStatus('')
+    setLootError('')
   }
 
   return (
@@ -855,9 +1106,9 @@ export default function LootGenerator({ onBackHome }) {
           </fieldset>
 
           <div className="loot-actions">
-            <button type="button" className="primary-action" disabled>
+            <button type="button" className="primary-action" onClick={generateLoot} disabled={isGeneratingLoot}>
               <MdAutoAwesome aria-hidden="true" />
-              Generate Loot
+              {isGeneratingLoot ? 'Generating...' : 'Generate Loot'}
             </button>
             <button type="button" onClick={resetLoot}>
               <MdRefresh aria-hidden="true" />
@@ -951,6 +1202,10 @@ export default function LootGenerator({ onBackHome }) {
               <strong>{gpBudget.toLocaleString()} gp</strong>
             </article>
             <article className="loot-summary-card">
+              <span>Generated</span>
+              <strong>{lootDraft ? formatGp(generatedTotalValue) : '-'}</strong>
+            </article>
+            <article className="loot-summary-card">
               <span>Items</span>
               <strong>{formatItemCountRange(minItemCount, maxItemCount)}</strong>
             </article>
@@ -967,26 +1222,60 @@ export default function LootGenerator({ onBackHome }) {
           </div>
 
           <div className="loot-planning-panel">
-            <div>
-              <p className="loot-panel-kicker">Next step</p>
-              <h2>Item selection will use this setup.</h2>
-              <p>
-                The generator can now look for items from {formatLevelRange(levelRange).toLowerCase()}{' '}
-                and keep {formatItemCountRange(minItemCount, maxItemCount)} close to{' '}
-                {gpBudget.toLocaleString()} gp.
-              </p>
-              <div className="loot-rarity-preview" aria-label="Enabled rarity weights">
-                {RARITY_OPTIONS.map((rarity) => {
-                  const setting = raritySettings[rarity.id]
-
-                  return (
-                    <span key={rarity.id} className={setting.enabled ? '' : 'is-disabled'}>
-                      {rarity.label}: {setting.enabled ? setting.weight : 'disabled'}
-                    </span>
-                  )
-                })}
+            {lootDraft ? (
+              <div className="loot-generated-panel">
+                <div className="loot-generated-heading">
+                  <div>
+                    <p className="loot-panel-kicker">Generated loot</p>
+                    <h2>{formatGp(generatedTotalValue)}</h2>
+                  </div>
+                  <span>
+                    Target {formatGp(gpBudget)} · {Math.round(lootDraft.differenceRatio * 100)}% off
+                  </span>
+                </div>
+                {lootStatus && <p className="loot-generation-status">{lootStatus}</p>}
+                <div className="loot-generated-list">
+                  {lootDraft.items.map((item) => (
+                    <article key={item.slug} className="loot-generated-item">
+                      <div>
+                        <h3>{item.name}</h3>
+                        <p>
+                          {formatGeneratedItemLevel(item)} · {labelFromId(item.rarity)} · {labelFromId(item.type)}
+                        </p>
+                        <p>{(item.lootCategories ?? []).map(labelFromId).join(', ') || 'Uncategorized'}</p>
+                      </div>
+                      <strong>{formatGp(item.priceGp)}</strong>
+                    </article>
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div>
+                <p className="loot-panel-kicker">Next step</p>
+                <h2>Item selection will use this setup.</h2>
+                <p>
+                  The generator can now look for items from {formatLevelRange(levelRange).toLowerCase()}{' '}
+                  and keep {formatItemCountRange(minItemCount, maxItemCount)} close to{' '}
+                  {gpBudget.toLocaleString()} gp.
+                </p>
+                {(lootStatus || lootError) && (
+                  <p className={`loot-generation-status ${lootError ? 'is-error' : ''}`}>
+                    {lootError || lootStatus}
+                  </p>
+                )}
+                <div className="loot-rarity-preview" aria-label="Enabled rarity weights">
+                  {RARITY_OPTIONS.map((rarity) => {
+                    const setting = raritySettings[rarity.id]
+
+                    return (
+                      <span key={rarity.id} className={setting.enabled ? '' : 'is-disabled'}>
+                        {rarity.label}: {setting.enabled ? setting.weight : 'disabled'}
+                      </span>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </section>
       </section>

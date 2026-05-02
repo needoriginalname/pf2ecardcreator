@@ -1,5 +1,7 @@
 import { classifyEquipmentCategories } from '../constants/lootCategories.js'
 
+const TREASURE_MULTIPLIERS = [1, 2, 3, 4]
+
 const normalizeSlug = (value) =>
   String(value || '')
     .trim()
@@ -66,11 +68,41 @@ const formatPriceObject = (price) => {
     .join(', ')
 }
 
+const getPriceGpValue = (price) => {
+  if (!price) return 0
+
+  if (typeof price === 'string') {
+    const coinValues = { pp: 10, gp: 1, sp: 0.1, cp: 0.01 }
+    const matches = [...price.matchAll(/([\d.]+)\s*(pp|gp|sp|cp)/gi)]
+
+    return matches.reduce((total, match) => total + Number(match[1]) * coinValues[match[2].toLowerCase()], 0)
+  }
+
+  if (typeof price === 'object') {
+    return (
+      Number(price.pp ?? 0) * 10 +
+      Number(price.gp ?? 0) +
+      Number(price.sp ?? 0) * 0.1 +
+      Number(price.cp ?? 0) * 0.01
+    )
+  }
+
+  return 0
+}
+
+const formatGpPrice = (value) => `${Math.round(value * 100) / 100} gp`
+
 const getPrice = (system) => {
   const price = system.price?.value ?? system.price
   const formatted = typeof price === 'string' ? price : formatPriceObject(price)
 
   return formatted || '0 gp'
+}
+
+const getLevel = (system) => {
+  const level = Number(system.level?.value ?? system.level ?? 0)
+
+  return Number.isFinite(level) ? level : 0
 }
 
 const getType = (item, system) =>
@@ -80,6 +112,8 @@ const getType = (item, system) =>
   system.subcategory ??
   system.group ??
   'equipment'
+
+const isTreasureType = (type) => String(type || '').toLowerCase() === 'treasure'
 
 const getDescription = (system) =>
   stripHtml(system.description?.value ?? system.description?.gm ?? system.description ?? '')
@@ -100,7 +134,7 @@ export const normalizeFoundryEquipment = (rawData) => {
   const importedAt = new Date().toISOString()
 
   return toArray(rawData)
-    .map((item) => {
+    .flatMap((item) => {
       const system = getSystem(item)
       const name = String(item.name ?? '').trim()
       const slug = normalizeSlug(item.slug ?? system.slug ?? name)
@@ -117,16 +151,37 @@ export const normalizeFoundryEquipment = (rawData) => {
         traits: getTraits(system),
         rarity: getRarity(system),
         type: getType(item, system),
+        level: getLevel(system),
         description: getDescription(system),
         usage: getUsage(system),
         price: getPrice(system),
+        priceGp: getPriceGpValue(system.price?.value ?? system.price),
         importedAt,
       }
 
-      return {
-        ...normalizedItem,
-        lootCategories: classifyEquipmentCategories(normalizedItem),
+      const lootCategories = classifyEquipmentCategories(normalizedItem)
+
+      if (!isTreasureType(normalizedItem.type)) {
+        return {
+          ...normalizedItem,
+          lootCategories,
+        }
       }
+
+      return TREASURE_MULTIPLIERS.map((multiplier) => {
+        const priceGp = normalizedItem.priceGp * multiplier
+
+        return {
+          ...normalizedItem,
+          slug: multiplier === 1 ? normalizedItem.slug : `${normalizedItem.slug}-${multiplier}x`,
+          baseSlug: normalizedItem.slug,
+          name: multiplier === 1 ? normalizedItem.name : `${normalizedItem.name} (${multiplier}x value)`,
+          price: formatGpPrice(priceGp),
+          priceGp,
+          treasureMultiplier: multiplier,
+          lootCategories,
+        }
+      })
     })
     .filter(Boolean)
 }

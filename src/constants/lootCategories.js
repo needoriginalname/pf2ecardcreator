@@ -19,15 +19,17 @@ const isAlchemical = (item) => hasTrait(item, 'alchemical')
 const isConsumable = (item) => hasType(item, 'consumable') || hasTrait(item, 'consumable')
 const isArmor = (item) => hasType(item, 'armor')
 const isShield = (item) => hasType(item, 'shield') || hasTrait(item, 'shield')
+const isTreasure = (item) => hasType(item, 'treasure')
 const isWeapon = (item) => hasType(item, 'weapon') || hasTrait(item, 'weapon')
 const isMagical = (item) => hasTrait(item, 'magical')
 const isRune = (item) => hasUsageMatch(item, /\b(etched|applied)\b/)
 const isAlchemicalItem = (item) => isAlchemical(item) && (isWeapon(item) || isConsumable(item))
 const isFundamentalWeaponRune = (item) => /\b(weapon potency|striking)\b/.test(normalizeName(item))
 const isFundamentalArmorRune = (item) => /\b(armor potency|resilient)\b/.test(normalizeName(item))
+const getCategoryOption = (categoryId) => CATEGORY_OPTIONS.find((category) => category.id === categoryId)
 
 const hasMatchedSubcategory = (item, category) =>
-  (category.subsettings ?? [])
+  (category?.subsettings ?? [])
     .filter((subcategory) => !subcategory.isOther)
     .some((subcategory) => subcategory.matcher?.(item))
 
@@ -62,14 +64,14 @@ export const CATEGORY_OPTIONS = [
         id: 'other-alchemical-consumables',
         label: 'Other Alchemical Consumables',
         matcher: (item) =>
-          isAlchemicalItem(item) && isConsumable(item) && !hasMatchedSubcategory(item, CATEGORY_OPTIONS[0]),
+          isAlchemicalItem(item) && isConsumable(item) && !hasMatchedSubcategory(item, getCategoryOption('alchemical-items')),
         isOther: true,
       },
       {
         id: 'other-alchemical-items',
         label: 'Other Alchemical Items',
         matcher: (item) =>
-          isAlchemicalItem(item) && !isConsumable(item) && !hasMatchedSubcategory(item, CATEGORY_OPTIONS[0]),
+          isAlchemicalItem(item) && !isConsumable(item) && !hasMatchedSubcategory(item, getCategoryOption('alchemical-items')),
         isOther: true,
       },
     ],
@@ -146,7 +148,10 @@ export const CATEGORY_OPTIONS = [
       {
         id: 'other-consumables',
         label: 'Other Consumables',
-        matcher: (item) => isConsumable(item) && !isAlchemical(item) && !hasMatchedSubcategory(item, CATEGORY_OPTIONS[4]),
+        matcher: (item) =>
+          isConsumable(item) &&
+          !isAlchemical(item) &&
+          !hasMatchedSubcategory(item, getCategoryOption('non-alchemical-consumables')),
         isOther: true,
       },
     ],
@@ -196,7 +201,7 @@ export const CATEGORY_OPTIONS = [
       {
         id: 'other-runes',
         label: 'Other Runes',
-        matcher: (item) => isRune(item) && !hasMatchedSubcategory(item, CATEGORY_OPTIONS[10]),
+        matcher: (item) => isRune(item) && !hasMatchedSubcategory(item, getCategoryOption('runes')),
         isOther: true,
       },
     ],
@@ -231,6 +236,7 @@ export const CATEGORY_OPTIONS = [
       },
     ],
   },
+  { id: 'treasure', label: 'Treasure', matcher: isTreasure },
   { id: 'other-magic-items', label: 'Other Magic Items', isFallback: true },
   { id: 'other-items', label: 'Other Items', isFallback: true },
 ]
