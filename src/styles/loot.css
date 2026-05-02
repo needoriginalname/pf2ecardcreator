@@ -165,17 +165,17 @@
 
 .loot-setting-list {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .loot-category-settings .loot-setting-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 4px 12px;
   max-height: 420px;
   overflow-x: hidden;
   overflow-y: auto;
-  padding-right: 4px;
+  padding-right: 6px;
 }
 
 .loot-category-settings .loot-setting-row {
@@ -184,37 +184,43 @@
 
 .loot-setting-row {
   display: grid;
-  gap: 8px;
-  padding: 10px;
-  border: 1px solid #e1e6dc;
-  border-radius: 8px;
-  background: #fbfcf8;
+  gap: 6px;
+  padding: 6px 2px;
+  border: 0;
+  border-bottom: 1px solid #edf1e9;
+  border-radius: 0;
+  background: transparent;
   box-sizing: border-box;
 }
 
 .loot-setting-main {
   display: grid;
-  grid-template-columns: 30px minmax(112px, 0.7fr) minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: 30px minmax(136px, 0.9fr) minmax(140px, 1fr);
+  gap: 10px;
   align-items: center;
-  min-height: 46px;
+  min-height: 34px;
 }
 
 .loot-setting-expand {
-  width: 30px;
-  min-width: 30px;
-  height: 30px;
-  min-height: 30px;
+  width: 26px;
+  min-width: 26px;
+  height: 26px;
+  min-height: 26px;
   padding: 0;
-  border-color: #dbe1d6;
+  border-color: transparent;
   border-radius: 999px;
-  background: #eef2ea;
+  background: transparent;
   color: #33402b;
 }
 
+.loot-setting-expand:hover {
+  color: #20311c;
+  background: #eef2ea;
+}
+
 .loot-setting-expand-spacer {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
 }
 
 .loot-setting-expand svg {
@@ -228,7 +234,7 @@
 }
 
 .loot-setting-row.is-disabled {
-  background: #f3f5f1;
+  background: transparent;
 }
 
 .loot-setting-toggle {
@@ -237,27 +243,30 @@
   gap: 8px;
   min-width: 0;
   color: #33402b;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 700;
+  line-height: 1.2;
   cursor: pointer;
 }
 
 .loot-setting-toggle input {
-  width: 18px;
-  min-width: 18px;
-  height: 18px;
+  width: 16px;
+  min-width: 16px;
+  height: 16px;
   accent-color: #24301f;
 }
 
 .loot-setting-toggle span {
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
 }
 
 .loot-setting-slider {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 42px;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
 }
 
@@ -272,9 +281,9 @@
 
 .loot-setting-slider output {
   min-width: 42px;
-  padding: 4px 6px;
+  padding: 3px 6px;
   border-radius: 6px;
-  background: #eef2ea;
+  background: transparent;
   color: #33402b;
   font-size: 0.78rem;
   font-weight: 800;
@@ -290,14 +299,15 @@
 
 .loot-subsetting-list {
   display: grid;
-  gap: 8px;
-  margin-left: 26px;
-  padding-left: 12px;
-  border-left: 2px solid #dbe1d6;
+  gap: 2px;
+  margin-left: 30px;
+  padding: 2px 0 2px 10px;
+  border-left: 1px solid #dbe1d6;
 }
 
 .loot-subsetting-list .loot-setting-row {
-  background: #fff;
+  background: transparent;
+  border-bottom-color: #f1f4ee;
 }
 
 .segmented-control {
