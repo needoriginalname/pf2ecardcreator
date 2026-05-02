@@ -182,6 +182,59 @@
   min-width: 0;
 }
 
+.loot-preset-panel {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(160px, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+  padding: 10px 0 12px;
+  border-bottom: 1px solid #edf1e9;
+}
+
+.loot-preset-field {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.loot-preset-field span {
+  color: #33402b;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.loot-preset-field select,
+.loot-preset-field input {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  color: #22301d;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.loot-preset-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.loot-preset-actions button {
+  min-height: 38px;
+  gap: 5px;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+}
+
+.loot-preset-actions svg {
+  width: 16px;
+  height: 16px;
+}
+
 .loot-setting-row {
   display: grid;
   gap: 6px;
@@ -479,6 +532,18 @@
 
   .loot-category-settings .loot-setting-list {
     grid-template-columns: 1fr;
+  }
+
+  .loot-preset-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .loot-preset-actions {
+    justify-content: stretch;
+  }
+
+  .loot-preset-actions button {
+    flex: 1 1 120px;
   }
 }
 
