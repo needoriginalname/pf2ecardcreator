@@ -1,0 +1,26 @@
+{
+  "_id": "test-property-weapon-rune",
+  "name": "Flaming",
+  "type": "equipment",
+  "system": {
+    "slug": "flaming",
+    "traits": {
+      "rarity": "common",
+      "value": ["fire", "magical"]
+    },
+    "description": {
+      "value": "<p>Weapon property rune.</p>"
+    },
+    "usage": {
+      "value": "etched-onto-a-weapon"
+    },
+    "price": {
+      "value": {
+        "gp": 500
+      }
+    },
+    "bulk": {
+      "value": 0
+    }
+  }
+}

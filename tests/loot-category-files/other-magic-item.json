@@ -1,0 +1,26 @@
+{
+  "_id": "test-other-magic-item",
+  "name": "Floating Pebble",
+  "type": "equipment",
+  "system": {
+    "slug": "floating-pebble",
+    "traits": {
+      "rarity": "common",
+      "value": ["magical"]
+    },
+    "description": {
+      "value": "<p>A generic magical trinket that fits no other loot category.</p>"
+    },
+    "usage": {
+      "value": "held-in-one-hand"
+    },
+    "price": {
+      "value": {
+        "gp": 10
+      }
+    },
+    "bulk": {
+      "value": 0
+    }
+  }
+}

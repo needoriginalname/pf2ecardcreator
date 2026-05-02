@@ -1,0 +1,12 @@
+[
+  {
+    "slug": "flame-tongue",
+    "type": "weapon",
+    "categories": ["weapons", "specific-weapons"]
+  },
+  {
+    "name": "Steel Shield",
+    "type": "shield",
+    "categories": ["shields", "mundane-shields"]
+  }
+]

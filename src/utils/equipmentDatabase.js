@@ -1,5 +1,5 @@
 const DATABASE_NAME = 'pf2e-card-project'
-const DATABASE_VERSION = 1
+const DATABASE_VERSION = 2
 const EQUIPMENT_STORE = 'equipment'
 
 const openEquipmentDatabase = () =>
@@ -14,6 +14,14 @@ const openEquipmentDatabase = () =>
         store.createIndex('name', 'name', { unique: false })
         store.createIndex('rarity', 'rarity', { unique: false })
         store.createIndex('type', 'type', { unique: false })
+        store.createIndex('lootCategories', 'lootCategories', { unique: false, multiEntry: true })
+      } else {
+        const transaction = request.transaction
+        const store = transaction.objectStore(EQUIPMENT_STORE)
+
+        if (!store.indexNames.contains('lootCategories')) {
+          store.createIndex('lootCategories', 'lootCategories', { unique: false, multiEntry: true })
+        }
       }
     }
 

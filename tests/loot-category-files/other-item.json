@@ -1,0 +1,26 @@
+{
+  "_id": "test-other-item",
+  "name": "Plain Ledger",
+  "type": "equipment",
+  "system": {
+    "slug": "plain-ledger",
+    "traits": {
+      "rarity": "common",
+      "value": []
+    },
+    "description": {
+      "value": "<p>A mundane ledger that fits no other loot category.</p>"
+    },
+    "usage": {
+      "value": "held-in-one-hand"
+    },
+    "price": {
+      "value": {
+        "sp": 1
+      }
+    },
+    "bulk": {
+      "value": "L"
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { MdArrowBack, MdAutoAwesome, MdExpandMore, MdRefresh, MdTune } from 'react-icons/md'
+import { CATEGORY_OPTIONS } from './constants/lootCategories.js'
 
 const LEVEL_OPTIONS = Array.from({ length: 26 }, (_, index) => index - 1)
 const LEVEL_SPREAD_OPTIONS = [0, 1, 2, 3, 4]
@@ -13,115 +14,6 @@ const RARITY_OPTIONS = [
   { id: 'uncommon', label: 'Uncommon', enabled: true, weight: 40 },
   { id: 'rare', label: 'Rare', enabled: true, weight: 5 },
   { id: 'unique', label: 'Unique', enabled: false, weight: 0 },
-]
-const CATEGORY_OPTIONS = [
-  {
-    id: 'alchemical-items',
-    label: 'Alchemical Items',
-    subsettings: [
-      { id: 'alchemical-ammunition', label: 'Alchemical Ammunition' },
-      { id: 'alchemical-bombs', label: 'Alchemical Bombs' },
-      { id: 'alchemical-elixirs', label: 'Alchemical Elixirs' },
-      { id: 'alchemical-food', label: 'Alchemical Food' },
-      { id: 'alchemical-plants', label: 'Alchemical Plants' },
-      { id: 'alchemical-poisons', label: 'Alchemical Poisons' },
-      { id: 'alchemical-tools', label: 'Alchemical Tools' },
-      { id: 'bottled-monstrosities', label: 'Bottled Monstrosities' },
-      { id: 'drugs', label: 'Drugs' },
-    ],
-  },
-  { id: 'apex-items', label: 'Apex Items' },
-  {
-    id: 'armor',
-    label: 'Armor',
-    subsettings: [
-      { id: 'base-armor', label: 'Base Armor' },
-      { id: 'basic-magic-armor', label: 'Basic Magic Armor' },
-      { id: 'precious-material-armor', label: 'Precious Material Armor' },
-      { id: 'specific-magic-armor', label: 'Specific Magic Armor' },
-    ],
-  },
-  { id: 'banners', label: 'Banners' },
-  { id: 'censer', label: 'Censer' },
-  {
-    id: 'consumables',
-    label: 'Consumables',
-    subsettings: [
-      { id: 'bottled-breath', label: 'Bottled Breath' },
-      { id: 'fulu', label: 'Fulu' },
-      { id: 'gadgets', label: 'Gadgets' },
-      { id: 'magical-ammunition', label: 'Magical Ammunition' },
-      { id: 'magical-siege-ammunition', label: 'Magical Siege Ammunition' },
-      { id: 'missive', label: 'Missive' },
-      { id: 'oils', label: 'Oils' },
-      { id: 'potions', label: 'Potions' },
-      { id: 'scrolls', label: 'Scrolls' },
-      { id: 'spell-catalysts', label: 'Spell Catalysts' },
-      { id: 'talismans', label: 'Talismans' },
-      { id: 'tea', label: 'Tea' },
-      { id: 'whetstones', label: 'Whetstones' },
-      { id: 'other-consumables', label: 'Other Consumables' },
-    ],
-  },
-  { id: 'cursed-items', label: 'Cursed Items' },
-  { id: 'grimoire', label: 'Grimoire' },
-  { id: 'held-items', label: 'Held Items' },
-  { id: 'high-tech-items', label: 'High-tech Items' },
-  { id: 'intelligent-items', label: 'Intelligent Items' },
-  { id: 'materials', label: 'Materials' },
-  {
-    id: 'runes',
-    label: 'Runes',
-    subsettings: [
-      { id: 'accessory-runes', label: 'Accessory Runes' },
-      { id: 'armor-property-runes', label: 'Armor Property Runes' },
-      { id: 'fundamental-armor-runes', label: 'Fundamental Armor Runes' },
-      { id: 'fundamental-weapon-runes', label: 'Fundamental Weapon Runes' },
-      { id: 'shield-runes', label: 'Shield Runes' },
-      { id: 'weapon-property-runes', label: 'Weapon Property Runes' },
-    ],
-  },
-  {
-    id: 'shields',
-    label: 'Shields',
-    subsettings: [
-      { id: 'base-shields', label: 'Base Shields' },
-      { id: 'precious-material-shields', label: 'Precious Material Shields' },
-      { id: 'specific-shields', label: 'Specific Shields' },
-    ],
-  },
-  { id: 'snares', label: 'Snares' },
-  { id: 'spellhearts', label: 'Spellhearts' },
-  { id: 'staves', label: 'Staves' },
-  { id: 'trade-goods', label: 'Trade Goods' },
-  {
-    id: 'wands',
-    label: 'Wands',
-    subsettings: [
-      { id: 'base-magic-wands', label: 'Base Magic Wands' },
-      { id: 'speciality-wands', label: 'Speciality Wands' },
-    ],
-  },
-  {
-    id: 'weapons',
-    label: 'Weapons',
-    subsettings: [
-      { id: 'base-weapons', label: 'Base Weapons' },
-      { id: 'base-magical-weapons', label: 'Base Magical Weapons' },
-      { id: 'beast-guns', label: 'Beast Guns' },
-      { id: 'precious-material-weapons', label: 'Precious Material Weapons' },
-      { id: 'specific-magic-weapons', label: 'Specific Magic Weapons' },
-    ],
-  },
-  {
-    id: 'worn-items',
-    label: 'Worn Items',
-    subsettings: [
-      { id: 'companion-items', label: 'Companion Items' },
-      { id: 'eidolon-items', label: 'Eidolon Items' },
-      { id: 'other-worn-items', label: 'Other Worn Items' },
-    ],
-  },
 ]
 
 const formatLevel = (level) => (level === -1 ? '0 or lower' : String(level))

@@ -1,0 +1,26 @@
+{
+  "_id": "test-fundamental-weapon-rune",
+  "name": "+1 Weapon Potency",
+  "type": "equipment",
+  "system": {
+    "slug": "plus-1-weapon-potency",
+    "traits": {
+      "rarity": "common",
+      "value": ["magical"]
+    },
+    "description": {
+      "value": "<p>Fundamental rune.</p>"
+    },
+    "usage": {
+      "value": "etched-onto-a-weapon"
+    },
+    "price": {
+      "value": {
+        "gp": 35
+      }
+    },
+    "bulk": {
+      "value": 0
+    }
+  }
+}

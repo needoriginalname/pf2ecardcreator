@@ -72,7 +72,16 @@ export default function EquipmentImporter({ onBackHome }) {
 
     return equipment
       .filter((item) =>
-        [item.name, item.rarity, item.type, item.sourceBook, item.price, item.bulk, item.traits.join(' ')]
+        [
+          item.name,
+          item.rarity,
+          item.type,
+          item.sourceBook,
+          item.price,
+          item.bulk,
+          item.traits.join(' '),
+          (item.lootCategories ?? []).join(' '),
+        ]
           .join(' ')
           .toLowerCase()
           .includes(search),
@@ -239,6 +248,10 @@ export default function EquipmentImporter({ onBackHome }) {
               <span>Types</span>
               <strong>{Object.keys(summary.types).length}</strong>
             </article>
+            <article>
+              <span>Loot Categories</span>
+              <strong>{Object.keys(summary.lootCategories).length}</strong>
+            </article>
           </div>
 
           <label className="equipment-search" htmlFor="equipment-search">
@@ -262,6 +275,7 @@ export default function EquipmentImporter({ onBackHome }) {
                   <th>Traits</th>
                   <th>Rarity</th>
                   <th>Type</th>
+                  <th>Loot Categories</th>
                   <th>Price</th>
                 </tr>
               </thead>
@@ -274,12 +288,13 @@ export default function EquipmentImporter({ onBackHome }) {
                     <td>{item.traits.map(labelFromId).join(', ')}</td>
                     <td>{labelFromId(item.rarity)}</td>
                     <td>{labelFromId(item.type)}</td>
+                    <td>{(item.lootCategories ?? []).map(labelFromId).join(', ') || 'Uncategorized'}</td>
                     <td>{item.price}</td>
                   </tr>
                 ))}
                 {filteredEquipment.length === 0 && (
                   <tr>
-                    <td colSpan="7">No imported equipment yet.</td>
+                    <td colSpan="8">No imported equipment yet.</td>
                   </tr>
                 )}
               </tbody>

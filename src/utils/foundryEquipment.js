@@ -1,3 +1,5 @@
+import { classifyEquipmentCategories } from '../constants/lootCategories.js'
+
 const normalizeSlug = (value) =>
   String(value || '')
     .trim()
@@ -38,6 +40,12 @@ const getTraits = (system) => {
   return []
 }
 
+const stripHtml = (value) =>
+  String(value || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
 const getBulk = (system) => {
   const bulk = system.bulk?.value ?? system.bulk?.bulk ?? system.bulk
 
@@ -66,15 +74,22 @@ const getPrice = (system) => {
 }
 
 const getType = (item, system) =>
+  item.type ??
   system.category ??
   system.consumableType?.value ??
   system.subcategory ??
   system.group ??
-  item.type ??
   'equipment'
+
+const getDescription = (system) =>
+  stripHtml(system.description?.value ?? system.description?.gm ?? system.description ?? '')
+
+const getUsage = (system) =>
+  String(system.usage?.value ?? system.usage ?? system.equipped?.usage ?? '').trim()
 
 const toArray = (rawData) => {
   if (Array.isArray(rawData)) return rawData
+  if (rawData?.name && (rawData?.system || rawData?.data)) return [rawData]
   if (Array.isArray(rawData?.items)) return rawData.items
   if (Array.isArray(rawData?.equipment)) return rawData.equipment
   if (rawData && typeof rawData === 'object') return Object.values(rawData)
@@ -93,7 +108,7 @@ export const normalizeFoundryEquipment = (rawData) => {
 
       if (!name || !slug) return null
 
-      return {
+      const normalizedItem = {
         slug,
         foundryId: item._id ?? item.id ?? '',
         name,
@@ -102,8 +117,15 @@ export const normalizeFoundryEquipment = (rawData) => {
         traits: getTraits(system),
         rarity: getRarity(system),
         type: getType(item, system),
+        description: getDescription(system),
+        usage: getUsage(system),
         price: getPrice(system),
         importedAt,
+      }
+
+      return {
+        ...normalizedItem,
+        lootCategories: classifyEquipmentCategories(normalizedItem),
       }
     })
     .filter(Boolean)
@@ -116,9 +138,12 @@ export const getEquipmentSummary = (equipment) =>
     (summary, item) => {
       summary.rarities[item.rarity] = (summary.rarities[item.rarity] ?? 0) + 1
       summary.types[item.type] = (summary.types[item.type] ?? 0) + 1
+      ;(item.lootCategories ?? []).forEach((category) => {
+        summary.lootCategories[category] = (summary.lootCategories[category] ?? 0) + 1
+      })
       return summary
     },
-    { rarities: {}, types: {} },
+    { rarities: {}, types: {}, lootCategories: {} },
   )
 
 export const labelFromId = titleCase
