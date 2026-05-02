@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react'
-import './App.css'
+import './styles/common.css'
+import './styles/home.css'
+import './styles/cards.css'
+import './styles/loot.css'
+import './styles/equipment.css'
+import EquipmentImporter from './EquipmentImporter.jsx'
 import HomePage from './HomePage.jsx'
 import LootGenerator from './LootGenerator.jsx'
 import PrintableCardGenerator from './PrintableCardGenerator.jsx'
 
 const TOOL_ROUTES = {
   home: '#/',
+  equipmentImporter: '#/equipment-importer',
   lootGenerator: '#/loot-generator',
   printableCards: '#/printable-card-generator',
 }
@@ -48,8 +54,13 @@ function App() {
     return <LootGenerator onBackHome={() => navigate(TOOL_ROUTES.home)} />
   }
 
+  if (route === TOOL_ROUTES.equipmentImporter) {
+    return <EquipmentImporter onBackHome={() => navigate(TOOL_ROUTES.home)} />
+  }
+
   return (
     <HomePage
+      onOpenEquipmentImporter={() => navigate(TOOL_ROUTES.equipmentImporter)}
       onOpenLootGenerator={() => navigate(TOOL_ROUTES.lootGenerator)}
       onOpenPrintableCards={() => navigate(TOOL_ROUTES.printableCards)}
     />
