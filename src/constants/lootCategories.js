@@ -91,7 +91,7 @@ export const CATEGORY_OPTIONS = [
   },
   {
     id: 'non-alchemical-consumables',
-    label: 'Non-Alchemical Consumables',
+    label: 'Consumables',
     matcher: (item) => isConsumable(item) && !isAlchemical(item),
     subsettings: [
       {

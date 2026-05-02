@@ -16,8 +16,12 @@ const LEVEL_SPREAD_OPTIONS = [0, 1, 2, 3, 4]
 const DEFAULT_TARGET_LEVEL = 1
 const DEFAULT_LEVEL_SPREAD = 1
 const DEFAULT_GP_BUDGET = 100
+const DEFAULT_MIN_ITEM_COUNT = 1
+const DEFAULT_MAX_ITEM_COUNT = 4
 const MIN_GP_BUDGET = 1
 const MAX_GP_BUDGET = 100000
+const MIN_ITEM_COUNT = 1
+const MAX_ITEM_COUNT = 20
 const RARITY_OPTIONS = [
   { id: 'common', label: 'Common', enabled: true, weight: 100 },
   { id: 'uncommon', label: 'Uncommon', enabled: true, weight: 40 },
@@ -39,7 +43,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       weapons: 8,
       armor: 8,
       shields: 5,
-      'cursed-items': 8,
+      'cursed-items': 0,
     },
   },
   {
@@ -110,7 +114,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
     id: 'catacombs',
     name: 'Catacombs',
     weights: {
-      'cursed-items': 50,
+      'cursed-items': 25,
       'other-magic-items': 55,
       scrolls: 40,
       talismans: 35,
@@ -160,7 +164,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       potions: 55,
       talismans: 65,
       tea: 50,
-      'cursed-items': 15,
+      'cursed-items': 7,
       weapons: 15,
       armor: 10,
     },
@@ -169,7 +173,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
     id: 'haunted-manor',
     name: 'Haunted Manor',
     weights: {
-      'cursed-items': 70,
+      'cursed-items': 35,
       'other-magic-items': 65,
       grimoire: 45,
       scrolls: 50,
@@ -220,7 +224,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'spell-catalysts': 60,
       'other-magic-items': 85,
       runes: 30,
-      'cursed-items': 12,
+      'cursed-items': 6,
       weapons: 8,
       armor: 8,
     },
@@ -251,7 +255,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'magical-ammunition': 30,
       'other-items': 80,
       'precious-materials': 40,
-      'cursed-items': 20,
+      'cursed-items': 10,
       armor: 20,
       shields: 30,
     },
@@ -282,7 +286,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       weapons: 35,
       snares: 35,
       potions: 20,
-      'cursed-items': 8,
+      'cursed-items': 0,
     },
   },
   {
@@ -312,14 +316,14 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'mundane-weapons': 50,
       'other-magic-items': 45,
       'other-items': 75,
-      'cursed-items': 15,
+      'cursed-items': 7,
     },
   },
   {
     id: 'undead-crypt',
     name: 'Undead Crypt',
     weights: {
-      'cursed-items': 80,
+      'cursed-items': 40,
       'other-magic-items': 60,
       scrolls: 50,
       wands: 35,
@@ -341,7 +345,7 @@ const BUILT_IN_PRESET_DEFINITIONS = [
       'spell-catalysts': 75,
       'other-magic-items': 70,
       potions: 35,
-      'cursed-items': 5,
+      'cursed-items': 2,
       weapons: 5,
       armor: 5,
     },
@@ -369,6 +373,17 @@ const parseBudget = (value) => {
   const parsed = Number(value)
   if (!Number.isFinite(parsed)) return MIN_GP_BUDGET
   return clamp(Math.round(parsed), MIN_GP_BUDGET, MAX_GP_BUDGET)
+}
+
+const parseItemCount = (value) => {
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed)) return MIN_ITEM_COUNT
+  return clamp(Math.round(parsed), MIN_ITEM_COUNT, MAX_ITEM_COUNT)
+}
+
+const formatItemCountRange = (minimum, maximum) => {
+  if (minimum === maximum) return `${minimum} item${minimum === 1 ? '' : 's'}`
+  return `${minimum}-${maximum} items`
 }
 
 const getDefaultSettings = (options, defaultWeight = 100) =>
@@ -413,7 +428,8 @@ const mergeSettings = (options, savedSettings = {}, defaultWeight = 100) => {
 const createPresetSettings = (options, weights, fallbackWeight = 8) =>
   options.reduce((settings, option) => {
     const hasWeight = Object.prototype.hasOwnProperty.call(weights, option.id)
-    const weight = hasWeight ? clamp(Math.round(Number(weights[option.id])), 0, 100) : fallbackWeight
+    const defaultWeight = option.id === 'cursed-items' ? 0 : fallbackWeight
+    const weight = hasWeight ? clamp(Math.round(Number(weights[option.id])), 0, 100) : defaultWeight
 
     return {
       ...settings,
@@ -578,6 +594,8 @@ export default function LootGenerator({ onBackHome }) {
   const [targetLevel, setTargetLevel] = useState(DEFAULT_TARGET_LEVEL)
   const [levelSpread, setLevelSpread] = useState(DEFAULT_LEVEL_SPREAD)
   const [gpBudget, setGpBudget] = useState(DEFAULT_GP_BUDGET)
+  const [minItemCount, setMinItemCount] = useState(DEFAULT_MIN_ITEM_COUNT)
+  const [maxItemCount, setMaxItemCount] = useState(DEFAULT_MAX_ITEM_COUNT)
   const [raritySettings, setRaritySettings] = useState(() => getDefaultSettings(RARITY_OPTIONS))
   const [categorySettings, setCategorySettings] = useState(() => getDefaultSettings(CATEGORY_OPTIONS))
   const [customPresets, setCustomPresets] = useState(loadCustomPresets)
@@ -681,10 +699,24 @@ export default function LootGenerator({ onBackHome }) {
     setCustomPresetName('')
   }
 
+  const updateMinItemCount = (value) => {
+    const nextMin = parseItemCount(value)
+    setMinItemCount(nextMin)
+    setMaxItemCount((currentMax) => Math.max(currentMax, nextMin))
+  }
+
+  const updateMaxItemCount = (value) => {
+    const nextMax = parseItemCount(value)
+    setMaxItemCount(nextMax)
+    setMinItemCount((currentMin) => Math.min(currentMin, nextMax))
+  }
+
   const resetLoot = () => {
     setTargetLevel(DEFAULT_TARGET_LEVEL)
     setLevelSpread(DEFAULT_LEVEL_SPREAD)
     setGpBudget(DEFAULT_GP_BUDGET)
+    setMinItemCount(DEFAULT_MIN_ITEM_COUNT)
+    setMaxItemCount(DEFAULT_MAX_ITEM_COUNT)
     setRaritySettings(getDefaultSettings(RARITY_OPTIONS))
     setCategorySettings(getDefaultSettings(CATEGORY_OPTIONS))
     setSelectedPresetId('custom-current')
@@ -775,6 +807,40 @@ export default function LootGenerator({ onBackHome }) {
               Use this as a target value, not an exact promise.
             </p>
           </div>
+
+          <fieldset className="loot-fieldset loot-count-fieldset">
+            <legend>Item count</legend>
+            <div className="loot-range-control">
+              <div
+                className="loot-range-track"
+                style={{
+                  '--range-start': `${((minItemCount - MIN_ITEM_COUNT) / (MAX_ITEM_COUNT - MIN_ITEM_COUNT)) * 100}%`,
+                  '--range-end': `${((maxItemCount - MIN_ITEM_COUNT) / (MAX_ITEM_COUNT - MIN_ITEM_COUNT)) * 100}%`,
+                }}
+              >
+                <input
+                  type="range"
+                  min={MIN_ITEM_COUNT}
+                  max={MAX_ITEM_COUNT}
+                  value={minItemCount}
+                  onChange={(event) => updateMinItemCount(event.target.value)}
+                  aria-label="Minimum generated items"
+                />
+                <input
+                  type="range"
+                  min={MIN_ITEM_COUNT}
+                  max={MAX_ITEM_COUNT}
+                  value={maxItemCount}
+                  onChange={(event) => updateMaxItemCount(event.target.value)}
+                  aria-label="Maximum generated items"
+                />
+              </div>
+            </div>
+
+            <p className="loot-field-hint">
+              Generate between {formatItemCountRange(minItemCount, maxItemCount)}.
+            </p>
+          </fieldset>
 
           <fieldset className="loot-fieldset loot-settings-panel">
             <legend>Item rarity</legend>
@@ -885,6 +951,10 @@ export default function LootGenerator({ onBackHome }) {
               <strong>{gpBudget.toLocaleString()} gp</strong>
             </article>
             <article className="loot-summary-card">
+              <span>Items</span>
+              <strong>{formatItemCountRange(minItemCount, maxItemCount)}</strong>
+            </article>
+            <article className="loot-summary-card">
               <span>Rarities</span>
               <strong>{enabledRarityCount}</strong>
             </article>
@@ -902,7 +972,8 @@ export default function LootGenerator({ onBackHome }) {
               <h2>Item selection will use this setup.</h2>
               <p>
                 The generator can now look for items from {formatLevelRange(levelRange).toLowerCase()}{' '}
-                and keep the total close to {gpBudget.toLocaleString()} gp.
+                and keep {formatItemCountRange(minItemCount, maxItemCount)} close to{' '}
+                {gpBudget.toLocaleString()} gp.
               </p>
               <div className="loot-rarity-preview" aria-label="Enabled rarity weights">
                 {RARITY_OPTIONS.map((rarity) => {
