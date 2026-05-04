@@ -59,6 +59,13 @@ export default function HomePage({ onOpenLootGenerator, onOpenPrintableCards }) 
             <MdChevronRight className="tool-card-arrow" aria-hidden="true" />
           </button>
         </div>
+
+        <p className="home-contact-note">
+          Suggestions or bug reports:{' '}
+          <a href="mailto:needoriginalname@gmail.com?subject=NeedOriginalPf2eTools">
+            needoriginalname@gmail.com
+          </a>
+        </p>
       </section>
     </main>
   )
