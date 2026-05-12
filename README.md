@@ -1,16 +1,52 @@
-# React + Vite
+# NeedOriginalPf2eTools
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive web application for creating and managing character cards for Pathfinder 2nd Edition.
 
-Currently, two official plugins are available:
+## About
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+NeedOriginalPf2eTools is designed to streamline the character creation and management process for Pathfinder 2e players. Whether you're a new player building your first character or a seasoned veteran optimizing your build, this tool provides an intuitive interface to generate and customize character cards.
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Quick Card Generation** - Create character cards in minutes
+- **Character Customization** - Tailor your character to your playstyle
+- **Easy Export** - Save and share your character cards
+- **Intuitive Interface** - Designed for both new and experienced players
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Visit [NeedOriginalPf2eTools](https://needoriginalname.github.io/pf2ecardcreator/) to start creating your character cards today.
+
+## Meta Pages
+
+- [About](./docs/ABOUT.md) - Learn more about this project
+- [Privacy Policy](./docs/PRIVACY.md) - Understand how your data is handled
+- [Support This Project](./docs/SUPPORT.md) - Ways to support the development
+
+## Development
+
+This project is built with:
+
+- **React** - UI library
+- **Vite** - Fast build tool
+
+### Local Development
+
+```bash
+npm install
+npm run dev
+```
+
+### Building
+
+```bash
+npm run build
+```
+
+## Contributing
+
+Contributions are welcome! Feel free to open issues and pull requests to help improve this project.
+
+## License
+
+MIT License - See LICENSE file for details
