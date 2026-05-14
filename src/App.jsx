@@ -4,8 +4,10 @@ import './styles/home.css'
 import './styles/cards.css'
 import './styles/loot.css'
 import './styles/equipment.css'
+import './styles/initiative.css'
 import EquipmentImporter from './EquipmentImporter.jsx'
 import HomePage from './HomePage.jsx'
+import InitiativeTracker from './InitiativeTracker.jsx'
 import LootGenerator from './LootGenerator.jsx'
 import PrintableCardGenerator from './PrintableCardGenerator.jsx'
 import { getAllEquipment, replaceEquipmentBatch } from './utils/equipmentDatabase.js'
@@ -18,6 +20,7 @@ import {
 const TOOL_ROUTES = {
   home: '#/',
   equipmentImporter: '#/equipment-importer',
+  initiativeTracker: '#/initiative-tracker',
   lootGenerator: '#/loot-generator',
   printableCards: '#/printable-card-generator',
 }
@@ -85,12 +88,17 @@ function App() {
     return <LootGenerator onBackHome={() => navigate(TOOL_ROUTES.home)} />
   }
 
+  if (route === TOOL_ROUTES.initiativeTracker) {
+    return <InitiativeTracker onBackHome={() => navigate(TOOL_ROUTES.home)} />
+  }
+
   if (route === TOOL_ROUTES.equipmentImporter) {
     return <EquipmentImporter onBackHome={() => navigate(TOOL_ROUTES.home)} />
   }
 
   return (
     <HomePage
+      onOpenInitiativeTracker={() => navigate(TOOL_ROUTES.initiativeTracker)}
       onOpenLootGenerator={() => navigate(TOOL_ROUTES.lootGenerator)}
       onOpenPrintableCards={() => navigate(TOOL_ROUTES.printableCards)}
     />

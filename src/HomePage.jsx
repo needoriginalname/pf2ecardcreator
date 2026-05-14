@@ -1,7 +1,7 @@
-import { MdCardGiftcard, MdChevronRight, MdStyle } from 'react-icons/md'
+import { MdCardGiftcard, MdChevronRight, MdGroups, MdStyle } from 'react-icons/md'
 import heroArt from './assets/hero.png'
 
-export default function HomePage({ onOpenLootGenerator, onOpenPrintableCards }) {
+export default function HomePage({ onOpenInitiativeTracker, onOpenLootGenerator, onOpenPrintableCards }) {
   return (
     <main className="home-shell">
       <section className="home-hero" aria-labelledby="home-title">
@@ -54,6 +54,23 @@ export default function HomePage({ onOpenLootGenerator, onOpenPrintableCards }) 
               <span className="tool-card-title">Loot Generator</span>
               <span className="tool-card-description">
                 Build treasure parcels for encounters, quests, and party rewards.
+              </span>
+            </span>
+            <MdChevronRight className="tool-card-arrow" aria-hidden="true" />
+          </button>
+
+          <button
+            type="button"
+            className="tool-card tool-card-primary"
+            onClick={() => onOpenInitiativeTracker()}
+          >
+            <span className="tool-card-icon" aria-hidden="true">
+              <MdGroups />
+            </span>
+            <span className="tool-card-copy">
+              <span className="tool-card-title">Initiative Tracker</span>
+              <span className="tool-card-description">
+                Run GM-only encounter order with HP, conditions, bonuses, and persistent damage.
               </span>
             </span>
             <MdChevronRight className="tool-card-arrow" aria-hidden="true" />
