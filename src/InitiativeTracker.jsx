@@ -13,12 +13,11 @@ import {
   MdShield,
   MdSkipNext,
   MdSkipPrevious,
-  MdTouchApp,
   MdTune,
 } from 'react-icons/md'
 
 const STORAGE_KEY = 'pf2e-initiative-tracker-v1'
-const LONG_PRESS_MS = 420
+const LONG_PRESS_MS = 300
 const PARTICIPANT_KINDS = [
   { id: 'player', label: 'Player' },
   { id: 'monster', label: 'Monster' },
@@ -1222,13 +1221,6 @@ function CombatantTile({
             {participant.kind !== 'player' ? ` (${formatSigned(participant.initiativeModifier)})` : ''}
           </span>
         </div>
-        <button type="button" onClick={(event) => {
-          event.stopPropagation()
-          onOpenMenu(participant.id, event.clientX, event.clientY)
-        }}>
-          <MdTouchApp aria-hidden="true" />
-          Hold
-        </button>
       </div>
 
       <div className="combatant-core-stats">
@@ -1276,7 +1268,7 @@ function CombatantTile({
 
 function ActionMenu({
   participant,
-  automation,
+  anchor,
   onClose,
   onToggleRaisedShield,
   onToggleCondition,
@@ -1386,8 +1378,9 @@ function ActionMenu({
       <section
         className="radial-menu-card"
         aria-label={`${getParticipantName(participant)} actions`}
+        style={{ left: `${anchor.x}px`, top: `${anchor.y}px` }}
       >
-        <div className="radial-menu-orbit" onPointerDown={(event) => event.stopPropagation()}>
+        <div className="radial-menu-orbit">
           <svg
             className="radial-menu-wheel"
             viewBox={`0 0 ${RADIAL_VIEWBOX_SIZE} ${RADIAL_VIEWBOX_SIZE}`}
@@ -1409,6 +1402,7 @@ function ActionMenu({
                   role="menuitem"
                   tabIndex="0"
                   aria-label={action.label}
+                  onPointerDown={(event) => event.stopPropagation()}
                   onClick={action.onClick}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
@@ -1432,263 +1426,236 @@ function ActionMenu({
                 </g>
               )
             })}
-            <circle className="radial-menu-center-disc" cx={RADIAL_CENTER} cy={RADIAL_CENTER} r={RADIAL_INNER_RADIUS - 10} />
-            <text className="radial-menu-center-text" x={RADIAL_CENTER} y={RADIAL_CENTER - 6} textAnchor="middle">
-              {selectedAction?.label ?? 'Actions'}
-            </text>
-            <text className="radial-menu-center-subtext" x={RADIAL_CENTER} y={RADIAL_CENTER + 13} textAnchor="middle">
-              Tap or tab
-            </text>
+            <g className="radial-menu-center" onPointerDown={(event) => event.stopPropagation()}>
+              <circle className="radial-menu-center-disc" cx={RADIAL_CENTER} cy={RADIAL_CENTER} r={RADIAL_INNER_RADIUS - 10} />
+              <text className="radial-menu-center-text" x={RADIAL_CENTER} y={RADIAL_CENTER - 6} textAnchor="middle">
+                {selectedAction?.label ?? getParticipantName(participant)}
+              </text>
+              <text className="radial-menu-center-subtext" x={RADIAL_CENTER} y={RADIAL_CENTER + 13} textAnchor="middle">
+                Tap action
+              </text>
+            </g>
           </svg>
         </div>
 
-        <div className="radial-detail-panel" onPointerDown={(event) => event.stopPropagation()}>
-          <div className="radial-menu-heading">
-            <div>
+        {panel !== 'main' && (
+          <div className="radial-action-panel" onPointerDown={(event) => event.stopPropagation()}>
+            <div className="radial-action-panel-heading">
               <span>{getKindLabel(participant.kind)}</span>
-              <h2>{getParticipantName(participant)}</h2>
+              <strong>{getParticipantName(participant)}</strong>
             </div>
-          </div>
 
-          {panel === 'main' && (
-            <div className="menu-summary-grid">
-              <article>
-                <span>AC</span>
-                <strong>{participant.ac || '-'}</strong>
-              </article>
-              <article>
-                <span>HP</span>
-                <strong>
-                  {participant.hpTracking
-                    ? `${participant.currentHp}/${participant.maxHp}${participant.tempHp > 0 ? ` +${participant.tempHp}` : ''}`
-                    : 'Hidden'}
-                </strong>
-              </article>
-              <article>
-                <span>Frightened automation</span>
-                <strong>{automation.frightened ? 'On' : 'Off'}</strong>
-              </article>
-              <article>
-                <span>Persistent automation</span>
-                <strong>{automation.persistentDamage ? 'On' : 'Off'}</strong>
-              </article>
-              <article>
-                <span>Shield automation</span>
-                <strong>{automation.raisedShield ? 'On' : 'Off'}</strong>
-              </article>
-            </div>
-          )}
-
-          {panel === 'hp' && (
-            <div className="action-form">
-              <h3>Adjust HP</h3>
-              <div className="hp-action-row">
-                <input
-                  type="number"
-                  min="1"
-                  value={hpAmount}
-                  onChange={(event) => setHpAmount(Math.max(1, parseInteger(event.target.value, 1)))}
-                  aria-label="HP amount"
-                />
-                <button type="button" onClick={() => onAdjustHp(-hpAmount)}>
-                  <MdRemove aria-hidden="true" />
-                  Damage
-                </button>
-                <button type="button" onClick={() => onAdjustHp(hpAmount)}>
-                  <MdHealing aria-hidden="true" />
-                  Heal
-                </button>
+            {panel === 'hp' && (
+              <div className="action-form">
+                <h3>Adjust HP</h3>
+                <div className="hp-action-row">
+                  <input
+                    type="number"
+                    min="1"
+                    value={hpAmount}
+                    onChange={(event) => setHpAmount(Math.max(1, parseInteger(event.target.value, 1)))}
+                    aria-label="HP amount"
+                  />
+                  <button type="button" onClick={() => onAdjustHp(-hpAmount)}>
+                    <MdRemove aria-hidden="true" />
+                    Damage
+                  </button>
+                  <button type="button" onClick={() => onAdjustHp(hpAmount)}>
+                    <MdHealing aria-hidden="true" />
+                    Heal
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {panel === 'modifier' && (
-            <div className="action-form">
-              <h3>Attack, Skill, Save Modifiers</h3>
-              <ModifierPills modifiers={participant.modifiers} onRemove={onRemoveModifier} />
-              <div className="menu-form-grid modifier-menu-form">
-                <input
-                  type="text"
-                  value={modifierName}
-                  onChange={(event) => setModifierName(event.target.value)}
-                  placeholder="Name (optional)"
-                  aria-label="Modifier name"
-                />
-                <select value={modifierTarget} onChange={(event) => setModifierTarget(event.target.value)}>
-                  {MODIFIER_TARGETS.map((target) => (
-                    <option key={target.id} value={target.id}>
-                      {target.label}
-                    </option>
-                  ))}
-                </select>
-                {modifierTarget === 'skill' && (
-                  <select value={modifierSkill} onChange={(event) => setModifierSkill(event.target.value)}>
-                    {SKILL_OPTIONS.map((skill) => (
-                      <option key={skill} value={skill}>
-                        {skill}
+            {panel === 'modifier' && (
+              <div className="action-form">
+                <h3>Attack, Skill, Save Modifiers</h3>
+                <ModifierPills modifiers={participant.modifiers} onRemove={onRemoveModifier} />
+                <div className="menu-form-grid modifier-menu-form">
+                  <input
+                    type="text"
+                    value={modifierName}
+                    onChange={(event) => setModifierName(event.target.value)}
+                    placeholder="Name (optional)"
+                    aria-label="Modifier name"
+                  />
+                  <select value={modifierTarget} onChange={(event) => setModifierTarget(event.target.value)}>
+                    {MODIFIER_TARGETS.map((target) => (
+                      <option key={target.id} value={target.id}>
+                        {target.label}
                       </option>
                     ))}
                   </select>
-                )}
-                <select value={modifierType} onChange={(event) => setModifierType(event.target.value)}>
-                  {MODIFIER_TYPES.map((type) => (
-                    <option key={type.id} value={type.id}>
-                      {type.label}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="number"
-                  value={modifierValue}
-                  onChange={(event) => setModifierValue(parseInteger(event.target.value, 1))}
-                  aria-label="Modifier value"
-                />
-                <button type="button" onClick={submitModifier}>
-                  <MdAdd aria-hidden="true" />
-                  Add
-                </button>
-              </div>
-            </div>
-          )}
-
-          {panel === 'condition' && (
-            <div className="action-form">
-              <h3>Conditions</h3>
-              <ConditionPills conditions={participant.conditions} onRemove={onRemoveCondition} />
-              {frightened && (
-                <div className="frightened-lock-controls">
-                  <label className="tracker-checkbox">
-                    <input
-                      type="checkbox"
-                      checked={Boolean(frightened.locked)}
-                      onChange={(event) => onSetFrightenedLock(event.target.checked, frightened.floor ?? 1)}
-                    />
-                    <span>Lock frightened</span>
-                  </label>
-                  {frightened.locked && (
-                    <label>
-                      <span>Lock at</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={frightened.floor ?? 1}
-                        onChange={(event) =>
-                          onSetFrightenedLock(true, Math.max(0, parseInteger(event.target.value, 1)))
-                        }
-                        aria-label="Frightened lock floor"
-                      />
-                    </label>
+                  {modifierTarget === 'skill' && (
+                    <select value={modifierSkill} onChange={(event) => setModifierSkill(event.target.value)}>
+                      {SKILL_OPTIONS.map((skill) => (
+                        <option key={skill} value={skill}>
+                          {skill}
+                        </option>
+                      ))}
+                    </select>
                   )}
+                  <select value={modifierType} onChange={(event) => setModifierType(event.target.value)}>
+                    {MODIFIER_TYPES.map((type) => (
+                      <option key={type.id} value={type.id}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="number"
+                    value={modifierValue}
+                    onChange={(event) => setModifierValue(parseInteger(event.target.value, 1))}
+                    aria-label="Modifier value"
+                  />
+                  <button type="button" onClick={submitModifier}>
+                    <MdAdd aria-hidden="true" />
+                    Add
+                  </button>
                 </div>
-              )}
-              <div className="menu-form-grid condition-menu-form">
-                <select
-                  value={conditionKey}
-                  onChange={(event) => updateConditionKey(event.target.value)}
-                  aria-label="Condition"
-                >
-                  {CONDITION_OPTIONS.map((condition) => (
-                    <option key={condition.key} value={condition.key}>
-                      {condition.name}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="number"
-                  value={conditionValue}
-                  onChange={(event) => setConditionValue(event.target.value)}
-                  placeholder="Value"
-                  aria-label="Condition value"
-                  disabled={!selectedCondition.hasValue}
-                />
-                {conditionKey === 'frightened' && (
-                  <>
-                    <label className="tracker-checkbox compact">
+              </div>
+            )}
+
+            {panel === 'condition' && (
+              <div className="action-form">
+                <h3>Conditions</h3>
+                <ConditionPills conditions={participant.conditions} onRemove={onRemoveCondition} />
+                {frightened && (
+                  <div className="frightened-lock-controls">
+                    <label className="tracker-checkbox">
                       <input
                         type="checkbox"
-                        checked={conditionLocked}
-                        onChange={(event) => setConditionLocked(event.target.checked)}
+                        checked={Boolean(frightened.locked)}
+                        onChange={(event) => onSetFrightenedLock(event.target.checked, frightened.floor ?? 1)}
                       />
-                      <span>Lock</span>
+                      <span>Lock frightened</span>
                     </label>
-                    {conditionLocked && (
-                      <input
-                        type="number"
-                        min="0"
-                        value={conditionLockFloor}
-                        onChange={(event) => setConditionLockFloor(Math.max(0, parseInteger(event.target.value, 1)))}
-                        aria-label="Frightened lock floor"
-                      />
+                    {frightened.locked && (
+                      <label>
+                        <span>Lock at</span>
+                        <input
+                          type="number"
+                          min="0"
+                          value={frightened.floor ?? 1}
+                          onChange={(event) =>
+                            onSetFrightenedLock(true, Math.max(0, parseInteger(event.target.value, 1)))
+                          }
+                          aria-label="Frightened lock floor"
+                        />
+                      </label>
                     )}
-                  </>
+                  </div>
                 )}
-                <button type="button" onClick={submitCondition}>
-                  <MdAdd aria-hidden="true" />
-                  Add
-                </button>
-              </div>
-            </div>
-          )}
-
-          {panel === 'persistent' && (
-            <div className="action-form">
-              <h3>Persistent Damage</h3>
-              <PersistentDamagePills persistentDamage={participant.persistentDamage} onRemove={onRemovePersistentDamage} />
-              <div className="menu-form-grid persistent-menu-form">
-                <input
-                  type="number"
-                  min="0"
-                  value={persistentAmount}
-                  onChange={(event) => setPersistentAmount(Math.max(0, parseInteger(event.target.value, 1)))}
-                  aria-label="Persistent damage amount"
-                />
-                <select
-                  value={persistentDie}
-                  onChange={(event) => setPersistentDie(event.target.value)}
-                  aria-label="Persistent damage die"
-                >
-                  {DAMAGE_DICE_OPTIONS.map((die) => (
-                    <option key={die || 'fixed'} value={die}>
-                      {die || 'Fixed'}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={persistentType}
-                  onChange={(event) => setPersistentType(event.target.value)}
-                  aria-label="Persistent damage type"
-                >
-                  {PERSISTENT_DAMAGE_TYPES.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                  <option value={CUSTOM_DAMAGE_TYPE}>Custom</option>
-                </select>
-                {persistentType === CUSTOM_DAMAGE_TYPE && (
+                <div className="menu-form-grid condition-menu-form">
+                  <select
+                    value={conditionKey}
+                    onChange={(event) => updateConditionKey(event.target.value)}
+                    aria-label="Condition"
+                  >
+                    {CONDITION_OPTIONS.map((condition) => (
+                      <option key={condition.key} value={condition.key}>
+                        {condition.name}
+                      </option>
+                    ))}
+                  </select>
                   <input
-                    type="text"
-                    value={persistentCustomType}
-                    onChange={(event) => setPersistentCustomType(event.target.value)}
-                    placeholder="Custom type"
-                    aria-label="Custom persistent damage type"
+                    type="number"
+                    value={conditionValue}
+                    onChange={(event) => setConditionValue(event.target.value)}
+                    placeholder="Value"
+                    aria-label="Condition value"
+                    disabled={!selectedCondition.hasValue}
                   />
-                )}
-                <input
-                  type="number"
-                  min="1"
-                  value={persistentDc}
-                  onChange={(event) => setPersistentDc(Math.max(1, parseInteger(event.target.value, 15)))}
-                  aria-label="Persistent recovery DC"
-                />
-                <button type="button" onClick={submitPersistentDamage}>
-                  <MdAdd aria-hidden="true" />
-                  Add
-                </button>
+                  {conditionKey === 'frightened' && (
+                    <>
+                      <label className="tracker-checkbox compact">
+                        <input
+                          type="checkbox"
+                          checked={conditionLocked}
+                          onChange={(event) => setConditionLocked(event.target.checked)}
+                        />
+                        <span>Lock</span>
+                      </label>
+                      {conditionLocked && (
+                        <input
+                          type="number"
+                          min="0"
+                          value={conditionLockFloor}
+                          onChange={(event) => setConditionLockFloor(Math.max(0, parseInteger(event.target.value, 1)))}
+                          aria-label="Frightened lock floor"
+                        />
+                      )}
+                    </>
+                  )}
+                  <button type="button" onClick={submitCondition}>
+                    <MdAdd aria-hidden="true" />
+                    Add
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+
+            {panel === 'persistent' && (
+              <div className="action-form">
+                <h3>Persistent Damage</h3>
+                <PersistentDamagePills persistentDamage={participant.persistentDamage} onRemove={onRemovePersistentDamage} />
+                <div className="menu-form-grid persistent-menu-form">
+                  <input
+                    type="number"
+                    min="0"
+                    value={persistentAmount}
+                    onChange={(event) => setPersistentAmount(Math.max(0, parseInteger(event.target.value, 1)))}
+                    aria-label="Persistent damage amount"
+                  />
+                  <select
+                    value={persistentDie}
+                    onChange={(event) => setPersistentDie(event.target.value)}
+                    aria-label="Persistent damage die"
+                  >
+                    {DAMAGE_DICE_OPTIONS.map((die) => (
+                      <option key={die || 'fixed'} value={die}>
+                        {die || 'Fixed'}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={persistentType}
+                    onChange={(event) => setPersistentType(event.target.value)}
+                    aria-label="Persistent damage type"
+                  >
+                    {PERSISTENT_DAMAGE_TYPES.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                    <option value={CUSTOM_DAMAGE_TYPE}>Custom</option>
+                  </select>
+                  {persistentType === CUSTOM_DAMAGE_TYPE && (
+                    <input
+                      type="text"
+                      value={persistentCustomType}
+                      onChange={(event) => setPersistentCustomType(event.target.value)}
+                      placeholder="Custom type"
+                      aria-label="Custom persistent damage type"
+                    />
+                  )}
+                  <input
+                    type="number"
+                    min="1"
+                    value={persistentDc}
+                    onChange={(event) => setPersistentDc(Math.max(1, parseInteger(event.target.value, 15)))}
+                    aria-label="Persistent recovery DC"
+                  />
+                  <button type="button" onClick={submitPersistentDamage}>
+                    <MdAdd aria-hidden="true" />
+                    Add
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </section>
     </div>
   )
@@ -1931,9 +1898,27 @@ export default function InitiativeTracker({ onBackHome }) {
     )
   }
 
-  const openActionMenu = (participantId) => {
+  const openActionMenu = (participantId, clientX, clientY) => {
+    const viewportWidth = typeof window === 'undefined' ? RADIAL_VIEWBOX_SIZE : window.innerWidth
+    const viewportHeight = typeof window === 'undefined' ? RADIAL_VIEWBOX_SIZE : window.innerHeight
+    const wheelSize = Math.min(380, viewportWidth * 0.88)
+    const radius = wheelSize / 2
+    const panelHalfWidth = Math.min(260, Math.max(0, viewportWidth - 24) / 2)
+    const fallbackX = viewportWidth / 2
+    const fallbackY = viewportHeight / 2
+    const clampToViewport = (coordinate, viewportSize) => {
+      const edgeSpace = viewportSize === viewportWidth ? Math.max(radius + 12, panelHalfWidth + 12) : radius + 12
+      const minimum = Math.min(edgeSpace, viewportSize / 2)
+      const maximum = Math.max(viewportSize - edgeSpace, viewportSize / 2)
+      return clampNumber(coordinate, minimum, maximum)
+    }
+
     setActiveId(participantId)
-    setActionMenu({ participantId })
+    setActionMenu({
+      participantId,
+      x: clampToViewport(clientX ?? fallbackX, viewportWidth),
+      y: clampToViewport(clientY ?? fallbackY, viewportHeight),
+    })
   }
 
   const advanceTurn = () => {
@@ -2225,8 +2210,16 @@ export default function InitiativeTracker({ onBackHome }) {
           </section>
 
           <aside className="combat-log-panel">
-            <div className="initiative-panel-heading">
-              <MdRefresh aria-hidden="true" />
+            <div className="initiative-panel-heading combat-log-heading">
+              <button
+                type="button"
+                className="combat-log-clear-icon"
+                onClick={() => setCombatLog([])}
+                disabled={combatLog.length === 0}
+                aria-label="Clear automation log"
+              >
+                <MdRefresh aria-hidden="true" />
+              </button>
               <div>
                 <h2>Automation Log</h2>
                 <p>Frightened, persistent damage, and raised shield updates.</p>
@@ -2248,7 +2241,7 @@ export default function InitiativeTracker({ onBackHome }) {
       {selectedActionParticipant && (
         <ActionMenu
           participant={selectedActionParticipant}
-          automation={automation}
+          anchor={{ x: actionMenu.x, y: actionMenu.y }}
           onClose={() => setActionMenu(null)}
           onToggleRaisedShield={() => toggleRaisedShield(selectedActionParticipant.id)}
           onToggleCondition={(condition) => toggleCondition(selectedActionParticipant.id, condition)}

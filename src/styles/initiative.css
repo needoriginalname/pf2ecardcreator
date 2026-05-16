@@ -64,7 +64,7 @@
 .group-save-row svg,
 .saved-group-card svg,
 .inline-effect-form svg,
-.radial-detail-panel svg {
+.radial-action-panel svg {
   width: 17px;
   height: 17px;
 }
@@ -140,7 +140,7 @@
 .group-save-row button,
 .saved-group-card button,
 .inline-effect-form button,
-.radial-detail-panel button {
+.radial-action-panel button {
   gap: 6px;
   color: #34402e;
   border-color: #cfd8c8;
@@ -154,7 +154,7 @@
 .group-save-row button:hover,
 .saved-group-card button:hover,
 .inline-effect-form button:hover,
-.radial-detail-panel button:hover {
+.radial-action-panel button:hover {
   color: #fff;
   border-color: #26321f;
   background: #26321f;
@@ -382,6 +382,32 @@
   box-sizing: border-box;
 }
 
+.combat-log-heading {
+  grid-template-columns: 40px minmax(0, 1fr);
+}
+
+.combat-log-clear-icon {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  color: #20311c;
+  background: #eef2ea;
+}
+
+.combat-log-clear-icon:hover:not(:disabled) {
+  color: #fff;
+  background: #26321f;
+}
+
+.combat-log-clear-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
 .encounter-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -389,7 +415,6 @@
 }
 
 .encounter-summary article,
-.menu-summary-grid article,
 .combatant-core-stats article {
   display: grid;
   gap: 5px;
@@ -401,7 +426,6 @@
 }
 
 .encounter-summary span,
-.menu-summary-grid span,
 .combatant-core-stats span,
 .round-counter span,
 .active-turn-label span {
@@ -412,7 +436,6 @@
 }
 
 .encounter-summary strong,
-.menu-summary-grid strong,
 .combatant-core-stats strong,
 .round-counter strong,
 .active-turn-label strong {
@@ -651,7 +674,7 @@
 
 .combatant-tile-top {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) auto;
+  grid-template-columns: 34px minmax(0, 1fr);
   gap: 10px;
   align-items: center;
 }
@@ -684,21 +707,6 @@
   color: #65725e;
   font-size: 0.78rem;
   font-weight: 700;
-}
-
-.combatant-tile-top button {
-  min-height: 34px;
-  gap: 5px;
-  color: #34402e;
-  border-color: #cfd8c8;
-  background: #fff;
-  font-size: 0.76rem;
-}
-
-.combatant-tile-top button:hover {
-  color: #fff;
-  border-color: #26321f;
-  background: #26321f;
 }
 
 .combatant-core-stats {
@@ -745,50 +753,26 @@
   position: fixed;
   z-index: 40;
   inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 16px;
   background: rgba(18, 24, 15, 0.38);
-  box-sizing: border-box;
 }
 
 .radial-menu-card {
-  display: grid;
-  gap: 14px;
-  width: min(620px, 100%);
-  max-height: calc(100svh - 32px);
-  padding: 14px;
-  overflow-y: auto;
+  position: fixed;
+  width: min(380px, 88vw);
+  height: min(380px, 88vw);
+  padding: 0;
+  overflow: visible;
   border: 0;
   background: transparent;
   box-shadow: none;
-}
-
-.radial-menu-heading {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
-}
-
-.radial-menu-heading span {
-  color: #65725e;
-  font-size: 0.76rem;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.radial-menu-heading h2 {
-  margin: 2px 0 0;
-  color: #20311c;
-  font-size: 1.35rem;
-  line-height: 1.1;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 .radial-menu-orbit {
   position: relative;
-  width: min(380px, 88vw);
-  height: min(380px, 88vw);
-  margin: 0 auto;
+  width: 100%;
+  height: 100%;
 }
 
 .radial-menu-wheel {
@@ -797,6 +781,7 @@
   overflow: visible;
   filter: drop-shadow(0 12px 22px rgba(24, 31, 20, 0.12));
   animation: radial-menu-pop 0.18s ease-out;
+  pointer-events: none;
 }
 
 .radial-menu-outer-ring {
@@ -808,6 +793,7 @@
 .radial-menu-item {
   cursor: pointer;
   outline: none;
+  pointer-events: auto;
 }
 
 .radial-menu-item path {
@@ -852,6 +838,10 @@
   stroke-width: 1.5;
 }
 
+.radial-menu-center {
+  pointer-events: auto;
+}
+
 .radial-menu-center-text {
   fill: #20311c;
   font-size: 11px;
@@ -868,6 +858,42 @@
   pointer-events: none;
 }
 
+.radial-action-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  display: grid;
+  gap: 10px;
+  width: min(520px, calc(100vw - 24px));
+  max-height: min(42vh, 360px);
+  padding: 12px;
+  overflow: auto;
+  border: 1px solid #e3e9dd;
+  border-radius: 8px;
+  background: #fbfcf8;
+  box-shadow: 0 16px 28px rgba(20, 27, 16, 0.18);
+  box-sizing: border-box;
+  pointer-events: auto;
+  transform: translateX(-50%);
+}
+
+.radial-action-panel-heading {
+  display: grid;
+  gap: 2px;
+}
+
+.radial-action-panel-heading span {
+  color: #65725e;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.radial-action-panel-heading strong {
+  color: #20311c;
+  line-height: 1.1;
+}
+
 @keyframes radial-menu-pop {
   from {
     opacity: 0;
@@ -878,21 +904,6 @@
     opacity: 1;
     transform: scale(1);
   }
-}
-
-.radial-detail-panel {
-  display: grid;
-  gap: 12px;
-  padding: 12px;
-  border: 1px solid #e3e9dd;
-  border-radius: 8px;
-  background: #fbfcf8;
-}
-
-.menu-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
 }
 
 .modifier-menu-form {
@@ -956,10 +967,10 @@
 
   .initiative-roster-toolbar,
   .initiative-turn-toolbar,
+  .combat-log-heading,
   .setup-name-row,
   .combatant-tile-top,
-  .combatant-core-stats,
-  .menu-summary-grid {
+  .combatant-core-stats {
     grid-template-columns: 1fr;
   }
 
@@ -999,15 +1010,6 @@
   .persistent-menu-form button {
     grid-column: 1 / -1;
   }
-
-  .radial-menu-card {
-    padding: 12px;
-  }
-
-  .radial-menu-orbit {
-    width: min(340px, 90vw);
-    height: min(340px, 90vw);
-  }
 }
 
 @media (max-width: 520px) {
@@ -1036,10 +1038,5 @@
   .turn-toolbar-actions,
   .group-save-row {
     grid-template-columns: 1fr;
-  }
-
-  .radial-menu-orbit {
-    width: min(300px, 88vw);
-    height: min(300px, 88vw);
   }
 }
