@@ -34,3 +34,16 @@ button:disabled:hover {
   cursor: not-allowed;
   opacity: 0.58;
 }
+
+.loading-shell {
+  width: min(1120px, 100%);
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  margin: 18px auto;
+  padding: 24px;
+  box-sizing: border-box;
+  color: #60705b;
+  font-family: var(--sans);
+  font-weight: 800;
+}

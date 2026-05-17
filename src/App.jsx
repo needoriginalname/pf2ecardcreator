@@ -1,21 +1,16 @@
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import './styles/common.css'
 import './styles/home.css'
 import './styles/cards.css'
 import './styles/loot.css'
 import './styles/equipment.css'
 import './styles/initiative.css'
-import EquipmentImporter from './EquipmentImporter.jsx'
 import HomePage from './HomePage.jsx'
-import InitiativeTracker from './InitiativeTracker.jsx'
-import LootGenerator from './LootGenerator.jsx'
-import PrintableCardGenerator from './PrintableCardGenerator.jsx'
-import { getAllEquipment, replaceEquipmentBatch } from './utils/equipmentDatabase.js'
-import {
-  fetchHostedEquipmentSeed,
-  getStoredEquipmentSeedSignature,
-  setStoredEquipmentSeedSignature,
-} from './utils/equipmentSeed.js'
+
+const EquipmentImporter = lazy(() => import('./EquipmentImporter.jsx'))
+const InitiativeTracker = lazy(() => import('./InitiativeTracker.jsx'))
+const LootGenerator = lazy(() => import('./LootGenerator.jsx'))
+const PrintableCardGenerator = lazy(() => import('./PrintableCardGenerator.jsx'))
 
 const TOOL_ROUTES = {
   home: '#/',
@@ -51,6 +46,15 @@ function App() {
 
     const syncHostedEquipmentSeed = async () => {
       try {
+        const [{ getAllEquipment, replaceEquipmentBatch }, equipmentSeed] = await Promise.all([
+          import('./utils/equipmentDatabase.js'),
+          import('./utils/equipmentSeed.js'),
+        ])
+        const {
+          fetchHostedEquipmentSeed,
+          getStoredEquipmentSeedSignature,
+          setStoredEquipmentSeedSignature,
+        } = equipmentSeed
         const hostedSeed = await fetchHostedEquipmentSeed()
         if (!isMounted || !hostedSeed || hostedSeed.items.length === 0) return
 
@@ -81,19 +85,35 @@ function App() {
   }
 
   if (route === TOOL_ROUTES.printableCards) {
-    return <PrintableCardGenerator onBackHome={() => navigate(TOOL_ROUTES.home)} />
+    return (
+      <Suspense fallback={<main className="loading-shell">Loading Printable Card Generator...</main>}>
+        <PrintableCardGenerator onBackHome={() => navigate(TOOL_ROUTES.home)} />
+      </Suspense>
+    )
   }
 
   if (route === TOOL_ROUTES.lootGenerator) {
-    return <LootGenerator onBackHome={() => navigate(TOOL_ROUTES.home)} />
+    return (
+      <Suspense fallback={<main className="loading-shell">Loading Loot Generator...</main>}>
+        <LootGenerator onBackHome={() => navigate(TOOL_ROUTES.home)} />
+      </Suspense>
+    )
   }
 
   if (route === TOOL_ROUTES.initiativeTracker) {
-    return <InitiativeTracker onBackHome={() => navigate(TOOL_ROUTES.home)} />
+    return (
+      <Suspense fallback={<main className="loading-shell">Loading Initiative Tracker...</main>}>
+        <InitiativeTracker onBackHome={() => navigate(TOOL_ROUTES.home)} />
+      </Suspense>
+    )
   }
 
   if (route === TOOL_ROUTES.equipmentImporter) {
-    return <EquipmentImporter onBackHome={() => navigate(TOOL_ROUTES.home)} />
+    return (
+      <Suspense fallback={<main className="loading-shell">Loading Equipment Importer...</main>}>
+        <EquipmentImporter onBackHome={() => navigate(TOOL_ROUTES.home)} />
+      </Suspense>
+    )
   }
 
   return (
