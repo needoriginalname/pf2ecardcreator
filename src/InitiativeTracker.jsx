@@ -5,6 +5,8 @@ import {
   MdArrowBack,
   MdClose,
   MdDelete,
+  MdFileDownload,
+  MdFileUpload,
   MdGroups,
   MdHealing,
   MdLocalFireDepartment,
@@ -22,6 +24,8 @@ import {
 } from 'react-icons/md'
 
 const STORAGE_KEY = 'pf2e-initiative-tracker-v1'
+const GROUP_EXPORT_TYPE = 'pf2e-initiative-groups'
+const GROUP_EXPORT_VERSION = 1
 const LONG_PRESS_MS = 300
 const PARTICIPANT_KINDS = [
   { id: 'player', label: 'Player' },
@@ -148,6 +152,7 @@ const slugify = (value) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '') || 'custom'
+const createDownloadName = (name, fallback) => `${slugify(name || fallback)}.json`
 
 const getKindLabel = (kind) => PARTICIPANT_KINDS.find((option) => option.id === kind)?.label ?? 'Combatant'
 const getParticipantName = (participant) => participant.name.trim() || getKindLabel(participant.kind)
@@ -406,6 +411,67 @@ const normalizeParticipant = (participant) => ({
     ? participant.persistentDamage.map(normalizePersistentDamage)
     : [],
 })
+
+const normalizeGroupMemberForSave = (participant) => {
+  const normalized = normalizeParticipant(participant)
+
+  return {
+    ...normalized,
+    id: undefined,
+    initiative: 0,
+    initiativeModifier: normalized.initiativeModifier ?? 0,
+  }
+}
+
+const normalizeImportedGroup = (group) => {
+  const members = Array.isArray(group?.members)
+    ? group.members.map(normalizeGroupMemberForSave)
+    : []
+
+  if (members.length === 0) return null
+
+  return {
+    id: createId('group'),
+    name: String(group?.name || 'Imported Group'),
+    members,
+  }
+}
+
+const getGroupsFromImportPayload = (payload) => {
+  const sourceGroups = Array.isArray(payload)
+    ? payload
+    : Array.isArray(payload?.groups)
+      ? payload.groups
+      : payload?.name && Array.isArray(payload?.members)
+        ? [payload]
+        : []
+
+  return sourceGroups.map(normalizeImportedGroup).filter(Boolean)
+}
+
+const createGroupExportPayload = (groups) => ({
+  type: GROUP_EXPORT_TYPE,
+  version: GROUP_EXPORT_VERSION,
+  exportedAt: new Date().toISOString(),
+  groups: groups.map((group) => ({
+    name: group.name,
+    members: group.members.map(normalizeGroupMemberForSave),
+  })),
+})
+
+const downloadJsonFile = (filename, payload) => {
+  if (typeof document === 'undefined') return
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
 
 const getInitialState = () => {
   const fallback = {
@@ -1115,7 +1181,20 @@ function AutomationPanel({ automation, onAutomationChange }) {
   )
 }
 
-function GroupPanel({ participants, groups, groupName, onGroupNameChange, onSaveGroup, onLoadGroup, onDeleteGroup }) {
+function GroupPanel({
+  participants,
+  groups,
+  groupName,
+  onGroupNameChange,
+  onSaveGroup,
+  onLoadGroup,
+  onDeleteGroup,
+  onExportGroup,
+  onExportAllGroups,
+  onImportGroups,
+}) {
+  const importInputRef = useRef(null)
+
   return (
     <section className="initiative-side-panel">
       <div className="initiative-panel-heading">
@@ -1138,6 +1217,28 @@ function GroupPanel({ participants, groups, groupName, onGroupNameChange, onSave
           Save
         </button>
       </div>
+      <div className="group-transfer-row">
+        <button type="button" onClick={onExportAllGroups} disabled={groups.length === 0}>
+          <MdFileDownload aria-hidden="true" />
+          Export All
+        </button>
+        <button type="button" onClick={() => importInputRef.current?.click()}>
+          <MdFileUpload aria-hidden="true" />
+          Import
+        </button>
+        <input
+          ref={importInputRef}
+          type="file"
+          accept="application/json,.json"
+          onChange={(event) => {
+            const [file] = event.target.files ?? []
+            if (file) onImportGroups(file)
+            event.target.value = ''
+          }}
+          aria-label="Import initiative groups"
+          hidden
+        />
+      </div>
       <div className="saved-group-list">
         {groups.map((group) => (
           <article key={group.id} className="saved-group-card">
@@ -1148,6 +1249,9 @@ function GroupPanel({ participants, groups, groupName, onGroupNameChange, onSave
             <button type="button" onClick={() => onLoadGroup(group.id)}>
               <MdAdd aria-hidden="true" />
             </button>
+            <button type="button" onClick={() => onExportGroup(group.id)} aria-label={`Export ${group.name}`}>
+              <MdFileDownload aria-hidden="true" />
+            </button>
             <button type="button" onClick={() => onDeleteGroup(group.id)}>
               <MdDelete aria-hidden="true" />
             </button>
@@ -1156,6 +1260,55 @@ function GroupPanel({ participants, groups, groupName, onGroupNameChange, onSave
         {groups.length === 0 && <p className="tracker-empty-text">No saved groups.</p>}
       </div>
     </section>
+  )
+}
+
+function GroupImportDialog({ importState, onToggleGroup, onConfirm, onCancel }) {
+  const selectedCount = importState.groups.filter((group) => importState.selectedIds.includes(group.id)).length
+
+  return (
+    <div className="group-import-backdrop" role="presentation" onPointerDown={onCancel}>
+      <section
+        className="group-import-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="group-import-title"
+        onPointerDown={(event) => event.stopPropagation()}
+      >
+        <div className="initiative-panel-heading">
+          <MdFileUpload aria-hidden="true" />
+          <div>
+            <h2 id="group-import-title">Import Groups</h2>
+            <p>Choose which groups to add from this file.</p>
+          </div>
+        </div>
+
+        <div className="group-import-list">
+          {importState.groups.map((group) => (
+            <label key={group.id} className="group-import-option">
+              <input
+                type="checkbox"
+                checked={importState.selectedIds.includes(group.id)}
+                onChange={() => onToggleGroup(group.id)}
+              />
+              <span>
+                <strong>{group.name}</strong>
+                <small>{group.members.length} member{group.members.length === 1 ? '' : 's'}</small>
+              </span>
+            </label>
+          ))}
+        </div>
+
+        <div className="group-import-actions">
+          <button type="button" onClick={onCancel}>
+            Cancel
+          </button>
+          <button type="button" className="primary-action" onClick={onConfirm} disabled={selectedCount === 0}>
+            Import {selectedCount}
+          </button>
+        </div>
+      </section>
+    </div>
   )
 }
 
@@ -1706,6 +1859,7 @@ export default function InitiativeTracker({ onBackHome }) {
   const [combatLog, setCombatLog] = useState(initialState.combatLog)
   const [groupName, setGroupName] = useState('')
   const [actionMenu, setActionMenu] = useState(null)
+  const [groupImport, setGroupImport] = useState(null)
 
   const orderedParticipants = useMemo(() => sortParticipants(participants), [participants])
   const activeParticipant = orderedParticipants.find((participant) => participant.id === activeId) ?? orderedParticipants[0]
@@ -2035,12 +2189,7 @@ export default function InitiativeTracker({ onBackHome }) {
   const saveGroup = () => {
     const name = groupName.trim() || `Encounter Group ${groups.length + 1}`
     const members = participants.filter((participant) => participant.kind !== 'player')
-    const savedMembers = (members.length > 0 ? members : participants).map((participant) => ({
-      ...participant,
-      id: undefined,
-      initiative: 0,
-      initiativeModifier: participant.initiativeModifier ?? 0,
-    }))
+    const savedMembers = (members.length > 0 ? members : participants).map(normalizeGroupMemberForSave)
 
     if (savedMembers.length === 0) return
 
@@ -2074,8 +2223,79 @@ export default function InitiativeTracker({ onBackHome }) {
     setGroups((currentGroups) => currentGroups.filter((group) => group.id !== groupId))
   }
 
+  const exportGroup = (groupId) => {
+    const group = groups.find((entry) => entry.id === groupId)
+    if (!group) return
+
+    downloadJsonFile(createDownloadName(group.name, 'initiative-group'), createGroupExportPayload([group]))
+  }
+
+  const exportAllGroups = () => {
+    if (groups.length === 0) return
+
+    downloadJsonFile('initiative-groups.json', createGroupExportPayload(groups))
+  }
+
+  const importGroups = async (file) => {
+    try {
+      const payload = JSON.parse(await file.text())
+      const importedGroups = getGroupsFromImportPayload(payload)
+      if (importedGroups.length === 0) return
+
+      setGroupImport({
+        groups: importedGroups,
+        selectedIds: importedGroups.map((group) => group.id),
+      })
+    } catch {
+      // Ignore malformed files; the file input stays ready for another import attempt.
+    }
+  }
+
+  const toggleImportGroup = (groupId) => {
+    setGroupImport((currentImport) => {
+      if (!currentImport) return currentImport
+
+      const isSelected = currentImport.selectedIds.includes(groupId)
+      return {
+        ...currentImport,
+        selectedIds: isSelected
+          ? currentImport.selectedIds.filter((selectedId) => selectedId !== groupId)
+          : [...currentImport.selectedIds, groupId],
+      }
+    })
+  }
+
+  const confirmGroupImport = () => {
+    if (!groupImport) return
+
+    const selectedGroups = groupImport.groups.filter((group) => groupImport.selectedIds.includes(group.id))
+    if (selectedGroups.length > 0) {
+      setGroups((currentGroups) => [...currentGroups, ...selectedGroups])
+    }
+
+    setGroupImport(null)
+  }
+
   const resetEncounter = () => {
     setParticipants([])
+    setActiveId('')
+    setRound(1)
+    setMode('edit')
+    setCombatLog([])
+    setActionMenu(null)
+  }
+
+  const clearRoster = () => {
+    setParticipants([])
+    setActiveId('')
+    setRound(1)
+    setMode('edit')
+    setCombatLog([])
+    setActionMenu(null)
+  }
+
+  const clearMonstersAndHazards = () => {
+    setParticipants((currentParticipants) => currentParticipants.filter((participant) => participant.kind === 'player'))
     setActiveId('')
     setRound(1)
     setMode('edit')
@@ -2177,6 +2397,18 @@ export default function InitiativeTracker({ onBackHome }) {
                   <MdPlayArrow aria-hidden="true" />
                   Start Play
                 </button>
+                <button type="button" onClick={clearRoster} disabled={participants.length === 0}>
+                  <MdDelete aria-hidden="true" />
+                  Clear Roster
+                </button>
+                <button
+                  type="button"
+                  onClick={clearMonstersAndHazards}
+                  disabled={!participants.some((participant) => participant.kind !== 'player')}
+                >
+                  <MdDelete aria-hidden="true" />
+                  Clear Monsters & Hazards
+                </button>
                 <button type="button" onClick={resetEncounter} disabled={participants.length === 0}>
                   <MdRefresh aria-hidden="true" />
                   Reset
@@ -2197,6 +2429,9 @@ export default function InitiativeTracker({ onBackHome }) {
               onSaveGroup={saveGroup}
               onLoadGroup={loadGroup}
               onDeleteGroup={deleteGroup}
+              onExportGroup={exportGroup}
+              onExportAllGroups={exportAllGroups}
+              onImportGroups={importGroups}
             />
           </aside>
         </section>
@@ -2287,6 +2522,15 @@ export default function InitiativeTracker({ onBackHome }) {
           onAddPersistentDamage={(damage) => addPersistentDamage(selectedActionParticipant.id, damage)}
           onRemovePersistentDamage={(damageId) => removePersistentDamage(selectedActionParticipant.id, damageId)}
           onAdjustHp={(amount) => adjustHp(selectedActionParticipant.id, amount)}
+        />
+      )}
+
+      {groupImport && (
+        <GroupImportDialog
+          importState={groupImport}
+          onToggleGroup={toggleImportGroup}
+          onConfirm={confirmGroupImport}
+          onCancel={() => setGroupImport(null)}
         />
       )}
     </main>
