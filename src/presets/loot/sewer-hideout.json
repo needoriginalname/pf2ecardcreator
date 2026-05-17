@@ -1,0 +1,17 @@
+{
+  "id": "sewer-hideout",
+  "name": "Sewer Hideout",
+  "description": "Poisons, drugs, snares, contraband, and whatever could be hidden fast.",
+  "order": 17,
+  "weights": {
+    "alchemical-poisons": 70,
+    "drugs": 55,
+    "alchemical-items": 70,
+    "other-items": 70,
+    "weapons": 35,
+    "snares": 35,
+    "potions": 20,
+    "treasure": 6,
+    "cursed-items": 0
+  }
+}

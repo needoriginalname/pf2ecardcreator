@@ -1,0 +1,18 @@
+{
+  "id": "dwarven-forge",
+  "name": "Dwarven Forge",
+  "description": "Runes, precious materials, forged arms, armor, and shields.",
+  "order": 8,
+  "weights": {
+    "weapons": 80,
+    "armor": 80,
+    "shields": 70,
+    "runes": 85,
+    "fundamental-weapon-runes": 75,
+    "fundamental-armor-runes": 75,
+    "precious-materials": 85,
+    "specific-weapons": 45,
+    "magic-armor": 45,
+    "treasure": 13
+  }
+}

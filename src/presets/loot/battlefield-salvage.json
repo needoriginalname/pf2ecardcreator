@@ -1,0 +1,19 @@
+{
+  "id": "battlefield-salvage",
+  "name": "Battlefield Salvage",
+  "description": "Recovered arms, battered armor, battlefield tools, and light treasure.",
+  "order": 5,
+  "weights": {
+    "weapons": 90,
+    "armor": 80,
+    "shields": 65,
+    "runes": 45,
+    "alchemical-items": 35,
+    "alchemical-bombs": 45,
+    "potions": 25,
+    "mundane-weapons": 85,
+    "mundane-armor": 70,
+    "other-items": 55,
+    "treasure": 4
+  }
+}

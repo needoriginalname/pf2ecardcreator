@@ -1,0 +1,18 @@
+{
+  "id": "thieves-guild",
+  "name": "Thieves Guild",
+  "description": "Talismans, gadgets, oils, light weapons, stolen goods, and coin.",
+  "order": 19,
+  "weights": {
+    "talismans": 65,
+    "gadgets": 55,
+    "potions": 40,
+    "oils": 40,
+    "weapons": 45,
+    "mundane-weapons": 50,
+    "other-magic-items": 45,
+    "other-items": 75,
+    "cursed-items": 7,
+    "treasure": 55
+  }
+}

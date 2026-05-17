@@ -1,0 +1,18 @@
+{
+  "id": "fey-market",
+  "name": "Fey Market",
+  "description": "Strange bargains, charms, talismans, tea, and unpredictable magic.",
+  "order": 9,
+  "weights": {
+    "other-magic-items": 85,
+    "wands": 45,
+    "scrolls": 45,
+    "potions": 55,
+    "talismans": 65,
+    "tea": 50,
+    "cursed-items": 7,
+    "weapons": 15,
+    "armor": 10,
+    "treasure": 18
+  }
+}

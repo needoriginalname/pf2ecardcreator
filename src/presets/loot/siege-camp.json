@@ -1,0 +1,18 @@
+{
+  "id": "siege-camp",
+  "name": "Siege Camp",
+  "description": "War gear, bombs, ammunition, shields, runes, and field supplies.",
+  "order": 18,
+  "weights": {
+    "weapons": 90,
+    "armor": 65,
+    "shields": 55,
+    "alchemical-bombs": 70,
+    "magical-ammunition": 55,
+    "fundamental-weapon-runes": 45,
+    "property-weapon-runes": 45,
+    "potions": 35,
+    "snares": 30,
+    "treasure": 2
+  }
+}

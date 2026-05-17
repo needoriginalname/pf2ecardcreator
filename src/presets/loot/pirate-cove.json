@@ -1,0 +1,19 @@
+{
+  "id": "pirate-cove",
+  "name": "Pirate Cove",
+  "description": "Stolen goods, weapons, treasure, ammunition, oils, and risky curios.",
+  "order": 15,
+  "weights": {
+    "weapons": 70,
+    "mundane-weapons": 75,
+    "potions": 35,
+    "oils": 35,
+    "magical-ammunition": 30,
+    "other-items": 80,
+    "precious-materials": 40,
+    "cursed-items": 10,
+    "armor": 20,
+    "shields": 30,
+    "treasure": 75
+  }
+}

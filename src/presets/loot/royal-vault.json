@@ -1,0 +1,18 @@
+{
+  "id": "royal-vault",
+  "name": "Royal Vault",
+  "description": "Precious materials, fine magic, guarded arms, and rare valuables.",
+  "order": 16,
+  "weights": {
+    "precious-materials": 100,
+    "other-magic-items": 70,
+    "armor": 50,
+    "weapons": 50,
+    "shields": 45,
+    "runes": 45,
+    "apex-items": 35,
+    "intelligent-items": 15,
+    "potions": 20,
+    "treasure": 25
+  }
+}

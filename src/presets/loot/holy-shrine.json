@@ -1,0 +1,19 @@
+{
+  "id": "holy-shrine",
+  "name": "Holy Shrine",
+  "description": "Protective magic, scrolls, talismans, restoratives, and sacred tools.",
+  "order": 11,
+  "weights": {
+    "potions": 65,
+    "scrolls": 60,
+    "talismans": 55,
+    "wands": 40,
+    "staves": 35,
+    "other-magic-items": 55,
+    "cursed-items": 0,
+    "weapons": 10,
+    "armor": 20,
+    "shields": 25,
+    "treasure": 9
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "wizard-school",
+  "name": "Wizard School",
+  "description": "Scrolls, wands, staves, catalysts, grimoires, and teaching supplies.",
+  "order": 21,
+  "weights": {
+    "scrolls": 90,
+    "wands": 80,
+    "staves": 65,
+    "grimoire": 65,
+    "spell-catalysts": 75,
+    "other-magic-items": 70,
+    "potions": 35,
+    "cursed-items": 2,
+    "weapons": 5,
+    "armor": 5,
+    "treasure": 20
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "haunted-manor",
+  "name": "Haunted Manor",
+  "description": "Dusty heirlooms, haunted curios, grimoires, and cursed keepsakes.",
+  "order": 10,
+  "weights": {
+    "cursed-items": 35,
+    "other-magic-items": 65,
+    "grimoire": 45,
+    "scrolls": 50,
+    "wands": 35,
+    "intelligent-items": 25,
+    "other-items": 45,
+    "weapons": 15,
+    "treasure": 11
+  }
+}

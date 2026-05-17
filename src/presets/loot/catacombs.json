@@ -1,0 +1,17 @@
+{
+  "id": "catacombs",
+  "name": "Catacombs",
+  "description": "Buried valuables, grim magic, cursed finds, and relics left with the dead.",
+  "order": 6,
+  "weights": {
+    "cursed-items": 25,
+    "other-magic-items": 55,
+    "scrolls": 40,
+    "talismans": 35,
+    "armor": 25,
+    "weapons": 25,
+    "other-items": 40,
+    "non-alchemical-consumables": 25,
+    "treasure": 45
+  }
+}

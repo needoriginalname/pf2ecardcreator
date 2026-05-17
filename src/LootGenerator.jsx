@@ -10,6 +10,7 @@ import {
   MdTune,
 } from 'react-icons/md'
 import { CATEGORY_OPTIONS } from './constants/lootCategories.js'
+import { BUILT_IN_PRESET_DEFINITIONS } from './presets/lootPresets.js'
 import { getAllEquipment } from './utils/equipmentDatabase.js'
 
 const CUSTOM_PRESET_STORAGE_KEY = 'pf2e-loot-custom-presets-v1'
@@ -32,350 +33,7 @@ const RARITY_OPTIONS = [
   { id: 'rare', label: 'Rare', enabled: true, weight: 5 },
   { id: 'unique', label: 'Unique', enabled: false, weight: 0 },
 ]
-const BUILT_IN_PRESET_DEFINITIONS = [
-  {
-    id: 'arcane-library',
-    name: 'Arcane Library',
-    weights: {
-      grimoire: 90,
-      scrolls: 85,
-      wands: 70,
-      staves: 55,
-      'spell-catalysts': 55,
-      'other-magic-items': 60,
-      'non-alchemical-consumables': 35,
-      weapons: 8,
-      armor: 8,
-      shields: 5,
-      treasure: 5,
-      'cursed-items': 0,
-    },
-  },
-  {
-    id: 'alchemist-lab',
-    name: 'Alchemist Lab',
-    weights: {
-      'alchemical-items': 100,
-      'alchemical-bombs': 90,
-      'alchemical-elixirs': 80,
-      'alchemical-poisons': 65,
-      drugs: 40,
-      'other-alchemical-consumables': 70,
-      'other-alchemical-items': 45,
-      'non-alchemical-consumables': 25,
-      'other-items': 20,
-      treasure: 4,
-    },
-  },
-  {
-    id: 'ancient-armory',
-    name: 'Ancient Armory',
-    weights: {
-      weapons: 100,
-      'mundane-weapons': 80,
-      'specific-weapons': 55,
-      armor: 85,
-      'mundane-armor': 75,
-      'magic-armor': 45,
-      shields: 65,
-      'mundane-shields': 60,
-      runes: 55,
-      'property-weapon-runes': 45,
-      'property-armor-runes': 35,
-      treasure: 6,
-    },
-  },
-  {
-    id: 'bandit-cache',
-    name: 'Bandit Cache',
-    weights: {
-      weapons: 80,
-      'mundane-weapons': 90,
-      armor: 45,
-      'mundane-armor': 60,
-      shields: 35,
-      'mundane-shields': 40,
-      'non-alchemical-consumables': 30,
-      potions: 35,
-      'other-items': 70,
-      'other-magic-items': 12,
-      treasure: 56,
-    },
-  },
-  {
-    id: 'battlefield-salvage',
-    name: 'Battlefield Salvage',
-    weights: {
-      weapons: 90,
-      armor: 80,
-      shields: 65,
-      runes: 45,
-      'alchemical-items': 35,
-      'alchemical-bombs': 45,
-      potions: 25,
-      'mundane-weapons': 85,
-      'mundane-armor': 70,
-      'other-items': 55,
-      treasure: 4,
-    },
-  },
-  {
-    id: 'catacombs',
-    name: 'Catacombs',
-    weights: {
-      'cursed-items': 25,
-      'other-magic-items': 55,
-      scrolls: 40,
-      talismans: 35,
-      armor: 25,
-      weapons: 25,
-      'other-items': 40,
-      'non-alchemical-consumables': 25,
-      treasure: 45,
-    },
-  },
-  {
-    id: 'druid-grove',
-    name: 'Druid Grove',
-    weights: {
-      potions: 70,
-      tea: 65,
-      talismans: 45,
-      staves: 45,
-      'other-magic-items': 55,
-      'alchemical-elixirs': 35,
-      'other-alchemical-consumables': 30,
-      weapons: 10,
-      armor: 10,
-      treasure: 5,
-    },
-  },
-  {
-    id: 'dwarven-forge',
-    name: 'Dwarven Forge',
-    weights: {
-      weapons: 80,
-      armor: 80,
-      shields: 70,
-      runes: 85,
-      'fundamental-weapon-runes': 75,
-      'fundamental-armor-runes': 75,
-      'precious-materials': 85,
-      'specific-weapons': 45,
-      'magic-armor': 45,
-      treasure: 13,
-    },
-  },
-  {
-    id: 'fey-market',
-    name: 'Fey Market',
-    weights: {
-      'other-magic-items': 85,
-      wands: 45,
-      scrolls: 45,
-      potions: 55,
-      talismans: 65,
-      tea: 50,
-      'cursed-items': 7,
-      weapons: 15,
-      armor: 10,
-      treasure: 18,
-    },
-  },
-  {
-    id: 'haunted-manor',
-    name: 'Haunted Manor',
-    weights: {
-      'cursed-items': 35,
-      'other-magic-items': 65,
-      grimoire: 45,
-      scrolls: 50,
-      wands: 35,
-      'intelligent-items': 25,
-      'other-items': 45,
-      weapons: 15,
-      treasure: 11,
-    },
-  },
-  {
-    id: 'holy-shrine',
-    name: 'Holy Shrine',
-    weights: {
-      potions: 65,
-      scrolls: 60,
-      talismans: 55,
-      wands: 40,
-      staves: 35,
-      'other-magic-items': 55,
-      'cursed-items': 0,
-      weapons: 10,
-      armor: 20,
-      shields: 25,
-      treasure: 9,
-    },
-  },
-  {
-    id: 'kobold-warren',
-    name: 'Kobold Warren',
-    weights: {
-      snares: 100,
-      'alchemical-bombs': 65,
-      'alchemical-items': 75,
-      gadgets: 35,
-      weapons: 35,
-      'mundane-weapons': 45,
-      'other-items': 65,
-      potions: 20,
-      treasure: 11,
-    },
-  },
-  {
-    id: 'mage-tower',
-    name: 'Mage Tower',
-    weights: {
-      wands: 85,
-      staves: 80,
-      scrolls: 80,
-      grimoire: 65,
-      'spell-catalysts': 60,
-      'other-magic-items': 85,
-      runes: 30,
-      'cursed-items': 6,
-      weapons: 8,
-      armor: 8,
-      treasure: 10,
-    },
-  },
-  {
-    id: 'merchant-caravan',
-    name: 'Merchant Caravan',
-    weights: {
-      'other-items': 100,
-      potions: 45,
-      scrolls: 35,
-      weapons: 35,
-      armor: 30,
-      shields: 25,
-      'precious-materials': 45,
-      'other-magic-items': 35,
-      'alchemical-items': 30,
-      treasure: 23,
-    },
-  },
-  {
-    id: 'pirate-cove',
-    name: 'Pirate Cove',
-    weights: {
-      weapons: 70,
-      'mundane-weapons': 75,
-      potions: 35,
-      oils: 35,
-      'magical-ammunition': 30,
-      'other-items': 80,
-      'precious-materials': 40,
-      'cursed-items': 10,
-      armor: 20,
-      shields: 30,
-      treasure: 75,
-    },
-  },
-  {
-    id: 'royal-vault',
-    name: 'Royal Vault',
-    weights: {
-      'precious-materials': 100,
-      'other-magic-items': 70,
-      armor: 50,
-      weapons: 50,
-      shields: 45,
-      runes: 45,
-      'apex-items': 35,
-      'intelligent-items': 15,
-      potions: 20,
-      treasure: 25,
-    },
-  },
-  {
-    id: 'sewer-hideout',
-    name: 'Sewer Hideout',
-    weights: {
-      'alchemical-poisons': 70,
-      drugs: 55,
-      'alchemical-items': 70,
-      'other-items': 70,
-      weapons: 35,
-      snares: 35,
-      potions: 20,
-      treasure: 6,
-      'cursed-items': 0,
-    },
-  },
-  {
-    id: 'siege-camp',
-    name: 'Siege Camp',
-    weights: {
-      weapons: 90,
-      armor: 65,
-      shields: 55,
-      'alchemical-bombs': 70,
-      'magical-ammunition': 55,
-      'fundamental-weapon-runes': 45,
-      'property-weapon-runes': 45,
-      potions: 35,
-      snares: 30,
-      treasure: 2,
-    },
-  },
-  {
-    id: 'thieves-guild',
-    name: 'Thieves Guild',
-    weights: {
-      talismans: 65,
-      gadgets: 55,
-      potions: 40,
-      oils: 40,
-      weapons: 45,
-      'mundane-weapons': 50,
-      'other-magic-items': 45,
-      'other-items': 75,
-      'cursed-items': 7,
-      treasure: 55,
-    },
-  },
-  {
-    id: 'undead-crypt',
-    name: 'Undead Crypt',
-    weights: {
-      'cursed-items': 40,
-      'other-magic-items': 60,
-      scrolls: 50,
-      wands: 35,
-      grimoire: 40,
-      weapons: 35,
-      armor: 30,
-      talismans: 35,
-      potions: 20,
-      treasure: 13,
-    },
-  },
-  {
-    id: 'wizard-school',
-    name: 'Wizard School',
-    weights: {
-      scrolls: 90,
-      wands: 80,
-      staves: 65,
-      grimoire: 65,
-      'spell-catalysts': 75,
-      'other-magic-items': 70,
-      potions: 35,
-      'cursed-items': 2,
-      weapons: 5,
-      armor: 5,
-      treasure: 20,
-    },
-  },
-]
+const DEFAULT_PRESET_DESCRIPTION = 'Tune the weights by hand, then save a custom preset for later.'
 
 const formatLevel = (level) => (level === -1 ? '0 or lower' : String(level))
 
@@ -506,6 +164,29 @@ const labelFromId = (value) =>
   String(value || '')
     .replace(/[-_]+/g, ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
+
+const flattenCategoryOptionLabels = (options) =>
+  options.reduce(
+    (labels, option) => ({
+      ...labels,
+      [option.id]: option.label,
+      ...(option.subsettings ? flattenCategoryOptionLabels(option.subsettings) : {}),
+    }),
+    {},
+  )
+
+const CATEGORY_LABELS = flattenCategoryOptionLabels(CATEGORY_OPTIONS)
+
+const getTopWeightedCategories = (settings, limit = 4) =>
+  Object.entries(flattenSettingWeights(settings))
+    .filter(([, weight]) => weight > 0)
+    .sort(([, firstWeight], [, secondWeight]) => secondWeight - firstWeight)
+    .slice(0, limit)
+    .map(([id, weight]) => ({
+      id,
+      label: CATEGORY_LABELS[id] ?? labelFromId(id),
+      weight,
+    }))
 
 const parsePriceGp = (price) => {
   if (Number.isFinite(Number(price))) return Number(price)
@@ -802,6 +483,9 @@ export default function LootGenerator({ onBackHome }) {
   const enabledRarityCount = useMemo(() => countEnabledSettings(raritySettings), [raritySettings])
   const enabledCategoryCount = useMemo(() => countEnabledSettings(categorySettings), [categorySettings])
   const generatedTotalValue = lootDraft?.totalValue ?? 0
+  const generatedBudgetPercent = lootDraft
+    ? clamp(Math.round((generatedTotalValue / gpBudget) * 100), 0, 160)
+    : 0
   const selectedBuiltInPreset = useMemo(
     () => BUILT_IN_PRESET_DEFINITIONS.find((preset) => preset.id === selectedPresetId),
     [selectedPresetId],
@@ -812,6 +496,19 @@ export default function LootGenerator({ onBackHome }) {
   )
   const selectedPresetName = selectedBuiltInPreset?.name ?? selectedCustomPreset?.name ?? 'Current weights'
   const selectedPresetKind = selectedBuiltInPreset ? 'Built-in location' : selectedCustomPreset ? 'Custom preset' : 'Unsaved setup'
+  const selectedPresetDescription =
+    selectedBuiltInPreset?.description ||
+    (selectedCustomPreset && 'Your saved location weights. Update it after changing the sliders, or save a new variant.') ||
+    DEFAULT_PRESET_DESCRIPTION
+  const selectedPresetEditHint = selectedBuiltInPreset
+    ? 'Changes to built-in presets save as a custom copy.'
+    : selectedCustomPreset
+      ? 'Update saves changes to this custom preset.'
+      : 'Save New stores the current category weights.'
+  const topWeightedCategories = useMemo(
+    () => getTopWeightedCategories(categorySettings),
+    [categorySettings],
+  )
   const rarityRows = useMemo(
     () =>
       createSettingRows(RARITY_OPTIONS, raritySettings, (path, nextSetting) => {
@@ -1183,8 +880,21 @@ export default function LootGenerator({ onBackHome }) {
               <div>
                 <p className="loot-panel-kicker">Location weights</p>
                 <h2>{selectedPresetName}</h2>
+                <p>{selectedPresetDescription}</p>
               </div>
               <span>{selectedPresetKind}</span>
+            </div>
+            <div className="loot-preset-preview" aria-label="Strongest preset weights">
+              {topWeightedCategories.length > 0 ? (
+                topWeightedCategories.map((category) => (
+                  <span key={category.id}>
+                    {category.label}
+                    <strong>{category.weight}</strong>
+                  </span>
+                ))
+              ) : (
+                <span>No enabled category weights</span>
+              )}
             </div>
             <div className="loot-preset-panel">
               <label className="loot-preset-field" htmlFor="loot-category-preset">
@@ -1244,6 +954,7 @@ export default function LootGenerator({ onBackHome }) {
                 </button>
               </div>
             </div>
+            <p className="loot-preset-note">{selectedPresetEditHint}</p>
             <div className="loot-setting-list">
               {categoryRows.map((setting) => (
                 <LootSettingRow key={setting.id} {...setting} />
@@ -1263,11 +974,11 @@ export default function LootGenerator({ onBackHome }) {
               <span>Item Levels</span>
               <strong>{formatLevelRange(levelRange)}</strong>
             </article>
-            <article className="loot-summary-card">
+            <article className="loot-summary-card is-budget">
               <span>Budget</span>
               <strong>{gpBudget.toLocaleString()} gp</strong>
             </article>
-            <article className="loot-summary-card">
+            <article className={`loot-summary-card ${lootDraft ? 'is-generated' : ''}`}>
               <span>Generated</span>
               <strong>{lootDraft ? formatGp(generatedTotalValue) : '-'}</strong>
             </article>
@@ -1313,6 +1024,16 @@ export default function LootGenerator({ onBackHome }) {
                 </div>
                 {lootStatus && <p className="loot-generation-status">{lootStatus}</p>}
                 {copyStatus && <p className="loot-copy-status">{copyStatus}</p>}
+                <div className="loot-value-meter" aria-label="Generated loot value compared to target">
+                  <div>
+                    <span>0</span>
+                    <span>{formatGp(gpBudget)}</span>
+                    <span>{formatGp(gpBudget * 1.15)}</span>
+                  </div>
+                  <div className="loot-value-meter-track">
+                    <span style={{ width: `${generatedBudgetPercent}%` }} />
+                  </div>
+                </div>
                 <div className="loot-generated-list">
                   {lootDraft.items.map((item) => (
                     <article key={item.slug} className="loot-generated-item">

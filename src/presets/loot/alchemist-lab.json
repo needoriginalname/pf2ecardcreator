@@ -1,0 +1,18 @@
+{
+  "id": "alchemist-lab",
+  "name": "Alchemist Lab",
+  "description": "Bombs, elixirs, volatile supplies, and experimental consumables.",
+  "order": 2,
+  "weights": {
+    "alchemical-items": 100,
+    "alchemical-bombs": 90,
+    "alchemical-elixirs": 80,
+    "alchemical-poisons": 65,
+    "drugs": 40,
+    "other-alchemical-consumables": 70,
+    "other-alchemical-items": 45,
+    "non-alchemical-consumables": 25,
+    "other-items": 20,
+    "treasure": 4
+  }
+}

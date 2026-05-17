@@ -1,0 +1,19 @@
+{
+  "id": "bandit-cache",
+  "name": "Bandit Cache",
+  "description": "Practical stolen gear, coin, basic weapons, and a few lifted valuables.",
+  "order": 4,
+  "weights": {
+    "weapons": 80,
+    "mundane-weapons": 90,
+    "armor": 45,
+    "mundane-armor": 60,
+    "shields": 35,
+    "mundane-shields": 40,
+    "non-alchemical-consumables": 30,
+    "potions": 35,
+    "other-items": 70,
+    "other-magic-items": 12,
+    "treasure": 56
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "mage-tower",
+  "name": "Mage Tower",
+  "description": "Wands, staves, scrolls, grimoires, catalysts, and arcane equipment.",
+  "order": 13,
+  "weights": {
+    "wands": 85,
+    "staves": 80,
+    "scrolls": 80,
+    "grimoire": 65,
+    "spell-catalysts": 60,
+    "other-magic-items": 85,
+    "runes": 30,
+    "cursed-items": 6,
+    "weapons": 8,
+    "armor": 8,
+    "treasure": 10
+  }
+}

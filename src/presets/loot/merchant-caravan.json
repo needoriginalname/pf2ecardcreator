@@ -1,0 +1,18 @@
+{
+  "id": "merchant-caravan",
+  "name": "Merchant Caravan",
+  "description": "Trade goods, useful supplies, modest magic, and travel-ready gear.",
+  "order": 14,
+  "weights": {
+    "other-items": 100,
+    "potions": 45,
+    "scrolls": 35,
+    "weapons": 35,
+    "armor": 30,
+    "shields": 25,
+    "precious-materials": 45,
+    "other-magic-items": 35,
+    "alchemical-items": 30,
+    "treasure": 23
+  }
+}

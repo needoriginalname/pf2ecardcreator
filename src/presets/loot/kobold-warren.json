@@ -1,0 +1,17 @@
+{
+  "id": "kobold-warren",
+  "name": "Kobold Warren",
+  "description": "Snares, bombs, scavenged weapons, gadgets, and small practical finds.",
+  "order": 12,
+  "weights": {
+    "snares": 100,
+    "alchemical-bombs": 65,
+    "alchemical-items": 75,
+    "gadgets": 35,
+    "weapons": 35,
+    "mundane-weapons": 45,
+    "other-items": 65,
+    "potions": 20,
+    "treasure": 11
+  }
+}

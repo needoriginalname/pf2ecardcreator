@@ -1,0 +1,20 @@
+{
+  "id": "arcane-library",
+  "name": "Arcane Library",
+  "description": "Bookshelves, scroll cases, old spellwork, and quiet magical oddities.",
+  "order": 1,
+  "weights": {
+    "grimoire": 90,
+    "scrolls": 85,
+    "wands": 70,
+    "staves": 55,
+    "spell-catalysts": 55,
+    "other-magic-items": 60,
+    "non-alchemical-consumables": 35,
+    "weapons": 8,
+    "armor": 8,
+    "shields": 5,
+    "treasure": 5,
+    "cursed-items": 0
+  }
+}

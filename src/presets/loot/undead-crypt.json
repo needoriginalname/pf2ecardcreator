@@ -1,0 +1,18 @@
+{
+  "id": "undead-crypt",
+  "name": "Undead Crypt",
+  "description": "Cursed relics, scrolls, grimoires, talismans, and death-touched gear.",
+  "order": 20,
+  "weights": {
+    "cursed-items": 40,
+    "other-magic-items": 60,
+    "scrolls": 50,
+    "wands": 35,
+    "grimoire": 40,
+    "weapons": 35,
+    "armor": 30,
+    "talismans": 35,
+    "potions": 20,
+    "treasure": 13
+  }
+}

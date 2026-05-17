@@ -1,0 +1,18 @@
+{
+  "id": "druid-grove",
+  "name": "Druid Grove",
+  "description": "Natural magic, teas, potions, talismans, and living traditions.",
+  "order": 7,
+  "weights": {
+    "potions": 70,
+    "tea": 65,
+    "talismans": 45,
+    "staves": 45,
+    "other-magic-items": 55,
+    "alchemical-elixirs": 35,
+    "other-alchemical-consumables": 30,
+    "weapons": 10,
+    "armor": 10,
+    "treasure": 5
+  }
+}

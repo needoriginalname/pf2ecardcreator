@@ -1,0 +1,20 @@
+{
+  "id": "ancient-armory",
+  "name": "Ancient Armory",
+  "description": "Old steel, armor racks, shields, and weapon runes.",
+  "order": 3,
+  "weights": {
+    "weapons": 100,
+    "mundane-weapons": 80,
+    "specific-weapons": 55,
+    "armor": 85,
+    "mundane-armor": 75,
+    "magic-armor": 45,
+    "shields": 65,
+    "mundane-shields": 60,
+    "runes": 55,
+    "property-weapon-runes": 45,
+    "property-armor-runes": 35,
+    "treasure": 6
+  }
+}
