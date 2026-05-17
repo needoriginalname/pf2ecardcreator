@@ -150,6 +150,22 @@
   font-weight: 800;
 }
 
+.loot-tolerance-value {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+  color: #60705b;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.loot-tolerance-value strong {
+  color: #20311c;
+  font-size: 1rem;
+}
+
 .loot-budget-slider {
   width: 100%;
   margin: 4px 0 0;
@@ -746,8 +762,8 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 62.5%;
-  width: 9.375%;
+  left: var(--tolerance-start, 62.5%);
+  width: var(--tolerance-width, 9.375%);
   background: rgba(89, 111, 54, 0.28);
 }
 

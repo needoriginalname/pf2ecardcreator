@@ -19,11 +19,14 @@ const LEVEL_SPREAD_OPTIONS = [0, 1, 2, 3, 4]
 const DEFAULT_TARGET_LEVEL = 1
 const DEFAULT_LEVEL_SPREAD = 1
 const DEFAULT_GP_BUDGET = 100
+const DEFAULT_GP_TOLERANCE_PERCENT = 15
 const DEFAULT_MIN_ITEM_COUNT = 1
 const DEFAULT_MAX_ITEM_COUNT = 4
 const DEFAULT_TREASURE_DROPS_ENABLED = true
 const MIN_GP_BUDGET = 1
 const MAX_GP_BUDGET = 100000
+const MIN_GP_TOLERANCE_PERCENT = 0
+const MAX_GP_TOLERANCE_PERCENT = 50
 const MIN_ITEM_COUNT = 1
 const MAX_ITEM_COUNT = 20
 const TREASURE_CATEGORY_ID = 'treasure'
@@ -56,6 +59,12 @@ const parseBudget = (value) => {
   const parsed = Number(value)
   if (!Number.isFinite(parsed)) return MIN_GP_BUDGET
   return clamp(Math.round(parsed), MIN_GP_BUDGET, MAX_GP_BUDGET)
+}
+
+const parseGpTolerance = (value) => {
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed)) return DEFAULT_GP_TOLERANCE_PERCENT
+  return clamp(Math.round(parsed), MIN_GP_TOLERANCE_PERCENT, MAX_GP_TOLERANCE_PERCENT)
 }
 
 const parseItemCount = (value) => {
@@ -278,7 +287,7 @@ const scoreLootDraft = (items, targetGp) => {
   }
 }
 
-const createWeightedLootDraft = (candidates, targetGp, minimumItems, maximumItems) => {
+const createWeightedLootDraft = (candidates, targetGp, minimumItems, maximumItems, toleranceRatio) => {
   const usableCandidateCount = countUniqueLootCandidates(candidates)
   if (usableCandidateCount < minimumItems) return null
 
@@ -320,27 +329,38 @@ const createWeightedLootDraft = (candidates, targetGp, minimumItems, maximumItem
       bestDraft = draft
     }
 
-    if (draft.differenceRatio <= 0.1) break
+    if (draft.differenceRatio <= toleranceRatio) break
   }
 
   return bestDraft
 }
 
-const getLootStatus = (draft, targetGp) => {
+const getLootStatus = (draft, targetGp, tolerancePercent) => {
   if (!draft) return ''
 
   const differencePercent = Math.round(draft.differenceRatio * 100)
-  if (draft.differenceRatio <= 0.1) {
-    return `Generated ${draft.items.length} item${draft.items.length === 1 ? '' : 's'} within ${differencePercent}% of the GP target.`
-  }
-  if (draft.differenceRatio <= 0.15) {
-    return `Generated the closest strong match, within ${differencePercent}% of the GP target.`
+  if (differencePercent <= tolerancePercent) {
+    return `Generated ${draft.items.length} item${draft.items.length === 1 ? '' : 's'} within the ${tolerancePercent}% GP drift.`
   }
   if (draft.totalValue < targetGp) {
-    return `Closest match is ${differencePercent}% below the GP target. Matching items may not be valuable enough for this budget or item count.`
+    return `Closest match is ${differencePercent}% below the GP target, outside the ${tolerancePercent}% GP drift. Matching items may not be valuable enough for this budget or item count.`
   }
 
-  return `Closest match is ${differencePercent}% above the GP target. Matching items may be too expensive for this budget or item count.`
+  return `Closest match is ${differencePercent}% above the GP target, outside the ${tolerancePercent}% GP drift. Matching items may be too expensive for this budget or item count.`
+}
+
+const formatFilterDiagnostic = ({ total, rarityMatches, categoryMatches, levelMatches, pricedMatches, finalMatches }) => {
+  if (total === 0) return 'No imported equipment is available.'
+
+  const blockers = []
+  if (rarityMatches === 0) blockers.push('rarity weights')
+  if (categoryMatches === 0) blockers.push('category weights or Treasure drop settings')
+  if (levelMatches === 0) blockers.push('item level range')
+  if (pricedMatches === 0) blockers.push('GP value')
+
+  const reason = blockers.length > 0 ? blockers.join(', ') : 'the combined filters'
+
+  return `No items matched because of ${reason}. Pool check: ${rarityMatches}/${total} matched rarity, ${categoryMatches}/${total} matched category, ${levelMatches}/${total} matched level, ${pricedMatches}/${total} had GP value, and ${finalMatches}/${total} matched everything.`
 }
 
 const parseSettingWeight = (value) => {
@@ -465,6 +485,7 @@ export default function LootGenerator({ onBackHome }) {
   const [targetLevel, setTargetLevel] = useState(DEFAULT_TARGET_LEVEL)
   const [levelSpread, setLevelSpread] = useState(DEFAULT_LEVEL_SPREAD)
   const [gpBudget, setGpBudget] = useState(DEFAULT_GP_BUDGET)
+  const [gpTolerancePercent, setGpTolerancePercent] = useState(DEFAULT_GP_TOLERANCE_PERCENT)
   const [minItemCount, setMinItemCount] = useState(DEFAULT_MIN_ITEM_COUNT)
   const [maxItemCount, setMaxItemCount] = useState(DEFAULT_MAX_ITEM_COUNT)
   const [treasureDropsEnabled, setTreasureDropsEnabled] = useState(DEFAULT_TREASURE_DROPS_ENABLED)
@@ -486,6 +507,13 @@ export default function LootGenerator({ onBackHome }) {
   const generatedBudgetPercent = lootDraft
     ? clamp(Math.round((generatedTotalValue / gpBudget) * 100), 0, 160)
     : 0
+  const gpToleranceRatio = gpTolerancePercent / 100
+  const gpToleranceRange = {
+    minimum: gpBudget * (1 - gpToleranceRatio),
+    maximum: gpBudget * (1 + gpToleranceRatio),
+  }
+  const gpToleranceBandStart = `${(100 / 160) * 100}%`
+  const gpToleranceBandWidth = `${(gpTolerancePercent / 160) * 100}%`
   const selectedBuiltInPreset = useMemo(
     () => BUILT_IN_PRESET_DEFINITIONS.find((preset) => preset.id === selectedPresetId),
     [selectedPresetId],
@@ -624,8 +652,7 @@ export default function LootGenerator({ onBackHome }) {
 
       const rarityWeights = flattenSettingWeights(raritySettings)
       const categoryWeights = flattenSettingWeights(categorySettings)
-      const candidates = equipment
-        .map((item) => {
+      const preparedItems = equipment.map((item) => {
           const level = getItemLevel(item)
           const priceGp = getItemPriceGp(item)
           const rarity = String(item.rarity || 'common').toLowerCase()
@@ -642,19 +669,28 @@ export default function LootGenerator({ onBackHome }) {
             priceGp,
             isTreasure,
             baseWeight: rarityWeight * categoryWeight,
+            hasRarityMatch: rarityWeight > 0,
+            hasCategoryMatch: categoryWeight > 0,
+            hasLevelMatch: isItemInLevelRange({ ...item, level, isTreasure }, levelRange),
+            hasPriceMatch: priceGp > 0,
           }
         })
-        .filter(
-          (item) =>
-            isItemInLevelRange(item, levelRange) &&
-            item.priceGp > 0 &&
-            item.baseWeight > 0,
-        )
+      const diagnostics = {
+        total: preparedItems.length,
+        rarityMatches: preparedItems.filter((item) => item.hasRarityMatch).length,
+        categoryMatches: preparedItems.filter((item) => item.hasCategoryMatch).length,
+        levelMatches: preparedItems.filter((item) => item.hasLevelMatch).length,
+        pricedMatches: preparedItems.filter((item) => item.hasPriceMatch).length,
+        finalMatches: preparedItems.filter(
+          (item) => item.hasLevelMatch && item.hasPriceMatch && item.baseWeight > 0,
+        ).length,
+      }
+      const candidates = preparedItems.filter(
+        (item) => item.hasLevelMatch && item.hasPriceMatch && item.baseWeight > 0,
+      )
 
       if (candidates.length === 0) {
-        setLootError(
-          `No imported items match enabled rarities, enabled categories, a nonzero GP value, and ${formatLevelRange(levelRange).toLowerCase()} for non-treasure items. Re-import equipment if your records do not have level/category data yet.`,
-        )
+        setLootError(formatFilterDiagnostic(diagnostics))
         return
       }
 
@@ -662,19 +698,19 @@ export default function LootGenerator({ onBackHome }) {
 
       if (uniqueCandidateCount < minItemCount) {
         setLootError(
-          `Only ${uniqueCandidateCount} matching item${uniqueCandidateCount === 1 ? '' : 's'} are available, but the minimum is ${minItemCount}. Lower the item count or broaden the filters.`,
+          `Only ${uniqueCandidateCount} matching item${uniqueCandidateCount === 1 ? '' : 's'} are available, but the minimum is ${minItemCount}. This is an item count/category/rarity constraint, not a GP target issue. Lower the item count or broaden the filters.`,
         )
         return
       }
 
-      const draft = createWeightedLootDraft(candidates, gpBudget, minItemCount, maxItemCount)
+      const draft = createWeightedLootDraft(candidates, gpBudget, minItemCount, maxItemCount, gpToleranceRatio)
       if (!draft) {
-        setLootError('Could not build a loot draft from the current matching items. Broaden the filters or lower the item count.')
+        setLootError('Could not build a loot draft from the current matching items. This is likely an item count or GP constraint. Broaden the filters, lower the item count, or increase allowed GP drift.')
         return
       }
 
       setLootDraft(draft)
-      setLootStatus(getLootStatus(draft, gpBudget))
+      setLootStatus(getLootStatus(draft, gpBudget, gpTolerancePercent))
     } catch (error) {
       setLootError(error.message || 'Loot generation failed.')
     } finally {
@@ -686,6 +722,7 @@ export default function LootGenerator({ onBackHome }) {
     setTargetLevel(DEFAULT_TARGET_LEVEL)
     setLevelSpread(DEFAULT_LEVEL_SPREAD)
     setGpBudget(DEFAULT_GP_BUDGET)
+    setGpTolerancePercent(DEFAULT_GP_TOLERANCE_PERCENT)
     setMinItemCount(DEFAULT_MIN_ITEM_COUNT)
     setMaxItemCount(DEFAULT_MAX_ITEM_COUNT)
     setTreasureDropsEnabled(DEFAULT_TREASURE_DROPS_ENABLED)
@@ -803,6 +840,30 @@ export default function LootGenerator({ onBackHome }) {
             />
             <p className="loot-field-hint">
               Use this as a target value, not an exact promise.
+            </p>
+          </div>
+
+          <div className="loot-field">
+            <label htmlFor="loot-gp-tolerance">Allowed GP drift</label>
+            <div className="loot-tolerance-value">
+              <strong>{gpTolerancePercent}%</strong>
+              <span>
+                {formatGp(gpToleranceRange.minimum)} to {formatGp(gpToleranceRange.maximum)}
+              </span>
+            </div>
+            <input
+              id="loot-gp-tolerance"
+              className="loot-budget-slider"
+              type="range"
+              min={MIN_GP_TOLERANCE_PERCENT}
+              max={MAX_GP_TOLERANCE_PERCENT}
+              step="1"
+              value={gpTolerancePercent}
+              onChange={(event) => setGpTolerancePercent(parseGpTolerance(event.target.value))}
+              aria-label="Allowed GP drift"
+            />
+            <p className="loot-field-hint">
+              Results inside this range count as a good GP match; outside it shows the closest available draft.
             </p>
           </div>
 
@@ -983,6 +1044,10 @@ export default function LootGenerator({ onBackHome }) {
               <strong>{lootDraft ? formatGp(generatedTotalValue) : '-'}</strong>
             </article>
             <article className="loot-summary-card">
+              <span>GP Drift</span>
+              <strong>{gpTolerancePercent}%</strong>
+            </article>
+            <article className="loot-summary-card">
               <span>Items</span>
               <strong>{formatItemCountRange(minItemCount, maxItemCount)}</strong>
             </article>
@@ -1028,9 +1093,15 @@ export default function LootGenerator({ onBackHome }) {
                   <div>
                     <span>0</span>
                     <span>{formatGp(gpBudget)}</span>
-                    <span>{formatGp(gpBudget * 1.15)}</span>
+                    <span>{formatGp(gpToleranceRange.maximum)}</span>
                   </div>
-                  <div className="loot-value-meter-track">
+                  <div
+                    className="loot-value-meter-track"
+                    style={{
+                      '--tolerance-start': gpToleranceBandStart,
+                      '--tolerance-width': gpToleranceBandWidth,
+                    }}
+                  >
                     <span style={{ width: `${generatedBudgetPercent}%` }} />
                   </div>
                 </div>
