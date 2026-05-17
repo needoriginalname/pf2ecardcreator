@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   MdAdd,
+  MdAddCircle,
   MdArrowBack,
   MdClose,
   MdDelete,
   MdGroups,
   MdHealing,
+  MdLocalFireDepartment,
   MdPlayArrow,
+  MdPsychology,
   MdRefresh,
   MdRemove,
   MdSave,
@@ -14,6 +17,8 @@ import {
   MdSkipNext,
   MdSkipPrevious,
   MdTune,
+  MdVisibilityOff,
+  MdAccessibility,
 } from 'react-icons/md'
 
 const STORAGE_KEY = 'pf2e-initiative-tracker-v1'
@@ -711,9 +716,10 @@ function HpMeter({ participant }) {
 
   const maxHp = Math.max(0, participant.maxHp)
   const hpPercent = maxHp > 0 ? clampNumber((participant.currentHp / maxHp) * 100, 0, 100) : 0
+  const hpState = hpPercent <= 25 ? 'is-critical' : hpPercent <= 50 ? 'is-wounded' : 'is-steady'
 
   return (
-    <div className="tracker-hp-meter">
+    <div className={`tracker-hp-meter ${hpState}`}>
       <div className="tracker-hp-bar" aria-hidden="true">
         <span style={{ width: `${hpPercent}%` }} />
       </div>
@@ -1215,15 +1221,22 @@ function CombatantTile({
       <div className="combatant-tile-top">
         <span className="initiative-rank">{index + 1}</span>
         <div>
-          <strong>{getParticipantName(participant)}</strong>
+          <strong>
+            {getParticipantName(participant)}
+            {isActive && <span className="active-turn-chip">Now Acting</span>}
+          </strong>
           <span>
-            {getKindLabel(participant.kind)} - Init {participant.initiative}
+            {getKindLabel(participant.kind)}
             {participant.kind !== 'player' ? ` (${formatSigned(participant.initiativeModifier)})` : ''}
           </span>
         </div>
       </div>
 
       <div className="combatant-core-stats">
+        <article>
+          <span>Init</span>
+          <strong>{participant.initiative}</strong>
+        </article>
         <article>
           <span>AC</span>
           <strong>{participant.ac || '-'}</strong>
@@ -1344,31 +1357,41 @@ function ActionMenu({
     {
       id: 'shield',
       label: hasRaisedShield ? 'Drop Shield' : 'Raise Shield',
+      Icon: MdShield,
       active: hasRaisedShield,
       onClick: onToggleRaisedShield,
     },
     {
       id: 'frightened',
       label: frightened ? 'Remove Frightened' : 'Frightened 1',
+      Icon: MdPsychology,
       active: Boolean(frightened),
       onClick: () => onToggleCondition(QUICK_CONDITIONS.frightened),
     },
     {
       id: 'prone',
       label: hasProne ? 'Stand Up' : 'Prone',
+      Icon: MdAccessibility,
       active: hasProne,
       onClick: () => onToggleCondition(QUICK_CONDITIONS.prone),
     },
     {
       id: 'off-guard',
       label: hasOffGuard ? 'Remove Off-guard' : 'Off-guard',
+      Icon: MdVisibilityOff,
       active: hasOffGuard,
       onClick: () => onToggleCondition(QUICK_CONDITIONS.offGuard),
     },
-    { id: 'hp', label: 'HP', active: panel === 'hp', onClick: () => setPanel('hp') },
-    { id: 'modifier', label: 'Modifier', active: panel === 'modifier', onClick: () => setPanel('modifier') },
-    { id: 'condition', label: 'Condition', active: panel === 'condition', onClick: () => setPanel('condition') },
-    { id: 'persistent', label: 'Persistent', active: panel === 'persistent', onClick: () => setPanel('persistent') },
+    { id: 'hp', label: 'HP', Icon: MdHealing, active: panel === 'hp', onClick: () => setPanel('hp') },
+    { id: 'modifier', label: 'Modifier', Icon: MdTune, active: panel === 'modifier', onClick: () => setPanel('modifier') },
+    { id: 'condition', label: 'Condition', Icon: MdAddCircle, active: panel === 'condition', onClick: () => setPanel('condition') },
+    {
+      id: 'persistent',
+      label: 'Persistent',
+      Icon: MdLocalFireDepartment,
+      active: panel === 'persistent',
+      onClick: () => setPanel('persistent'),
+    },
   ]
   const segmentSize = 360 / radialActions.length
   const selectedAction = radialActions.find((action) => action.active)
@@ -1393,12 +1416,14 @@ function ActionMenu({
               const endAngle = (index + 1) * segmentSize - RADIAL_GAP_DEGREES / 2
               const midAngle = startAngle + (endAngle - startAngle) / 2
               const labelPoint = getRadialPoint(midAngle, RADIAL_LABEL_RADIUS)
+              const iconPoint = getRadialPoint(midAngle, RADIAL_LABEL_RADIUS - 28)
               const labelLines = splitRadialLabel(action.label)
+              const Icon = action.Icon
 
               return (
                 <g
                   key={action.id}
-                  className={`radial-menu-item ${action.active ? 'is-active' : ''}`}
+                  className={`radial-menu-item radial-action-${action.id} ${action.active ? 'is-active' : ''}`}
                   role="menuitem"
                   tabIndex="0"
                   aria-label={action.label}
@@ -1412,6 +1437,15 @@ function ActionMenu({
                   }}
                 >
                   <path d={getRadialSegmentPath(startAngle, endAngle)} />
+                  <foreignObject
+                    x={iconPoint.x - 10}
+                    y={iconPoint.y - 10}
+                    width="20"
+                    height="20"
+                    className="radial-menu-icon"
+                  >
+                    <Icon aria-hidden="true" />
+                  </foreignObject>
                   <text x={labelPoint.x} y={labelPoint.y} textAnchor="middle" dominantBaseline="middle">
                     {labelLines.map((line, lineIndex) => (
                       <tspan
@@ -1429,10 +1463,10 @@ function ActionMenu({
             <g className="radial-menu-center" onPointerDown={(event) => event.stopPropagation()}>
               <circle className="radial-menu-center-disc" cx={RADIAL_CENTER} cy={RADIAL_CENTER} r={RADIAL_INNER_RADIUS - 10} />
               <text className="radial-menu-center-text" x={RADIAL_CENTER} y={RADIAL_CENTER - 6} textAnchor="middle">
-                {selectedAction?.label ?? getParticipantName(participant)}
+                {getParticipantName(participant)}
               </text>
               <text className="radial-menu-center-subtext" x={RADIAL_CENTER} y={RADIAL_CENTER + 13} textAnchor="middle">
-                Tap action
+                {selectedAction?.label ?? 'Tap action'}
               </text>
             </g>
           </svg>
