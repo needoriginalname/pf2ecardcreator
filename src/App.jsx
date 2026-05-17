@@ -25,6 +25,25 @@ const getCurrentRoute = () => {
   return window.location.hash || TOOL_ROUTES.home
 }
 
+function LoadingPage({ label }) {
+  return (
+    <main className="loading-shell" aria-live="polite" aria-busy="true">
+      <div className="loading-card">
+        <div className="loading-orbit" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+        <div>
+          <p className="loading-kicker">Opening tool</p>
+          <h1>{label}</h1>
+          <p>Preparing the workspace...</p>
+        </div>
+      </div>
+    </main>
+  )
+}
+
 function App() {
   const [route, setRoute] = useState(getCurrentRoute)
 
@@ -86,7 +105,7 @@ function App() {
 
   if (route === TOOL_ROUTES.printableCards) {
     return (
-      <Suspense fallback={<main className="loading-shell">Loading Printable Card Generator...</main>}>
+      <Suspense fallback={<LoadingPage label="Printable Card Generator" />}>
         <PrintableCardGenerator onBackHome={() => navigate(TOOL_ROUTES.home)} />
       </Suspense>
     )
@@ -94,7 +113,7 @@ function App() {
 
   if (route === TOOL_ROUTES.lootGenerator) {
     return (
-      <Suspense fallback={<main className="loading-shell">Loading Loot Generator...</main>}>
+      <Suspense fallback={<LoadingPage label="Loot Generator" />}>
         <LootGenerator onBackHome={() => navigate(TOOL_ROUTES.home)} />
       </Suspense>
     )
@@ -102,7 +121,7 @@ function App() {
 
   if (route === TOOL_ROUTES.initiativeTracker) {
     return (
-      <Suspense fallback={<main className="loading-shell">Loading Initiative Tracker...</main>}>
+      <Suspense fallback={<LoadingPage label="Initiative Tracker" />}>
         <InitiativeTracker onBackHome={() => navigate(TOOL_ROUTES.home)} />
       </Suspense>
     )
@@ -110,7 +129,7 @@ function App() {
 
   if (route === TOOL_ROUTES.equipmentImporter) {
     return (
-      <Suspense fallback={<main className="loading-shell">Loading Equipment Importer...</main>}>
+      <Suspense fallback={<LoadingPage label="Equipment Importer" />}>
         <EquipmentImporter onBackHome={() => navigate(TOOL_ROUTES.home)} />
       </Suspense>
     )
