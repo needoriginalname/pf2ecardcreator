@@ -103,6 +103,8 @@
 }
 
 .tool-card {
+  position: relative;
+  overflow: hidden;
   min-height: 144px;
   display: grid;
   grid-template-columns: 52px minmax(0, 1fr) 32px;
@@ -119,9 +121,17 @@
   box-sizing: border-box;
 }
 
+.tool-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: var(--tool-accent, #20311c);
+}
+
 .tool-card-primary:hover {
-  border-color: #20311c;
-  background: #f6f9f2;
+  border-color: var(--tool-accent, #20311c);
+  background: var(--tool-hover, #f6f9f2);
   color: #20311c;
 }
 
@@ -137,8 +147,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  background: #eef2ea;
-  color: #20311c;
+  background: var(--tool-icon-bg, #eef2ea);
+  color: var(--tool-accent, #20311c);
 }
 
 .tool-card-icon svg {
@@ -168,10 +178,35 @@
   width: 26px;
   height: 26px;
   justify-self: end;
+  color: var(--tool-accent, #20311c);
+}
+
+.tool-card-print {
+  --tool-accent: #2d5b8f;
+  --tool-icon-bg: #eaf1f8;
+  --tool-hover: #f4f8fc;
+}
+
+.tool-card-loot {
+  --tool-accent: #826325;
+  --tool-icon-bg: #f6eedc;
+  --tool-hover: #fbf7ee;
+}
+
+.tool-card-initiative {
+  --tool-accent: #596f36;
+  --tool-icon-bg: #edf3e2;
+  --tool-hover: #f5f9ef;
+}
+
+.home-footer {
+  margin-top: 28px;
+  padding: 18px 0 0;
+  border-top: 1px solid rgba(32, 49, 28, 0.14);
 }
 
 .home-contact-note {
-  margin-top: 18px;
+  margin: 0;
   color: #60705b;
   font-size: 0.9rem;
   line-height: 1.4;
@@ -183,6 +218,10 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  .home-footer {
+    border-top-color: rgba(223, 232, 216, 0.22);
+  }
+
   .home-contact-note {
     color: #dfe8d8;
   }

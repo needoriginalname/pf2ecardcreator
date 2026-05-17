@@ -27,7 +27,7 @@ export default function HomePage({ onOpenInitiativeTracker, onOpenLootGenerator,
         <div className="tool-grid">
           <button
             type="button"
-            className="tool-card tool-card-primary"
+            className="tool-card tool-card-primary tool-card-print"
             onClick={() => onOpenPrintableCards()}
           >
             <span className="tool-card-icon" aria-hidden="true">
@@ -44,7 +44,7 @@ export default function HomePage({ onOpenInitiativeTracker, onOpenLootGenerator,
 
           <button
             type="button"
-            className="tool-card tool-card-primary"
+            className="tool-card tool-card-primary tool-card-loot"
             onClick={() => onOpenLootGenerator()}
           >
             <span className="tool-card-icon" aria-hidden="true">
@@ -61,7 +61,7 @@ export default function HomePage({ onOpenInitiativeTracker, onOpenLootGenerator,
 
           <button
             type="button"
-            className="tool-card tool-card-primary"
+            className="tool-card tool-card-primary tool-card-initiative"
             onClick={() => onOpenInitiativeTracker()}
           >
             <span className="tool-card-icon" aria-hidden="true">
@@ -76,14 +76,16 @@ export default function HomePage({ onOpenInitiativeTracker, onOpenLootGenerator,
             <MdChevronRight className="tool-card-arrow" aria-hidden="true" />
           </button>
         </div>
+      </section>
 
+      <footer className="home-footer">
         <p className="home-contact-note">
           Suggestions or bug reports:{' '}
           <a href="mailto:needoriginalname@gmail.com?subject=NeedOriginalPf2eTools">
             needoriginalname@gmail.com
           </a>
         </p>
-      </section>
+      </footer>
     </main>
   )
 }

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import {
   MdArrowBack,
   MdAutoAwesome,
+  MdContentCopy,
   MdDelete,
   MdExpandMore,
   MdRefresh,
@@ -538,6 +539,22 @@ const countUniqueLootCandidates = (items) => new Set(items.map(getLootUniqueness
 
 const formatGeneratedItemLevel = (item) => (item.isTreasure ? 'Any level' : `Level ${formatLevel(item.level)}`)
 
+const formatLootDraftForClipboard = (draft, targetGp) => {
+  if (!draft) return ''
+
+  const lines = [
+    `Generated Loot - ${formatGp(draft.totalValue)} total`,
+    `Target: ${formatGp(targetGp)} (${Math.round(draft.differenceRatio * 100)}% off)`,
+    '',
+    ...draft.items.map(
+      (item) =>
+        `- ${item.name} (${formatGeneratedItemLevel(item)}, ${labelFromId(item.rarity)}, ${formatGp(item.priceGp)})`,
+    ),
+  ]
+
+  return lines.join('\n')
+}
+
 const flattenSettingWeights = (settings) =>
   Object.entries(settings).reduce((weights, [id, setting]) => {
     const nextWeights = {
@@ -779,6 +796,7 @@ export default function LootGenerator({ onBackHome }) {
   const [lootStatus, setLootStatus] = useState('')
   const [lootError, setLootError] = useState('')
   const [isGeneratingLoot, setIsGeneratingLoot] = useState(false)
+  const [copyStatus, setCopyStatus] = useState('')
 
   const levelRange = useMemo(() => getLevelRange(targetLevel, levelSpread), [targetLevel, levelSpread])
   const enabledRarityCount = useMemo(() => countEnabledSettings(raritySettings), [raritySettings])
@@ -792,6 +810,8 @@ export default function LootGenerator({ onBackHome }) {
     () => customPresets.find((preset) => preset.id === selectedPresetId),
     [customPresets, selectedPresetId],
   )
+  const selectedPresetName = selectedBuiltInPreset?.name ?? selectedCustomPreset?.name ?? 'Current weights'
+  const selectedPresetKind = selectedBuiltInPreset ? 'Built-in location' : selectedCustomPreset ? 'Custom preset' : 'Unsaved setup'
   const rarityRows = useMemo(
     () =>
       createSettingRows(RARITY_OPTIONS, raritySettings, (path, nextSetting) => {
@@ -894,6 +914,7 @@ export default function LootGenerator({ onBackHome }) {
     setIsGeneratingLoot(true)
     setLootError('')
     setLootStatus('')
+    setCopyStatus('')
     setLootDraft(null)
 
     try {
@@ -978,6 +999,24 @@ export default function LootGenerator({ onBackHome }) {
     setLootDraft(null)
     setLootStatus('')
     setLootError('')
+    setCopyStatus('')
+  }
+
+  const copyGeneratedLoot = async () => {
+    if (!lootDraft) return
+
+    const text = formatLootDraftForClipboard(lootDraft, gpBudget)
+
+    try {
+      if (typeof navigator === 'undefined' || !navigator.clipboard) {
+        throw new Error('Clipboard API unavailable')
+      }
+
+      await navigator.clipboard.writeText(text)
+      setCopyStatus('Copied loot list.')
+    } catch {
+      setCopyStatus('Could not copy from this browser.')
+    }
   }
 
   return (
@@ -1140,6 +1179,13 @@ export default function LootGenerator({ onBackHome }) {
         <section className="loot-results" aria-label="Loot generator preview">
           <fieldset className="loot-fieldset loot-settings-panel loot-category-settings">
             <legend>Item categories</legend>
+            <div className="loot-category-heading">
+              <div>
+                <p className="loot-panel-kicker">Location weights</p>
+                <h2>{selectedPresetName}</h2>
+              </div>
+              <span>{selectedPresetKind}</span>
+            </div>
             <div className="loot-preset-panel">
               <label className="loot-preset-field" htmlFor="loot-category-preset">
                 <span>Preset</span>
@@ -1249,20 +1295,37 @@ export default function LootGenerator({ onBackHome }) {
                     <p className="loot-panel-kicker">Generated loot</p>
                     <h2>{formatGp(generatedTotalValue)}</h2>
                   </div>
-                  <span>
-                    Target {formatGp(gpBudget)} · {Math.round(lootDraft.differenceRatio * 100)}% off
-                  </span>
+                  <div className="loot-generated-heading-actions">
+                    <span>
+                      Target {formatGp(gpBudget)} - {Math.round(lootDraft.differenceRatio * 100)}% off
+                    </span>
+                    <div>
+                      <button type="button" onClick={copyGeneratedLoot}>
+                        <MdContentCopy aria-hidden="true" />
+                        Copy List
+                      </button>
+                      <button type="button" onClick={generateLoot} disabled={isGeneratingLoot}>
+                        <MdRefresh aria-hidden="true" />
+                        Again
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 {lootStatus && <p className="loot-generation-status">{lootStatus}</p>}
+                {copyStatus && <p className="loot-copy-status">{copyStatus}</p>}
                 <div className="loot-generated-list">
                   {lootDraft.items.map((item) => (
                     <article key={item.slug} className="loot-generated-item">
                       <div>
                         <h3>{item.name}</h3>
-                        <p>
-                          {formatGeneratedItemLevel(item)} · {labelFromId(item.rarity)} · {labelFromId(item.type)}
-                        </p>
-                        <p>{(item.lootCategories ?? []).map(labelFromId).join(', ') || 'Uncategorized'}</p>
+                        <div className="loot-generated-chips">
+                          <span>{formatGeneratedItemLevel(item)}</span>
+                          <span className={`loot-rarity-chip rarity-${String(item.rarity || 'common').toLowerCase()}`}>
+                            {labelFromId(item.rarity)}
+                          </span>
+                          <span>{labelFromId(item.type)}</span>
+                        </div>
+                        <p>{(item.lootCategories ?? []).slice(0, 5).map(labelFromId).join(', ') || 'Uncategorized'}</p>
                       </div>
                       <strong>{formatGp(item.priceGp)}</strong>
                     </article>
@@ -1270,7 +1333,7 @@ export default function LootGenerator({ onBackHome }) {
                 </div>
               </div>
             ) : (
-              <div>
+              <div className="loot-empty-panel">
                 <p className="loot-panel-kicker">Next step</p>
                 <h2>Item selection will use this setup.</h2>
                 <p>
@@ -1293,6 +1356,9 @@ export default function LootGenerator({ onBackHome }) {
                       </span>
                     )
                   })}
+                  <span className={treasureDropsEnabled ? '' : 'is-disabled'}>
+                    Treasure drops: {treasureDropsEnabled ? 'allowed' : 'disabled'}
+                  </span>
                 </div>
               </div>
             )}

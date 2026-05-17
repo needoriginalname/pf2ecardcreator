@@ -517,6 +517,32 @@
   font-weight: 700;
 }
 
+.loot-category-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 2px 0 10px;
+}
+
+.loot-category-heading h2 {
+  margin: 0;
+  color: #20311c;
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.loot-category-heading > span {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border: 1px solid #dbe1d6;
+  border-radius: 999px;
+  background: #f6f9f2;
+  color: #33402b;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
 .loot-summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -556,6 +582,9 @@
   display: grid;
   align-items: center;
   padding: 24px;
+  background:
+    linear-gradient(180deg, rgba(246, 249, 242, 0.7), rgba(255, 255, 255, 0) 180px),
+    #fff;
 }
 
 .loot-planning-panel h2 {
@@ -573,6 +602,13 @@
 .loot-generation-status {
   margin-top: 12px;
   color: #33402b;
+  font-weight: 700;
+}
+
+.loot-copy-status {
+  margin: -4px 0 0;
+  color: #60705b;
+  font-size: 0.84rem;
   font-weight: 700;
 }
 
@@ -613,6 +649,31 @@
   font-weight: 700;
 }
 
+.loot-generated-heading-actions {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.loot-generated-heading-actions > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.loot-generated-heading-actions button {
+  min-height: 34px;
+  gap: 5px;
+  padding: 7px 10px;
+  font-size: 0.82rem;
+}
+
+.loot-generated-heading-actions svg {
+  width: 16px;
+  height: 16px;
+}
+
 .loot-generated-list {
   display: grid;
   gap: 10px;
@@ -623,8 +684,11 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
   align-items: start;
-  padding: 12px 0;
-  border-top: 1px solid #edf1e9;
+  padding: 14px;
+  border: 1px solid #e3e8df;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 1px 4px rgba(32, 49, 28, 0.06);
 }
 
 .loot-generated-item h3 {
@@ -636,7 +700,7 @@
 
 .loot-generated-item p {
   width: auto;
-  margin-top: 4px;
+  margin: 8px 0 0;
   font-size: 0.84rem;
   line-height: 1.4;
 }
@@ -644,6 +708,54 @@
 .loot-generated-item strong {
   color: #20311c;
   white-space: nowrap;
+}
+
+.loot-generated-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.loot-generated-chips span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border: 1px solid #dbe1d6;
+  border-radius: 999px;
+  background: #f6f9f2;
+  color: #33402b;
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.loot-generated-chips .loot-rarity-chip {
+  border-color: #cfd9c8;
+  background: #edf3e8;
+}
+
+.loot-generated-chips .rarity-uncommon {
+  border-color: #cbd8e8;
+  background: #eef5fb;
+  color: #284867;
+}
+
+.loot-generated-chips .rarity-rare {
+  border-color: #dccdeb;
+  background: #f6effb;
+  color: #5a3273;
+}
+
+.loot-generated-chips .rarity-unique {
+  border-color: #ead5b4;
+  background: #fff6e6;
+  color: #7a5314;
+}
+
+.loot-empty-panel {
+  padding: 6px 0;
 }
 
 .loot-rarity-preview {
@@ -710,13 +822,25 @@
     flex: 1 1 120px;
   }
 
+  .loot-category-heading,
   .loot-generated-heading,
   .loot-generated-item {
     grid-template-columns: 1fr;
   }
 
+  .loot-category-heading,
   .loot-generated-heading {
     display: grid;
+  }
+
+  .loot-category-heading > span,
+  .loot-generated-heading-actions {
+    justify-self: start;
+    justify-items: start;
+  }
+
+  .loot-generated-heading-actions > div {
+    justify-content: flex-start;
   }
 }
 
